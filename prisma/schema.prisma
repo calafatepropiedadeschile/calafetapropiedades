@@ -1,0 +1,93 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  titleEs     String
+  titleEn     String?
+  descriptionEs String
+  descriptionEn String?
+  price       Float
+  priceType   String   @default("venta")
+  currency    String   @default("USD")
+  zoneEs      String
+  zoneEn      String?
+  cityEs      String
+  cityEn      String?
+  address     String?
+  province    String?
+  country     String?  @default("Espana")
+  marketRegion String  @default("latam")
+  postalCode  String?
+  addressVisibility String @default("zona")
+  latitude    Float?
+  longitude   Float?
+  type        String
+  status      String   @default("disponible")
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  featuredBeforeUnpublish Boolean @default(false)
+  bedrooms    Int?
+  bathrooms   Int?
+  area        Float?
+  totalArea   Float?
+  builtArea   Float?
+  yearBuilt   Int?
+  expenses    Float?
+  parking     Int?
+  internalCode String?
+  agentName   String?
+  agentPhone  String?
+  agentEmail  String?
+  frontage    Float?
+  depth       Float?
+  zoning      String?
+  services    String   @default("[]")
+  amenities   String   @default("[]")
+  images      String   @default("[]")
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  leads       Lead[]
+
+  @@index([published, featured, createdAt])
+  @@index([published, type, priceType])
+  @@index([published, marketRegion])
+  @@index([published, country])
+  @@index([published, zoneEs])
+  @@index([published, zoneEn])
+  @@index([published, price])
+  @@index([published, bedrooms])
+}
+
+model Lead {
+  id         String    @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  message    String?
+  status     String    @default("pendiente")
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id])
+  createdAt  DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([propertyId])
+  @@index([status, createdAt])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}

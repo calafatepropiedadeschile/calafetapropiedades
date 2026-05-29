@@ -1,0 +1,70 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.image {
+  aspect-ratio: 4/3;
+  background: var(--color-dark-4);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.body {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.price {
+  height: 28px;
+  width: 40%;
+  background: var(--color-dark-4);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite 0.1s;
+}
+
+.title {
+  height: 16px;
+  width: 90%;
+  background: var(--color-dark-4);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite 0.2s;
+}
+
+.titleShort {
+  height: 16px;
+  width: 65%;
+  background: var(--color-dark-4);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite 0.25s;
+}
+
+.location {
+  height: 12px;
+  width: 50%;
+  background: var(--color-dark-4);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite 0.3s;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border-light);
+  margin-block: var(--space-xs);
+}
+
+.specs {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.spec {
+  height: 12px;
+  width: 50px;
+  background: var(--color-dark-4);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite 0.4s;
+}
