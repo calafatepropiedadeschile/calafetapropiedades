@@ -59,14 +59,6 @@ export default function SeoCatalogLanding({
           <p className="text-muted" style={{ fontSize: '1.05rem', lineHeight: 1.75, maxWidth: '760px' }}>
             {description}
           </p>
-          <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap', marginTop: 'var(--space-xl)' }}>
-            <Link href={config.primaryCta.href} className="btn btn-primary">
-              {config.primaryCta.label}
-            </Link>
-            <Link href={config.secondaryCta.href} className="btn btn-outline">
-              {config.secondaryCta.label}
-            </Link>
-          </div>
         </div>
 
         <aside style={{
