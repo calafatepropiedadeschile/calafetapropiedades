@@ -475,7 +475,7 @@ export default function Navbar() {
                     <ul className="mobile-nav-submenu" role="list">
                       <li>
                         <Link href={item.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
-                          Ver todo {item.label}
+                          Ver todos
                         </Link>
                       </li>
                       {item.subItems.map((subItem) => (
