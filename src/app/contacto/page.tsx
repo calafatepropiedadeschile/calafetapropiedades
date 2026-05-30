@@ -1,17 +1,72 @@
 import type { Metadata } from 'next';
+import { auth } from '@/lib/auth/auth';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ContactForm from '@/components/forms/ContactForm';
-import { DEFAULT_LOCALE } from '@/lib/i18n/config';
+import WhatsAppButton from '@/components/marketing/WhatsAppButton';
+import StaticPageContent from '@/components/site/StaticPageContent';
+import { getPublishedStaticPageBySlug, getStaticPageBySlugForAdmin } from '@/features/site-content/static-page';
+import { DEFAULT_LOCALE, isSupportedLocale, type Locale } from '@/lib/i18n/config';
 import { siteConfig } from '@/config/site';
+import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
 
-export const metadata: Metadata = {
-  title: `Contacto - ${siteConfig.name}`,
-  description: `Ponte en contacto con ${siteConfig.name} para comprar, vender, alquilar o invertir en propiedades.`,
-};
+interface Props {
+  searchParams: Promise<{ lang?: string }>;
+}
 
-export default async function ContactPage() {
-  const locale = DEFAULT_LOCALE;
+function getLocaleFromParam(value: string | undefined): Locale {
+  return isSupportedLocale(value) ? value : DEFAULT_LOCALE;
+}
+
+async function getContactCms(locale: Locale, isAdmin: boolean) {
+  const published = await getPublishedStaticPageBySlug('contacto', locale);
+  if (published) return published;
+  if (!isAdmin) return null;
+  return getStaticPageBySlugForAdmin('contacto', locale);
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const params = await searchParams;
+  const locale = getLocaleFromParam(params.lang);
+  const session = await auth();
+  const cms = await getContactCms(locale, session?.user?.role === 'admin');
+  const siteSeo = await getSiteSeoSettings().catch(() => null);
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const title = cms?.seoTitle ? cms.seoTitle : `Contacto - ${siteConfig.name}`;
+  const description = cms?.seoDescription ?? `Ponte en contacto con ${siteConfig.name} para comprar, vender, alquilar o invertir en propiedades.`;
+  const canonical = cms?.customCanonical || `${baseUrl}/contacto${locale === 'en' ? '?lang=en' : ''}`;
+  const image = cms?.ogImage || siteSeo?.defaultOgImage || undefined;
+
+  return {
+    title,
+    description,
+    robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      images: image ? [{ url: image }] : [],
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: image ? [image] : [],
+    },
+  };
+}
+
+export default async function ContactPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const locale = getLocaleFromParam(params.lang);
+  const session = await auth();
+  const cms = await getContactCms(locale, session?.user?.role === 'admin');
+
+  const heroTitle = cms?.title ?? 'Contactanos';
+  const heroSubtitle = cms
+    ? null
+    : 'Estamos aqui para guiarte en cada paso. Escribenos y nuestro equipo te respondera con una propuesta concreta.';
 
   return (
     <>
@@ -20,50 +75,64 @@ export default async function ContactPage() {
         paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))',
         backgroundColor: 'var(--color-surface-2)',
         minHeight: '100vh',
-        paddingBottom: 'var(--space-4xl)'
-      }}>
+        paddingBottom: 'var(--space-4xl)',
+      }}
+      >
         <div style={{
           background: 'linear-gradient(135deg, #1A1A1A 0%, #2B2B2B 100%)',
           color: '#ffffff',
           padding: 'var(--space-4xl) 0',
           textAlign: 'center',
-          marginBottom: 'var(--space-4xl)'
-        }}>
+          marginBottom: 'var(--space-4xl)',
+        }}
+        >
           <div className="container">
             <h1 className="heading-1 heading-display" style={{
               color: '#ffffff',
               fontFamily: 'var(--font-admin)',
               fontWeight: 800,
               fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-              marginBottom: 'var(--space-md)'
-            }}>
-              Contactanos
+              marginBottom: 'var(--space-md)',
+            }}
+            >
+              {heroTitle}
             </h1>
-            <p className="text-muted" style={{
-              color: 'rgba(255,255,255,0.7)',
-              maxWidth: '680px',
-              margin: '0 auto',
-              fontSize: '1.15rem'
-            }}>
-              Estamos aqui para guiarte en cada paso. Escribenos y nuestro equipo te respondera con una propuesta concreta.
-            </p>
+            {heroSubtitle && (
+              <p className="text-muted" style={{
+                color: 'rgba(255,255,255,0.7)',
+                maxWidth: '680px',
+                margin: '0 auto',
+                fontSize: '1.15rem',
+              }}
+              >
+                {heroSubtitle}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="container">
+          {cms?.content && (
+            <div style={{ maxWidth: '820px', margin: '0 auto var(--space-3xl)' }}>
+              <StaticPageContent content={cms.content} />
+            </div>
+          )}
+
           <div className="contact-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: 'var(--space-3xl)',
-            alignItems: 'start'
-          }}>
+            alignItems: 'start',
+          }}
+          >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)' }}>
               <h2 className="heading-3" style={{
                 fontFamily: 'var(--font-admin)',
                 fontWeight: 700,
                 color: 'var(--color-dark)',
-                marginBottom: 'var(--space-xs)'
-              }}>
+                marginBottom: 'var(--space-xs)',
+              }}
+              >
                 Contacto directo
               </h2>
               <p className="text-muted" style={{ marginBottom: 'var(--space-md)' }}>
@@ -77,8 +146,9 @@ export default async function ContactPage() {
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-xl)',
                   boxShadow: 'var(--shadow-card)',
-                  transition: 'transform var(--transition-base)'
-                }}>
+                  transition: 'transform var(--transition-base)',
+                }}
+                >
                   <div style={{ display: 'flex', gap: 'var(--space-md)' }}>
                     <div style={{
                       color: 'var(--color-primary)',
@@ -89,8 +159,9 @@ export default async function ContactPage() {
                       height: '48px',
                       borderRadius: 'var(--radius-md)',
                       background: 'var(--color-primary-light)',
-                      flexShrink: 0
-                    }}>
+                      flexShrink: 0,
+                    }}
+                    >
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                     </div>
                     <div>
@@ -98,8 +169,9 @@ export default async function ContactPage() {
                         fontFamily: 'var(--font-admin)',
                         fontSize: '1.25rem',
                         fontWeight: 700,
-                        marginBottom: 'var(--space-xs)'
-                      }}>
+                        marginBottom: 'var(--space-xs)',
+                      }}
+                      >
                         {office.country.es}
                       </h3>
                       <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', fontWeight: 600, marginBottom: 'var(--space-xs)' }}>
@@ -134,9 +206,14 @@ export default async function ContactPage() {
               border: '1px solid var(--color-border-light)',
               borderRadius: 'var(--radius-lg)',
               padding: 'var(--space-2xl)',
-              boxShadow: 'var(--shadow-card)'
-            }}>
+              boxShadow: 'var(--shadow-card)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--space-md)',
+            }}
+            >
               <ContactForm locale={locale} />
+              <WhatsAppButton pageLabel="/contacto" locale={locale} variant="primary" />
             </div>
           </div>
         </div>

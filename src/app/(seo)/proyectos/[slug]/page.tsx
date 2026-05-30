@@ -4,12 +4,20 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import LeadForm from '@/components/forms/LeadForm';
-import { formatArea, formatPrice } from '@/lib/utils/formatters';
+import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
+import PropertyCommercialHighlights from '@/components/properties/PropertyCommercialHighlights';
+import PropertyDescription from '@/components/properties/PropertyDescription';
+import PropertyLandProjectSections from '@/components/properties/PropertyLandProjectSections';
+import { parsePropertyDescription } from '@/features/properties/property-description-content';
+import { formatPropertyPrice } from '@/lib/utils/formatters';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { getStaticPropertyBySlug } from '@/features/properties/property.service';
+import { isRentalPriceType } from '@/features/properties/price-type';
+import { shouldShowPriceFrom } from '@/features/properties/property-land-options';
 import { DEFAULT_LOCALE } from '@/lib/i18n/config';
-import { projectLandingSlugs, siteUrl } from '@/config/seo-pages';
+import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
+import { projectLandingSlugs } from '@/config/seo-pages';
+import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
 
 export const revalidate = 3600;
 
@@ -24,7 +32,10 @@ async function getSafeProject(slug: string) {
 
   try {
     const property = await getStaticPropertyBySlug(slug, DEFAULT_LOCALE);
-    return property?.type === 'terreno' ? property : null;
+    if (property?.type !== 'terreno' || isRentalPriceType(property.priceType)) {
+      return null;
+    }
+    return property;
   } catch (error) {
     console.warn(`Skipping project landing for "${slug}" because the datasource is unavailable.`, error);
     return null;
@@ -38,6 +49,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await getSafeProject(slug);
+  const siteSeo = await getSiteSeoSettings().catch(() => null);
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
 
   if (!project) {
     return {
@@ -45,16 +58,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = `${project.title} | Proyecto de parcelas`;
+  const title = project.seoTitleEs || `${project.title} | Proyecto de parcelas`;
   const description = project.seoDescriptionEs
     || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imagenes y consulta disponibilidad con Calafate Propiedades.`;
-  const canonical = `${siteUrl}/proyectos/${project.slug}`;
-  const image = project.ogImage || project.coverImage || undefined;
+  const canonical = `${baseUrl}/proyectos/${project.slug}`;
+  const image = project.ogImage || project.coverImage || siteSeo?.defaultOgImage || undefined;
 
   return {
     title,
     description,
     alternates: { canonical },
+    robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
     openGraph: {
       title,
       description,
@@ -74,14 +88,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectLandingPage({ params }: Props) {
   const { slug } = await params;
   const project = await getSafeProject(slug);
+  const siteSeo = await getSiteSeoSettings().catch(() => null);
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
 
   if (!project) notFound();
 
+  const locale = DEFAULT_LOCALE;
+  const t = (key: TranslationKey) => translate(locale, key);
+  const parsedDescription = parsePropertyDescription(project.description);
   const heroImage = project.coverImage || getSiteImageUrl(
     'site/project-fallback.webp',
     'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1400&auto=format&fit=crop'
   );
-  const canonical = `${siteUrl}/proyectos/${project.slug}`;
+  const canonical = `${baseUrl}/proyectos/${project.slug}`;
   const projectJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
@@ -128,8 +147,14 @@ export default async function ProjectLandingPage({ params }: Props) {
             <h1 className="heading-2 heading-display" style={{ marginBottom: 'var(--space-md)' }}>
               {project.title}
             </h1>
+            <p className="detail-price" style={{ marginBottom: 'var(--space-md)' }}>
+              {formatPropertyPrice(project.price, project.currency, {
+                priceFrom: shouldShowPriceFrom(project),
+                locale,
+              })}
+            </p>
             <p className="text-muted" style={{ fontSize: '1.06rem', lineHeight: 1.75 }}>
-              {project.description}
+              {[project.zone, project.city, project.province].filter(Boolean).join(', ')}
             </p>
             <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap', marginTop: 'var(--space-xl)' }}>
               <Link href={`/propiedades/${project.slug}`} className="btn btn-primary">
@@ -163,39 +188,31 @@ export default async function ProjectLandingPage({ params }: Props) {
         <section className="container" style={{ paddingBottom: 'var(--space-4xl)' }}>
           <div className="property-detail-layout">
             <div>
-              <div className="detail-specs-grid">
-                <div className="detail-spec-item">
-                  <span className="detail-spec-label">Precio desde</span>
-                  <span className="detail-spec-value">{formatPrice(project.price, project.currency)}</span>
-                </div>
-                <div className="detail-spec-item">
-                  <span className="detail-spec-label">Ubicacion</span>
-                  <span className="detail-spec-value">{[project.zone, project.city, project.province].filter(Boolean).join(', ')}</span>
-                </div>
-                {project.totalArea && (
-                  <div className="detail-spec-item">
-                    <span className="detail-spec-label">Superficie</span>
-                    <span className="detail-spec-value">{formatArea(project.totalArea)}</span>
-                  </div>
-                )}
-                <div className="detail-spec-item">
-                  <span className="detail-spec-label">Estado</span>
-                  <span className="detail-spec-value">{project.status === 'disponible' ? 'Disponible' : project.status}</span>
-                </div>
-              </div>
+              <PropertyCommercialHighlights property={project} locale={locale} title={t('property.commercialSnapshot')} />
 
-              <section style={{ marginTop: 'var(--space-3xl)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 'var(--space-md)' }}>
-                  Informacion del proyecto
-                </h2>
-                <div className="text-muted" style={{ lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-                  {project.description}
-                </div>
-              </section>
+              <PropertyDescription
+                parsed={parsedDescription}
+                sectionTitle={t('property.about')}
+                hint={t('property.descriptionHint')}
+              />
+
+              <h2 className="property-technical-heading">{t('property.technicalDetailsBelow')}</h2>
+              <PropertyLandProjectSections
+                property={project}
+                locale={locale}
+                showProjectBadge={false}
+                showTopHighlights={false}
+              />
             </div>
 
             <aside className="property-contact-panel">
-              <LeadForm propertyId={project.id} propertyTitle={project.title} locale={DEFAULT_LOCALE} />
+              <PropertyLeadPanel
+                propertyId={project.id}
+                propertyTitle={project.title}
+                propertySlug={project.slug}
+                locale={locale}
+                pageLabel={`/proyectos/${project.slug}`}
+              />
             </aside>
           </div>
         </section>

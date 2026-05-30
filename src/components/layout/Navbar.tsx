@@ -6,8 +6,10 @@ import { useEffect, useRef, useState } from 'react';
 import { LANGUAGE_OPTIONS, type Locale } from '@/lib/i18n/config';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { siteConfig } from '@/config/site';
+import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
 
 export default function Navbar() {
+  const { showRentalsLink } = useRentalsNav();
   const [scrolled, setScrolled] = useState(false);
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -15,7 +17,7 @@ export default function Navbar() {
   const popoverRef = useRef<HTMLDivElement>(null);
   const navItems = [
     { href: '/comprar', label: t('nav.buy') },
-    { href: '/arriendos', label: t('nav.rent') },
+    ...(showRentalsLink ? [{ href: '/arriendos', label: t('nav.rent') }] : []),
     { href: '/proyectos', label: t('nav.projects') },
     { href: '/vender', label: t('nav.sell') },
     { href: '/topografia', label: t('nav.topography') },

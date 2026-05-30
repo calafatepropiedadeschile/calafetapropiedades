@@ -17,6 +17,12 @@ import {
   isPropertyMarketRegion,
 } from '@/features/properties/property-markets';
 import { dictionaries } from '@/lib/i18n/dictionaries';
+import PropertyCatalogPublishChecklist from '@/components/admin/PropertyCatalogPublishChecklist';
+import type { CatalogPublishChecklistInput } from '@/features/properties/property-catalog-checklist';
+import {
+  LAND_AMENITY_OPTIONS,
+  LAND_SERVICE_OPTIONS,
+} from '@/features/properties/property-land-options';
 
 interface DefaultValues {
   titleEs?: string;
@@ -24,6 +30,7 @@ interface DefaultValues {
   descriptionEs?: string;
   descriptionEn?: string | null;
   price?: number;
+  priceFrom?: boolean;
   priceType?: string;
   currency?: string;
   zoneEs?: string;
@@ -57,6 +64,24 @@ interface DefaultValues {
   frontage?: number | null;
   depth?: number | null;
   zoning?: string | null;
+  mapUrl?: string | null;
+  virtualTourUrl?: string | null;
+  lotSurfaceM2?: number | null;
+  totalLots?: number | null;
+  availableLots?: number | null;
+  stageName?: string | null;
+  paymentTerms?: string | null;
+  commissionPercent?: number | null;
+  operationalExpenses?: string | null;
+  reservationAmount?: number | null;
+  waterStatus?: string | null;
+  electricityStatus?: string | null;
+  accessType?: string | null;
+  roadType?: string | null;
+  hasOwnRol?: boolean;
+  availabilityNotes?: string | null;
+  commercialNotes?: string | null;
+  distanceHighlights?: string[];
   services?: string[];
   amenities?: string[];
   images?: string[];
@@ -72,6 +97,8 @@ interface DefaultValues {
 interface Props {
   action: (formData: FormData) => Promise<void>;
   defaultValues?: DefaultValues;
+  propertyId?: string;
+  slug?: string;
 }
 
 const AMENITY_OPTIONS = [
@@ -107,17 +134,7 @@ const AMENITY_OPTIONS = [
   { value: 'covered_parking', labelKey: 'property.amenityCoveredParking' },
 ] as const;
 
-const LAND_SERVICE_OPTIONS = [
-  { value: 'water', labelKey: 'property.serviceWater' },
-  { value: 'electricity', labelKey: 'property.serviceElectricity' },
-  { value: 'gas', labelKey: 'property.serviceGas' },
-  { value: 'sewer', labelKey: 'property.serviceSewer' },
-  { value: 'internet', labelKey: 'property.serviceInternet' },
-  { value: 'asphalt', labelKey: 'property.serviceAsphalt' },
-  { value: 'street_lighting', labelKey: 'property.serviceStreetLighting' },
-] as const;
-
-const CURRENCY_VALUES = ['USD', 'EUR', 'MXN', 'CLP', 'CLF'] as const;
+const CURRENCY_VALUES = ['CLP', 'CLF', 'USD'] as const;
 
 function resolveCurrency(value: string | undefined) {
   return CURRENCY_VALUES.includes(value as typeof CURRENCY_VALUES[number])
@@ -203,11 +220,15 @@ function fromTextareaValue(value: string) {
   return value.split('\n').map((url) => url.trim()).filter(Boolean);
 }
 
-function resolveDefaultMarketRegion(country: string | null | undefined, marketRegion: string | null | undefined) {
-  return isPropertyMarketRegion(marketRegion) ? marketRegion : getMarketRegionForCountry(country ?? 'Espana');
+function fromTextLinesValue(value: string) {
+  return value.split('\n').map((line) => line.trim()).filter(Boolean);
 }
 
-export default function PropertyForm({ action, defaultValues = {} }: Props) {
+function resolveDefaultMarketRegion(country: string | null | undefined, marketRegion: string | null | undefined) {
+  return isPropertyMarketRegion(marketRegion) ? marketRegion : getMarketRegionForCountry(country ?? 'Chile');
+}
+
+export default function PropertyForm({ action, defaultValues = {}, propertyId, slug: initialSlug = '' }: Props) {
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -216,6 +237,7 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
   const initialAddress = useMemo(() => splitStreetAddress(defaultValues.address), [defaultValues.address]);
   const [streetName, setStreetName] = useState(initialAddress.streetName);
   const [streetNumber, setStreetNumber] = useState(initialAddress.streetNumber);
+  const [slugValue, setSlugValue] = useState(initialSlug);
 
   const {
     register,
@@ -231,15 +253,16 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
       descriptionEs: defaultValues.descriptionEs ?? '',
       descriptionEn: defaultValues.descriptionEn ?? '',
       price: defaultValues.price ?? 0,
-      priceType: defaultValues.priceType === 'alquiler' ? 'alquiler' : 'venta',
-      currency: resolveCurrency(defaultValues.currency),
+      priceFrom: defaultValues.priceFrom ?? false,
+      priceType: defaultValues.priceType === 'arriendo' ? 'arriendo' : 'venta',
+      currency: resolveCurrency(defaultValues.currency ?? 'CLP'),
       zoneEs: defaultValues.zoneEs ?? '',
       zoneEn: defaultValues.zoneEn ?? '',
       cityEs: defaultValues.cityEs ?? '',
       cityEn: defaultValues.cityEn ?? '',
       address: defaultValues.address ?? null,
       province: defaultValues.province ?? '',
-      country: defaultValues.country ?? 'Espana',
+      country: defaultValues.country ?? 'Chile',
       marketRegion: resolveDefaultMarketRegion(defaultValues.country, defaultValues.marketRegion),
       postalCode: defaultValues.postalCode ?? '',
       addressVisibility: defaultValues.addressVisibility === 'exacta' || defaultValues.addressVisibility === 'aproximada'
@@ -247,12 +270,10 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
         : 'zona',
       latitude: defaultValues.latitude ?? null,
       longitude: defaultValues.longitude ?? null,
-      type: defaultValues.type === 'casa' || defaultValues.type === 'local' || defaultValues.type === 'oficina' || defaultValues.type === 'terreno'
+      type: defaultValues.type === 'casa' || defaultValues.type === 'terreno'
         ? defaultValues.type
-        : defaultValues.type === 'apartamento'
-          ? 'apartamento'
-          : '',
-      status: defaultValues.status === 'vendido' || defaultValues.status === 'alquilado' ? defaultValues.status : 'disponible',
+        : 'terreno',
+      status: defaultValues.status === 'vendido' ? defaultValues.status : 'disponible',
       published: defaultValues.published ?? false,
       featured: defaultValues.featured ?? false,
       bedrooms: defaultValues.bedrooms ?? null,
@@ -270,6 +291,24 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
       frontage: defaultValues.frontage ?? null,
       depth: defaultValues.depth ?? null,
       zoning: defaultValues.zoning ?? '',
+      mapUrl: defaultValues.mapUrl ?? '',
+      virtualTourUrl: defaultValues.virtualTourUrl ?? '',
+      lotSurfaceM2: defaultValues.lotSurfaceM2 ?? defaultValues.totalArea ?? null,
+      totalLots: defaultValues.totalLots ?? null,
+      availableLots: defaultValues.availableLots ?? null,
+      stageName: defaultValues.stageName ?? '',
+      paymentTerms: defaultValues.paymentTerms ?? '',
+      commissionPercent: defaultValues.commissionPercent ?? null,
+      operationalExpenses: defaultValues.operationalExpenses ?? '',
+      reservationAmount: defaultValues.reservationAmount ?? null,
+      waterStatus: defaultValues.waterStatus ?? '',
+      electricityStatus: defaultValues.electricityStatus ?? '',
+      accessType: defaultValues.accessType ?? '',
+      roadType: defaultValues.roadType ?? '',
+      hasOwnRol: defaultValues.hasOwnRol ?? false,
+      availabilityNotes: defaultValues.availabilityNotes ?? '',
+      commercialNotes: defaultValues.commercialNotes ?? '',
+      distanceHighlights: defaultValues.distanceHighlights ?? [],
       services: defaultValues.services ?? [],
       amenities: defaultValues.amenities ?? [],
       images: defaultValues.images ?? [],
@@ -285,9 +324,45 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
 
   const images = useWatch({ control, name: 'images' }) ?? [];
   const coverImage = useWatch({ control, name: 'coverImage' }) ?? '';
+  const distanceHighlights = useWatch({ control, name: 'distanceHighlights' }) ?? [];
   const isPublished = useWatch({ control, name: 'published' }) ?? false;
   const selectedType = useWatch({ control, name: 'type' }) ?? '';
+  const selectedPriceType = useWatch({ control, name: 'priceType' }) ?? 'venta';
+  const soldStatusLabel = selectedPriceType === 'arriendo' ? 'Arrendado' : 'Vendido';
   const selectedCountry = useWatch({ control, name: 'country' }) ?? '';
+  const catalogChecklistValues = useWatch({
+    control,
+    name: [
+      'type',
+      'price',
+      'titleEs',
+      'descriptionEs',
+      'cityEs',
+      'zoneEs',
+      'lotSurfaceM2',
+      'totalArea',
+      'area',
+      'builtArea',
+      'totalLots',
+      'availableLots',
+    ],
+  });
+  const catalogChecklistInput = useMemo<CatalogPublishChecklistInput>(() => ({
+    type: catalogChecklistValues[0] ?? selectedType,
+    price: catalogChecklistValues[1] as number | null | undefined,
+    titleEs: catalogChecklistValues[2],
+    descriptionEs: catalogChecklistValues[3],
+    cityEs: catalogChecklistValues[4],
+    zoneEs: catalogChecklistValues[5],
+    lotSurfaceM2: catalogChecklistValues[6] as number | null | undefined,
+    totalArea: catalogChecklistValues[7] as number | null | undefined,
+    area: catalogChecklistValues[8] as number | null | undefined,
+    builtArea: catalogChecklistValues[9] as number | null | undefined,
+    totalLots: catalogChecklistValues[10] as number | null | undefined,
+    availableLots: catalogChecklistValues[11] as number | null | undefined,
+    images,
+    coverImage,
+  }), [catalogChecklistValues, selectedType, images, coverImage]);
 
   useEffect(() => {
     const nextAddress = [streetName.trim(), streetNumber.trim()].filter(Boolean).join(' ');
@@ -441,12 +516,22 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
               <label htmlFor="prop-title-es" className="input-label">Titulo (Espanol) *</label>
-              <input id="prop-title-es" className="input" placeholder="Ej: Apartamento moderno con vista" {...register('titleEs')} />
+              <input id="prop-title-es" className="input" placeholder="Ej: Parcelas Portal Los Muermos" {...register('titleEs')} />
               {errors.titleEs && <p className="form-error">{errors.titleEs.message}</p>}
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="prop-desc-es" className="input-label">Descripcion (Espanol) *</label>
-              <textarea id="prop-desc-es" className="textarea" rows={4} placeholder="Describe la propiedad con los datos mas importantes en espanol." {...register('descriptionEs')} />
+              <label htmlFor="prop-desc-es" className="input-label">Descripcion comercial (Espanol) *</label>
+              <p className="text-sm text-muted" style={{ margin: '0 0 var(--space-sm)', lineHeight: 1.55 }}>
+                Escribe 2–4 parrafos que vendan la propiedad (ubicacion, perfil de comprador, ventaja del proyecto).
+                Usa las secciones de terreno, condiciones y servicios para datos tecnicos; evita repetir listas largas aqui.
+              </p>
+              <textarea
+                id="prop-desc-es"
+                className="textarea"
+                rows={6}
+                placeholder="Ej: Proyecto de parcelas con vista y acceso pavimentado, pensado para quienes buscan construir a su ritmo en una zona con demanda turistica y residencial..."
+                {...register('descriptionEs')}
+              />
               {errors.descriptionEs && <p className="form-error">{errors.descriptionEs.message}</p>}
             </div>
           </div>
@@ -466,14 +551,11 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           </div>
 
           <div className="input-group">
-            <label className="input-label">Elige el tipo de inmueble *</label>
+              <label className="input-label">Elige el tipo de publicacion *</label>
             <select className="select" {...register('type')}>
               <option value="" disabled>Selecciona</option>
-              <option value="casa">Casa</option>
-              <option value="apartamento">Apartamento</option>
-              <option value="local">Local Comercial</option>
-              <option value="oficina">Oficina</option>
               <option value="terreno">Terreno</option>
+              <option value="casa">Casa</option>
             </select>
             {errors.type && <p className="form-error">{errors.type.message}</p>}
           </div>
@@ -482,8 +564,7 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
             <label className="input-label">Estado *</label>
             <select className="select" {...register('status')}>
               <option value="disponible">Disponible</option>
-              <option value="vendido">Vendido</option>
-              <option value="alquilado">Alquilado</option>
+              <option value="vendido">{soldStatusLabel}</option>
             </select>
           </div>
         </div>
@@ -500,8 +581,8 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
                 <span>Venta</span>
               </label>
               <label className="operation-option">
-                <input type="radio" value="alquiler" {...register('priceType')} />
-                <span>Alquiler</span>
+                <input type="radio" value="arriendo" {...register('priceType')} />
+                <span>Arriendo</span>
               </label>
             </div>
             {errors.priceType && <p className="form-error">{errors.priceType.message}</p>}
@@ -510,18 +591,20 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           <div className="input-group">
             <label className="input-label">Moneda</label>
             <select className="select" {...register('currency')}>
-              <option value="USD">USD (US$)</option>
-              <option value="EUR">EUR (EUR)</option>
-              <option value="MXN">MXN ($)</option>
               <option value="CLP">CLP ($)</option>
               <option value="CLF">UF (CLF)</option>
+              <option value="USD">USD (US$)</option>
             </select>
           </div>
 
           <div className="input-group">
-            <label htmlFor="prop-price" className="input-label">Precio *</label>
-            <input id="prop-price" type="number" className="input" min="0" step="any" placeholder="250000" {...register('price', { valueAsNumber: true })} />
+            <label htmlFor="prop-price" className="input-label">Precio desde *</label>
+            <input id="prop-price" type="number" className="input" min="0" step="any" placeholder={selectedType === 'terreno' ? '900' : '34990000'} {...register('price', { valueAsNumber: true })} />
             {errors.price && <p className="form-error">{errors.price.message}</p>}
+            <label className="form-check" style={{ marginTop: 'var(--space-sm)' }}>
+              <input type="checkbox" {...register('priceFrom')} />
+              Mostrar como &quot;Desde&quot; en la web (recomendado para UF y proyectos)
+            </label>
           </div>
         </div>
       </section>
@@ -534,13 +617,13 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group">
               <label className="input-label">Localidad (Espanol) *</label>
-              <input className="input" placeholder="Ej: Buenos Aires" {...register('cityEs')} />
+              <input className="input" placeholder="Ej: Los Muermos" {...register('cityEs')} />
               {errors.cityEs && <p className="form-error">{errors.cityEs.message}</p>}
             </div>
 
             <div className="input-group">
               <label className="input-label">Zona o barrio (Espanol) *</label>
-              <input className="input" placeholder="Ej: Palermo" {...register('zoneEs')} />
+              <input className="input" placeholder="Ej: Quillahua" {...register('zoneEs')} />
               {errors.zoneEs && <p className="form-error">{errors.zoneEs.message}</p>}
             </div>
           </div>
@@ -561,8 +644,8 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           </div>
 
           <div className="input-group">
-            <label className="input-label">Provincia / Region</label>
-            <input className="input" placeholder="Ej: Buenos Aires" {...register('province')} />
+            <label className="input-label">Region</label>
+            <input className="input" placeholder="Ej: Region de Los Lagos" {...register('province')} />
           </div>
 
           <div className="input-group">
@@ -577,14 +660,9 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           </div>
 
           <div className="input-group">
-            <label className="input-label">Mercado / region</label>
-            <select className="select" {...register('marketRegion')}>
-              {PROPERTY_MARKET_REGIONS.map((marketRegion) => (
-                <option key={marketRegion} value={marketRegion}>
-                  {PROPERTY_MARKET_REGION_LABELS[marketRegion]}
-                </option>
-              ))}
-            </select>
+            <input type="hidden" value="latam" {...register('marketRegion')} />
+            <label className="input-label">Alcance comercial</label>
+            <input className="input" value={PROPERTY_MARKET_REGION_LABELS[PROPERTY_MARKET_REGIONS[0]]} readOnly />
           </div>
 
           <div className="input-group">
@@ -622,43 +700,75 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
               onChange={(event) => setStreetNumber(event.target.value)}
             />
           </div>
+
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Link Google Maps</label>
+            <input className="input" type="url" placeholder="https://maps.app.goo.gl/..." {...register('mapUrl')} />
+            {errors.mapUrl && <p className="form-error">{errors.mapUrl.message}</p>}
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Latitud (mapa embebido)</label>
+            <input
+              type="number"
+              className="input"
+              step="any"
+              placeholder="-41.4693"
+              {...register('latitude', { valueAsNumber: true })}
+            />
+            {errors.latitude && <p className="form-error">{errors.latitude.message}</p>}
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Longitud (mapa embebido)</label>
+            <input
+              type="number"
+              className="input"
+              step="any"
+              placeholder="-72.9424"
+              {...register('longitude', { valueAsNumber: true })}
+            />
+            {errors.longitude && <p className="form-error">{errors.longitude.message}</p>}
+          </div>
         </div>
       </section>
 
-      <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Caracteristicas</h2>
-        <div className="form-grid form-grid-4">
-          <div className="input-group">
-            <label className="input-label">Habitaciones</label>
-            <input type="number" className="input" min="0" step="1" placeholder="3" {...register('bedrooms', { valueAsNumber: true })} />
+      {selectedType === 'casa' && (
+        <section className="admin-form-section">
+          <h2 className="admin-form-section-title">Caracteristicas de vivienda</h2>
+          <div className="form-grid form-grid-4">
+            <div className="input-group">
+              <label className="input-label">Habitaciones</label>
+              <input type="number" className="input" min="0" step="1" placeholder="3" {...register('bedrooms', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Banos</label>
+              <input type="number" className="input" min="0" step="1" placeholder="2" {...register('bathrooms', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Superficie construida (m2)</label>
+              <input type="number" className="input" min="0" step="any" placeholder="120" {...register('builtArea', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Superficie total (m2)</label>
+              <input type="number" className="input" min="0" step="any" placeholder="180" {...register('totalArea', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Estacionamiento</label>
+              <input type="number" className="input" min="0" step="1" placeholder="1" {...register('parking', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Ano de construccion</label>
+              <input type="number" className="input" min="1800" max="2100" step="1" placeholder="2018" {...register('yearBuilt', { valueAsNumber: true })} />
+              {errors.yearBuilt && <p className="form-error">{errors.yearBuilt.message}</p>}
+            </div>
+            <div className="input-group">
+              <label className="input-label">Gastos comunes</label>
+              <input type="number" className="input" min="0" step="any" placeholder="50000" {...register('expenses', { valueAsNumber: true })} />
+            </div>
           </div>
-          <div className="input-group">
-            <label className="input-label">Banos</label>
-            <input type="number" className="input" min="0" step="1" placeholder="2" {...register('bathrooms', { valueAsNumber: true })} />
-          </div>
-          <div className="input-group">
-            <label className="input-label">Superficie (m2)</label>
-            <input type="number" className="input" min="0" step="any" placeholder="120" {...register('builtArea', { valueAsNumber: true })} />
-          </div>
-          <div className="input-group">
-            <label className="input-label">Superficie total (m2)</label>
-            <input type="number" className="input" min="0" step="any" placeholder="180" {...register('totalArea', { valueAsNumber: true })} />
-          </div>
-          <div className="input-group">
-            <label className="input-label">Estacionamiento</label>
-            <input type="number" className="input" min="0" step="1" placeholder="1" {...register('parking', { valueAsNumber: true })} />
-          </div>
-          <div className="input-group">
-            <label className="input-label">Ano de construccion</label>
-            <input type="number" className="input" min="1800" max="2100" step="1" placeholder="2018" {...register('yearBuilt', { valueAsNumber: true })} />
-            {errors.yearBuilt && <p className="form-error">{errors.yearBuilt.message}</p>}
-          </div>
-          <div className="input-group">
-            <label className="input-label">Expensas / comunidad</label>
-            <input type="number" className="input" min="0" step="any" placeholder="50000" {...register('expenses', { valueAsNumber: true })} />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {selectedType === 'terreno' && (
         <section className="admin-form-section">
@@ -676,6 +786,47 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
               <label className="input-label">Zonificacion / uso permitido</label>
               <input className="input" placeholder="Ej: Residencial, comercial, rural" {...register('zoning')} />
             </div>
+            <div className="input-group">
+              <label className="input-label">Superficie por lote (m2)</label>
+              <input type="number" className="input" min="0" step="any" placeholder="5000" {...register('lotSurfaceM2', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Total de lotes</label>
+              <input type="number" className="input" min="0" step="1" placeholder="35" {...register('totalLots', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Lotes disponibles</label>
+              <input type="number" className="input" min="0" step="1" placeholder="5" {...register('availableLots', { valueAsNumber: true })} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Etapa</label>
+              <input className="input" placeholder="Ej: Etapa 1 / Etapa 2" {...register('stageName')} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Tour virtual 360</label>
+              <input className="input" type="url" placeholder="https://vtour.cl/360/..." {...register('virtualTourUrl')} />
+              {errors.virtualTourUrl && <p className="form-error">{errors.virtualTourUrl.message}</p>}
+            </div>
+            <div className="input-group">
+              <label className="input-label">Agua / factibilidad</label>
+              <input className="input" placeholder="Ej: Agua potable / pozo / factibilidad" {...register('waterStatus')} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Electricidad / empalme</label>
+              <input className="input" placeholder="Ej: Empalme electrico / factibilidad" {...register('electricityStatus')} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Tipo de acceso</label>
+              <input className="input" placeholder="Ej: Camino publico / acceso autorizado" {...register('accessType')} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Camino interior</label>
+              <input className="input" placeholder="Ej: Ripiado compactado" {...register('roadType')} />
+            </div>
+            <label className="form-check" style={{ alignSelf: 'end', paddingBottom: '0.75rem' }}>
+              <input type="checkbox" {...register('hasOwnRol')} />
+              Rol propio
+            </label>
           </div>
 
           <div style={{ marginTop: 'var(--space-md)' }}>
@@ -691,6 +842,47 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
           </div>
         </section>
       )}
+
+      <section className="admin-form-section">
+        <h2 className="admin-form-section-title">Condiciones comerciales del loteo</h2>
+        <div className="form-grid form-grid-3">
+          <div className="input-group">
+            <label className="input-label">Comision (%)</label>
+            <input type="number" className="input" min="0" step="any" placeholder="3" {...register('commissionPercent', { valueAsNumber: true })} />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Reserva</label>
+            <input type="number" className="input" min="0" step="any" placeholder="350000" {...register('reservationAmount', { valueAsNumber: true })} />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Gastos operacionales</label>
+            <input className="input" placeholder="Ej: Incluidos / + gastos operacionales" {...register('operationalExpenses')} />
+          </div>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Facilidad de pago</label>
+            <textarea className="textarea" rows={3} placeholder="Ej: 25% pie + 24 cuotas sin interes." {...register('paymentTerms')} />
+          </div>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Disponibilidad por lote</label>
+            <textarea className="textarea" rows={3} placeholder="Ej: Parcelas 24, 26 y 27 disponibles. Valores varian segun ubicacion." {...register('availabilityNotes')} />
+          </div>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Notas comerciales internas/publicables</label>
+            <textarea className="textarea" rows={3} placeholder="Ej: Unidades seleccionadas con promocion vigente." {...register('commercialNotes')} />
+          </div>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Distancias destacadas</label>
+            <textarea
+              name="distanceHighlights"
+              className="textarea"
+              rows={4}
+              value={toTextareaValue(distanceHighlights)}
+              placeholder="A 45 km de Puerto Montt&#10;A menos de 1 km de la playa"
+              onChange={(event) => setValue('distanceHighlights', fromTextLinesValue(event.target.value), { shouldDirty: true, shouldValidate: true })}
+            />
+          </div>
+        </div>
+      </section>
 
       <section className="admin-form-section">
         <h2 className="admin-form-section-title">Gestion interna</h2>
@@ -715,17 +907,33 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
         </div>
       </section>
 
-      <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Amenidades</h2>
-        <div className="amenity-chip-grid">
-          {AMENITY_OPTIONS.map((amenity) => (
-            <label key={amenity.value} className="amenity-chip">
-              <input type="checkbox" value={amenity.value} {...register('amenities')} />
-              {dictionaries.es.property[amenity.labelKey.split('.')[1] as keyof typeof dictionaries.es.property]}
-            </label>
-          ))}
-        </div>
-      </section>
+      {selectedType === 'terreno' && (
+        <section className="admin-form-section">
+          <h2 className="admin-form-section-title">Caracteristicas del proyecto / terreno</h2>
+          <div className="amenity-chip-grid">
+            {LAND_AMENITY_OPTIONS.map((amenity) => (
+              <label key={amenity.value} className="amenity-chip">
+                <input type="checkbox" value={amenity.value} {...register('amenities')} />
+                {dictionaries.es.property[amenity.labelKey.split('.')[1] as keyof typeof dictionaries.es.property]}
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {selectedType === 'casa' && (
+        <section className="admin-form-section">
+          <h2 className="admin-form-section-title">Amenidades</h2>
+          <div className="amenity-chip-grid">
+            {AMENITY_OPTIONS.map((amenity) => (
+              <label key={amenity.value} className="amenity-chip">
+                <input type="checkbox" value={amenity.value} {...register('amenities')} />
+                {dictionaries.es.property[amenity.labelKey.split('.')[1] as keyof typeof dictionaries.es.property]}
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="admin-form-section">
         <h2 className="admin-form-section-title">Fotografias</h2>
@@ -852,6 +1060,36 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
         </div>
       </section>
 
+      {propertyId && (
+        <section className="admin-form-section">
+          <h2 className="admin-form-section-title">URL publica</h2>
+          <div className="form-grid form-grid-2">
+            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+              <label className="input-label" htmlFor="prop-slug">Slug (URL)</label>
+              <input
+                id="prop-slug"
+                name="slug"
+                className="input"
+                value={slugValue}
+                onChange={(event) => setSlugValue(event.target.value)}
+                placeholder="portal-los-muermos"
+              />
+              <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
+                Vista previa: /propiedades/{slugValue || 'tu-slug'}
+                {propertyId && slugValue ? (
+                  <>
+                    {' · '}
+                    <Link href={`/propiedades/${slugValue}`} target="_blank" className="text-gold">
+                      Abrir previa
+                    </Link>
+                  </>
+                ) : null}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="admin-form-section">
         <h2 className="admin-form-section-title">SEO</h2>
         <div className="form-grid form-grid-2">
@@ -885,7 +1123,7 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
 
           <div className="input-group">
             <label className="input-label">Canonical personalizado</label>
-            <input className="input" type="url" placeholder="https://calafatepropiedades.cl/propiedades/..." {...register('customCanonical')} />
+            <input className="input" type="url" placeholder="https://calafetapropiedades.vercel.app/propiedades/..." {...register('customCanonical')} />
             {errors.customCanonical && <p className="form-error">{errors.customCanonical.message}</p>}
           </div>
 
@@ -914,6 +1152,10 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
             Para publicar, agrega al menos una fotografia o una URL de portada.
           </p>
         )}
+        <PropertyCatalogPublishChecklist
+          values={catalogChecklistInput}
+          showPublishWarning={isPublished}
+        />
         {errors.featured && (
           <p className="form-error" style={{ marginTop: 'var(--space-sm)' }}>
             {errors.featured.message}
@@ -925,8 +1167,23 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
         <Link href="/admin/propiedades" className="btn btn-outline">
           Cancelar
         </Link>
-        <button type="submit" className="btn btn-primary btn-lg" disabled={isPending || isUploading}>
-          {isPending ? 'Guardando...' : 'Guardar propiedad'}
+        <button
+          type="submit"
+          name="redirectMode"
+          value="list"
+          className="btn btn-outline btn-lg"
+          disabled={isPending || isUploading}
+        >
+          {isPending ? 'Guardando...' : 'Guardar y volver'}
+        </button>
+        <button
+          type="submit"
+          name="redirectMode"
+          value="stay"
+          className="btn btn-primary btn-lg"
+          disabled={isPending || isUploading}
+        >
+          {isPending ? 'Guardando...' : 'Guardar y seguir editando'}
         </button>
       </div>
     </form>

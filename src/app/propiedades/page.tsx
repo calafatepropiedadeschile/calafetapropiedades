@@ -1,31 +1,53 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import TranslatedText from '@/components/i18n/TranslatedText';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyCatalog from '@/components/properties/PropertyCatalog';
-import { getStaticPropertyCatalog } from '@/features/properties/property.service';
+import { redirect } from 'next/navigation';
+import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
+import { getCatalogPageData } from '@/features/properties/property.service';
 import { DEFAULT_LOCALE } from '@/lib/i18n/config';
-import { isPropertyMarketRegion } from '@/features/properties/property-markets';
-import type { PriceType, PropertyType } from '@/types/property';
+import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { mergeCatalogSearchParams, readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
 
-export const metadata: Metadata = {
-  title: 'Propiedades',
-  description: 'Explora nuestro catalogo completo de propiedades.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSeo = await getSiteSeoSettings().catch(() => null);
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const title = 'Terrenos y loteos en venta';
+  const description = 'Compara parcelas, terrenos y loteos en Chile por ubicacion, superficie, precio y disponibilidad.';
 
-export const revalidate = 3600;
+  return {
+    title,
+    description,
+    robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
+    alternates: { canonical: `${baseUrl}/propiedades` },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/propiedades`,
+      images: siteSeo?.defaultOgImage ? [{ url: siteSeo.defaultOgImage }] : [],
+    },
+    twitter: {
+      card: siteSeo?.defaultOgImage ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: siteSeo?.defaultOgImage ? [siteSeo.defaultOgImage] : [],
+    },
+  };
+}
+
+export const revalidate = 60;
 
 const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
 
-async function getSafePropertyCatalog() {
-  if (!hasDatabaseUrl) return [];
-
-  try {
-    return await getStaticPropertyCatalog(DEFAULT_LOCALE);
-  } catch (error) {
-    console.warn('Skipping property catalog because the datasource is unavailable.', error);
-    return [];
-  }
+function emptyCatalog(params: Awaited<Props['searchParams']>) {
+  return {
+    filters: normalizeCatalogFilters(params),
+    properties: [],
+    zoneOptions: [] as string[],
+    pagination: { page: 1, totalPages: 0, total: 0, limit: CATALOG_PAGE_LIMIT },
+  };
 }
 
 interface Props {
@@ -34,20 +56,56 @@ interface Props {
     query?: string;
     zone?: string;
     priceType?: string;
-    marketRegion?: string;
-    country?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    minSurface?: string;
+    hasAvailableLots?: string;
+    page?: string;
   }>;
 }
 
-const PROPERTY_TYPES = new Set<PropertyType>(['casa', 'apartamento', 'local', 'oficina', 'terreno']);
-const PRICE_TYPES = new Set<PriceType>(['venta', 'alquiler']);
-
 export default async function PropiedadesPage({ searchParams }: Props) {
   const params = await searchParams;
-  const properties = await getSafePropertyCatalog();
-  const type = PROPERTY_TYPES.has(params.type as PropertyType) ? params.type as PropertyType : '';
-  const priceType = PRICE_TYPES.has(params.priceType as PriceType) ? params.priceType as PriceType : 'venta';
-  const marketRegion = isPropertyMarketRegion(params.marketRegion) ? params.marketRegion : '';
+
+  if (params.priceType === 'arriendo') {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (key === 'priceType' || value === undefined) continue;
+      if (Array.isArray(value)) {
+        if (value[0]) query.set(key, value[0]);
+      } else {
+        query.set(key, value);
+      }
+    }
+    const suffix = query.toString();
+    redirect(suffix ? `/arriendos?${suffix}` : '/arriendos');
+  }
+
+  const cookieStore = await cookies();
+  const catalogPreferences = readCatalogPreferences(cookieStore);
+  const mergedParams = mergeCatalogSearchParams(catalogPreferences, {
+    type: params.type,
+    zone: params.zone,
+    query: params.query,
+    priceType: params.priceType,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    minSurface: params.minSurface,
+    hasAvailableLots: params.hasAvailableLots,
+    page: params.page,
+  });
+
+  const catalog = hasDatabaseUrl
+    ? await getCatalogPageData(mergedParams, {
+        locale: DEFAULT_LOCALE,
+        preset: { priceType: 'venta' },
+      }).catch((error) => {
+        console.warn('Skipping property catalog because the datasource is unavailable.', error);
+        return emptyCatalog(mergedParams);
+      })
+    : emptyCatalog(mergedParams);
+
+  const { filters, properties, zoneOptions, pagination } = catalog;
 
   return (
     <>
@@ -65,15 +123,11 @@ export default async function PropiedadesPage({ searchParams }: Props) {
 
           <PropertyCatalog
             properties={properties}
-            initialFilters={{
-              query: params.query ?? '',
-              type,
-              priceType,
-              marketRegion,
-              country: params.country ?? '',
-              zone: params.zone ?? '',
-            }}
+            zoneOptions={zoneOptions}
+            initialFilters={filters}
+            pagination={pagination}
             showPriceModeTabs
+            catalogPriceMode="venta"
           />
         </section>
       </main>

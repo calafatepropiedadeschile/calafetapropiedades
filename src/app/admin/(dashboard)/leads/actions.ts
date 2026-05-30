@@ -24,6 +24,7 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
 
   revalidatePath('/admin');
   revalidatePath('/admin/leads');
+  revalidatePath(`/admin/leads/${id}`);
 }
 
 export async function deleteLead(id: string) {
@@ -39,4 +40,5 @@ export async function deleteLead(id: string) {
 
   revalidatePath('/admin');
   revalidatePath('/admin/leads');
+  revalidatePath(`/admin/leads/${id}`);
 }

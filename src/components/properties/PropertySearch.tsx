@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROPERTY_LOCATION_FILTERS } from '@/features/properties/property-zone-filters';
+import { persistCatalogPreferencesClient } from '@/lib/catalog/catalog-preferences';
 
 type SearchOption = {
   value: string;
@@ -130,19 +131,47 @@ function SearchSelect({ label, value, options, icon, onChange }: SearchSelectPro
   );
 }
 
-export default function PropertySearch() {
+interface PropertySearchProps {
+  initialType?: 'terreno' | 'casa';
+  initialZone?: string;
+}
+
+export default function PropertySearch({
+  initialType = 'terreno',
+  initialZone = '',
+}: PropertySearchProps) {
   const router = useRouter();
-  const [type, setType] = useState('terreno');
-  const [zone, setZone] = useState('');
+  const [type, setType] = useState<string>(initialType);
+  const [zone, setZone] = useState(initialZone);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setType(initialType);
+    setZone(initialZone);
+  }, [initialType, initialZone]);
+
+  function handleTypeChange(nextType: string) {
+    setType(nextType);
+    if (nextType === 'terreno' || nextType === 'casa') {
+      persistCatalogPreferencesClient({ type: nextType });
+    }
+  }
+
+  function handleZoneChange(nextZone: string) {
+    setZone(nextZone);
+    persistCatalogPreferencesClient({ zone: nextZone });
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
 
+    const catalogType = type === 'terreno' || type === 'casa' ? type : 'terreno';
+    persistCatalogPreferencesClient({ type: catalogType, zone });
+
     const params = new URLSearchParams();
 
-    if (type) params.set('type', type);
+    if (catalogType) params.set('type', catalogType);
     if (zone) params.set('zone', zone);
 
     const queryString = params.toString();
@@ -161,7 +190,7 @@ export default function PropertySearch() {
           label="Que buscas?"
           value={type}
           options={PROPERTY_TYPES}
-          onChange={setType}
+          onChange={handleTypeChange}
           icon={(
             <svg
               aria-hidden="true"
@@ -181,7 +210,7 @@ export default function PropertySearch() {
           label="Donde?"
           value={zone}
           options={LOCATION_OPTIONS}
-          onChange={setZone}
+          onChange={handleZoneChange}
           icon={(
             <svg
               aria-hidden="true"

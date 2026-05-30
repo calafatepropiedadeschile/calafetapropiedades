@@ -1,19 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { API_ROUTES } from '@/config/api';
 import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/dictionaries';
+import { primaryContact } from '@/config/contact';
+import { submitLeadForm } from '@/features/leads/submit-lead.client';
 
 interface Props {
   propertyId: string;
   propertyTitle: string;
+  propertySlug: string;
   locale?: Locale;
 }
 
-type FormState = 'idle' | 'loading' | 'success' | 'error';
+type FormState = 'idle' | 'loading' | 'error';
 
-export default function LeadForm({ propertyId, propertyTitle, locale = DEFAULT_LOCALE }: Props) {
+export default function LeadForm({
+  propertyId,
+  propertyTitle,
+  propertySlug,
+  locale = DEFAULT_LOCALE,
+}: Props) {
   const [state, setState] = useState<FormState>('idle');
   const [error, setError] = useState('');
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
@@ -24,30 +31,22 @@ export default function LeadForm({ propertyId, propertyTitle, locale = DEFAULT_L
     setError('');
 
     const form = e.currentTarget;
-    const data = {
-      name: (form.elements.namedItem('name') as HTMLInputElement).value,
-      email: (form.elements.namedItem('email') as HTMLInputElement).value,
-      phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
-      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
-      propertyId,
-    };
 
     try {
-      const res = await fetch(API_ROUTES.leads, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || t('lead.sendError'));
-      }
-
-      setState('success');
-      form.reset();
+      await submitLeadForm(
+        {
+          name: (form.elements.namedItem('name') as HTMLInputElement).value,
+          email: (form.elements.namedItem('email') as HTMLInputElement).value,
+          phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
+          message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+          propertyId,
+        },
+        {
+          propertyTitle,
+          propertySlug,
+          formType: 'lead',
+        }
+      );
     } catch (err) {
       setState('error');
       setError(err instanceof Error ? err.message : t('lead.genericError'));
@@ -61,65 +60,58 @@ export default function LeadForm({ propertyId, propertyTitle, locale = DEFAULT_L
         {t('lead.subtitle')}
       </p>
 
-      {state === 'success' ? (
-        <div style={{
-          textAlign: 'center',
-          padding: 'var(--space-2xl)',
-          color: 'var(--color-success)',
-        }}>
-          <p style={{ fontWeight: 600 }}>{t('lead.successTitle')}</p>
-          <p className="text-muted text-sm" style={{ marginTop: 'var(--space-sm)' }}>
-            {t('lead.successCopy')} {propertyTitle}.
-          </p>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        <div className="input-group">
+          <label htmlFor="lead-name" className="input-label">{t('lead.name')} *</label>
+          <input id="lead-name" name="name" className="input" required minLength={2} placeholder={t('lead.namePlaceholder')} />
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-          <div className="input-group">
-            <label htmlFor="lead-name" className="input-label">{t('lead.name')} *</label>
-            <input id="lead-name" name="name" className="input" required minLength={2} placeholder={t('lead.namePlaceholder')} />
-          </div>
 
-          <div className="input-group">
-            <label htmlFor="lead-email" className="input-label">{t('lead.email')} *</label>
-            <input id="lead-email" name="email" type="email" className="input" required placeholder={t('lead.emailPlaceholder')} />
-          </div>
+        <div className="input-group">
+          <label htmlFor="lead-email" className="input-label">{t('lead.email')} *</label>
+          <input id="lead-email" name="email" type="email" className="input" required placeholder={t('lead.emailPlaceholder')} />
+        </div>
 
-          <div className="input-group">
-            <label htmlFor="lead-phone" className="input-label">{t('lead.phone')}</label>
-            <input id="lead-phone" name="phone" type="tel" className="input" placeholder={t('lead.phonePlaceholder')} />
-          </div>
+        <div className="input-group">
+          <label htmlFor="lead-phone" className="input-label">{t('lead.phone')}</label>
+          <input
+            id="lead-phone"
+            name="phone"
+            type="tel"
+            className="input"
+            placeholder={primaryContact.displayPhone}
+          />
+        </div>
 
-          <div className="input-group">
-            <label htmlFor="lead-message" className="input-label">{t('lead.message')}</label>
-            <textarea
-              id="lead-message"
-              name="message"
-              className="textarea"
-              placeholder={t('lead.messagePlaceholder')}
-              rows={3}
-            />
-          </div>
+        <div className="input-group">
+          <label htmlFor="lead-message" className="input-label">{t('lead.message')}</label>
+          <textarea
+            id="lead-message"
+            name="message"
+            className="textarea"
+            placeholder={t('lead.messagePlaceholder')}
+            rows={3}
+          />
+        </div>
 
-          {state === 'error' && (
-            <p style={{ color: 'var(--color-error)', fontSize: '0.85rem' }}>
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={state === 'loading'}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            {state === 'loading' ? t('lead.submitting') : t('lead.submit')}
-          </button>
-
-          <p className="text-muted" style={{ fontSize: '0.7rem', textAlign: 'center' }}>
-            {t('lead.privacy')}
+        {state === 'error' && (
+          <p style={{ color: 'var(--color-error)', fontSize: '0.85rem' }}>
+            {error}
           </p>
-        </form>
-      )}
+        )}
+
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={state === 'loading'}
+          style={{ width: '100%', justifyContent: 'center' }}
+        >
+          {state === 'loading' ? t('lead.submitting') : t('lead.submit')}
+        </button>
+
+        <p className="text-muted" style={{ fontSize: '0.7rem', textAlign: 'center' }}>
+          {t('lead.privacy')}
+        </p>
+      </form>
     </div>
   );
 }

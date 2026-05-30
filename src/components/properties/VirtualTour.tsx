@@ -5,14 +5,30 @@ import { useEffect, useRef, useState } from 'react';
 interface VirtualTourProps {
   src: string;
   title: string;
+  /** Mantiene el iframe montado pero oculto (evita flash negro al cambiar pestañas). */
+  visible?: boolean;
+  /** Precarga el tour aunque aún no esté visible. */
+  eager?: boolean;
 }
 
-export default function VirtualTour({ src, title }: VirtualTourProps) {
-  const [shouldLoad, setShouldLoad] = useState(false);
+export default function VirtualTour({
+  src,
+  title,
+  visible = true,
+  eager = false,
+}: VirtualTourProps) {
+  const [shouldLoad, setShouldLoad] = useState(eager || visible);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Return early if no browser support for IntersectionObserver
+    if (eager || visible) {
+      setShouldLoad(true);
+    }
+  }, [eager, visible]);
+
+  useEffect(() => {
+    if (shouldLoad || !visible) return;
+
     if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
       const timeout = globalThis.setTimeout(() => setShouldLoad(true), 0);
       return () => globalThis.clearTimeout(timeout);
@@ -23,36 +39,23 @@ export default function VirtualTour({ src, title }: VirtualTourProps) {
         const [entry] = entries;
         if (entry.isIntersecting) {
           setShouldLoad(true);
-          observer.disconnect(); // Disconnect once triggered
+          observer.disconnect();
         }
       },
-      {
-        rootMargin: '200px', // Start loading 200px before the element enters the viewport
-      }
+      { rootMargin: '200px' },
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    const node = containerRef.current;
+    if (node) observer.observe(node);
 
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
+    return () => observer.disconnect();
+  }, [shouldLoad, visible]);
 
   return (
     <div
       ref={containerRef}
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        minHeight: '400px',
-        backgroundColor: '#f9f9f9',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      className={`virtual-tour-root${visible ? ' is-visible' : ' is-hidden'}`}
+      aria-hidden={!visible}
     >
       {shouldLoad ? (
         <iframe
@@ -60,39 +63,16 @@ export default function VirtualTour({ src, title }: VirtualTourProps) {
           title={title}
           width="100%"
           height="100%"
-          style={{
-            border: 'none',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-          }}
+          className="virtual-tour-iframe"
           allowFullScreen
+          loading="eager"
         />
       ) : (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid var(--color-primary-light)',
-            borderTop: '4px solid var(--color-primary)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 1rem'
-          }} />
-          <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-            Cargando Tour Virtual interactivo...
-          </span>
+        <div className="virtual-tour-placeholder">
+          <div className="virtual-tour-spinner" aria-hidden />
+          <span>Cargando tour virtual...</span>
         </div>
       )}
-      
-      <style jsx global>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

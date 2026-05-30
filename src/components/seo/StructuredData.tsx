@@ -4,15 +4,15 @@ import type { Locale } from '@/lib/i18n/config';
 interface StructuredDataProps {
   property: Property;
   locale: Locale;
+  baseUrl?: string | null;
 }
 
-export default function StructuredData({ property, locale }: StructuredDataProps) {
+export default function StructuredData({ property, locale, baseUrl }: StructuredDataProps) {
   const {
     slug,
     title,
     description,
     price,
-    priceType,
     currency,
     address,
     city,
@@ -26,12 +26,11 @@ export default function StructuredData({ property, locale }: StructuredDataProps
     createdAt,
   } = property;
 
-  const canonicalUrl = property.customCanonical || `https://calafatepropiedades.cl/propiedades/${slug}${locale === 'en' ? '?lang=en' : ''}`;
+  const canonicalBaseUrl = (baseUrl || 'https://calafetapropiedades.vercel.app').replace(/\/$/, '');
+  const canonicalUrl = property.customCanonical || `${canonicalBaseUrl}/propiedades/${slug}${locale === 'en' ? '?lang=en' : ''}`;
 
   // Map business function
-  const businessFunction = priceType === 'alquiler' 
-    ? 'https://schema.org/RentAction' 
-    : 'https://schema.org/SellAction';
+  const businessFunction = 'https://schema.org/SellAction';
 
   // Map availability
   const availability = status === 'disponible'
@@ -41,7 +40,6 @@ export default function StructuredData({ property, locale }: StructuredDataProps
   // Map residence/accommodation type
   let accommodationType = 'Accommodation';
   if (property.type === 'casa') accommodationType = 'House';
-  else if (property.type === 'apartamento') accommodationType = 'Apartment';
   else if (property.type === 'terreno') accommodationType = 'Landform';
 
   const jsonLd = {

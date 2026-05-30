@@ -1,148 +1,151 @@
 import type { MetadataRoute } from 'next';
 import { getPrismaClient } from '@/lib/db/prisma';
 import { seoLandingPages } from '@/config/seo-pages';
+import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
 
 export const revalidate = 86400; // Caching ISR for 24 hours to avoid CPU load
 
-const SITEMAP_LIMIT = 2000;
-const SITE_URL = (
+const FALLBACK_SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL
   || process.env.APP_ORIGIN
-  || 'https://calafatepropiedades.cl'
+  || 'https://calafetapropiedades.vercel.app'
 ).replace(/\/$/, '');
 
-export async function generateSitemaps() {
-  try {
-    const db = getPrismaClient();
-    const count = await db.property.count({
-      where: { published: true },
-    });
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const seo = await getSiteSeoSettings().catch(() => null);
+  const siteUrl = seo?.canonicalBaseUrl ?? FALLBACK_SITE_URL;
 
-    const numberOfSitemaps = Math.ceil(count / SITEMAP_LIMIT);
-    const sitemaps = [];
-    
-    for (let i = 0; i < Math.max(1, numberOfSitemaps); i++) {
-      sitemaps.push({ id: i });
-    }
-
-    return sitemaps;
-  } catch (error) {
-    console.error('Error generating sitemaps list:', error);
-    return [{ id: 0 }];
+  if (seo?.allowIndexing === false) {
+    return [];
   }
-}
-
-export default async function sitemap({
-  id,
-}: {
-  id: Promise<string>;
-}): Promise<MetadataRoute.Sitemap> {
-  const resolvedId = Number(await id);
-  const sitemapId = Number.isFinite(resolvedId) ? resolvedId : 0;
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 
-  // 1. Add core static route definitions (only for sitemap chunk 0)
-  if (sitemapId === 0) {
-    const staticRoutes = [
-      '',
-      '/nosotros',
-      '/contacto',
-      ...Object.values(seoLandingPages).map((page) => page.path),
-    ];
-    for (const route of staticRoutes) {
-      sitemapEntries.push({
-        url: `${SITE_URL}${route}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily',
-        priority: route === '' ? 1.0 : 0.8,
-        alternates: {
-          languages: {
-            es: `${SITE_URL}${route}`,
-            en: `${SITE_URL}${route}${route.includes('?') ? '&' : '?'}lang=en`,
-          },
-        },
-      });
-    }
+  const staticRoutes = [
+    '',
+    '/nosotros',
+    '/contacto',
+    ...Object.values(seoLandingPages).map((page) => page.path),
+  ];
+  const staticRouteSet = new Set(staticRoutes.map((route) => route.replace(/^\//, '')));
 
-    // 2. Fetch and add Static Pages from DB
-    try {
-      const db = getPrismaClient();
-      const staticPages = await db.staticPage.findMany({
-        where: { published: true },
-        select: {
-          slug: true,
-          updatedAt: true,
+  for (const route of staticRoutes) {
+    sitemapEntries.push({
+      url: `${siteUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: route === '' ? 1.0 : 0.8,
+      alternates: {
+        languages: {
+          es: `${siteUrl}${route}`,
+          en: `${siteUrl}${route}${route.includes('?') ? '&' : '?'}lang=en`,
         },
-      });
-
-      for (const page of staticPages) {
-        const pageSlug = page.slug.startsWith('/') ? page.slug : `/${page.slug}`;
-        sitemapEntries.push({
-          url: `${SITE_URL}${pageSlug}`,
-          lastModified: page.updatedAt,
-          changeFrequency: 'weekly',
-          priority: 0.6,
-          alternates: {
-            languages: {
-              es: `${SITE_URL}${pageSlug}`,
-              en: `${SITE_URL}${pageSlug}?lang=en`,
-            },
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching static pages for sitemap:', error);
-    }
+      },
+    });
   }
 
-  // 3. Fetch and add dynamic properties for this sitemap chunk
   try {
-    const skip = sitemapId * SITEMAP_LIMIT;
     const db = getPrismaClient();
-    const properties = await db.property.findMany({
+    const staticPages = await db.staticPage.findMany({
       where: { published: true },
       select: {
         slug: true,
+        updatedAt: true,
+      },
+    });
+
+    for (const page of staticPages) {
+      if (staticRouteSet.has(page.slug.replace(/^\//, ''))) continue;
+
+      const pageSlug = page.slug.startsWith('/') ? page.slug : `/${page.slug}`;
+      sitemapEntries.push({
+        url: `${siteUrl}${pageSlug}`,
+        lastModified: page.updatedAt,
+        changeFrequency: 'weekly',
+        priority: 0.6,
+        alternates: {
+          languages: {
+            es: `${siteUrl}${pageSlug}`,
+            en: `${siteUrl}${pageSlug}?lang=en`,
+          },
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching static pages for sitemap:', error);
+  }
+
+  try {
+    const db = getPrismaClient();
+    const properties = await db.property.findMany({
+      where: {
+        published: true,
+        country: 'Chile',
+        type: { in: ['terreno', 'casa'] },
+        OR: [
+          { coverImage: null },
+          { coverImage: { not: { startsWith: 'https://images.unsplash.com' } } },
+        ],
+      },
+      select: {
+        slug: true,
         type: true,
+        priceType: true,
+        coverImage: true,
+        images: true,
         updatedAt: true,
       },
       orderBy: { updatedAt: 'desc' },
-      skip,
-      take: SITEMAP_LIMIT,
+      take: 2000,
     });
 
     for (const property of properties) {
+      const extraImages = (() => {
+        try {
+          return JSON.parse(property.images) as unknown;
+        } catch {
+          return [];
+        }
+      })();
+      const images = [
+        property.coverImage,
+        ...(Array.isArray(extraImages) ? extraImages : []),
+      ]
+        .filter((image): image is string => typeof image === 'string' && image.startsWith('http'))
+        .slice(0, 6);
+
       sitemapEntries.push({
-        url: `${SITE_URL}/propiedades/${property.slug}`,
+        url: `${siteUrl}/propiedades/${property.slug}`,
         lastModified: property.updatedAt,
         changeFrequency: 'weekly',
         priority: 0.7,
+        images,
         alternates: {
           languages: {
-            es: `${SITE_URL}/propiedades/${property.slug}`,
-            en: `${SITE_URL}/propiedades/${property.slug}?lang=en`,
+            es: `${siteUrl}/propiedades/${property.slug}`,
+            en: `${siteUrl}/propiedades/${property.slug}?lang=en`,
           },
         },
       });
 
-      if (property.type === 'terreno') {
+      if (property.type === 'terreno' && property.priceType !== 'arriendo') {
         sitemapEntries.push({
-          url: `${SITE_URL}/proyectos/${property.slug}`,
+          url: `${siteUrl}/proyectos/${property.slug}`,
           lastModified: property.updatedAt,
           changeFrequency: 'weekly',
           priority: 0.75,
+          images,
           alternates: {
             languages: {
-              es: `${SITE_URL}/proyectos/${property.slug}`,
-              en: `${SITE_URL}/proyectos/${property.slug}?lang=en`,
+              es: `${siteUrl}/proyectos/${property.slug}`,
+              en: `${siteUrl}/proyectos/${property.slug}?lang=en`,
             },
           },
         });
       }
     }
   } catch (error) {
-    console.error(`Error fetching properties for sitemap chunk ${sitemapId}:`, error);
+    console.error('Error fetching properties for sitemap:', error);
   }
 
   return sitemapEntries;

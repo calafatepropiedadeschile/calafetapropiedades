@@ -4,5 +4,14 @@
 .git
 .next
 node_modules
+
+# Local source folders used only for migration/import.
+# Production images are served from Supabase Storage.
 public/Propiedades
+public/Propiedades/**
+public/propiedades
+public/propiedades/**
 public/Logo
+public/Logo/**
+public/logo
+public/logo/**

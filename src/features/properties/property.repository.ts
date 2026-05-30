@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import type { PropertyFilters } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
 import { getPropertyZoneFilterValues } from './property-zone-filters';
+import { normalizeCatalogFilters, parsePositiveNumber } from './property-filtering';
 import { mapProperty, mapPropertyCard } from './property.mapper';
 
 type PropertyDbClient = PrismaClient | Prisma.TransactionClient;
@@ -28,6 +29,9 @@ const propertyCardSelect = {
   area: true,
   totalArea: true,
   builtArea: true,
+  lotSurfaceM2: true,
+  totalLots: true,
+  availableLots: true,
   coverImage: true,
 } satisfies Prisma.PropertySelect;
 
@@ -72,6 +76,24 @@ const propertyDetailSelect = {
   frontage: true,
   depth: true,
   zoning: true,
+  mapUrl: true,
+  virtualTourUrl: true,
+  lotSurfaceM2: true,
+  totalLots: true,
+  availableLots: true,
+  stageName: true,
+  paymentTerms: true,
+  commissionPercent: true,
+  operationalExpenses: true,
+  reservationAmount: true,
+  waterStatus: true,
+  electricityStatus: true,
+  accessType: true,
+  roadType: true,
+  hasOwnRol: true,
+  availabilityNotes: true,
+  commercialNotes: true,
+  distanceHighlights: true,
   services: true,
   amenities: true,
   images: true,
@@ -87,14 +109,30 @@ const propertyDetailSelect = {
 } satisfies Prisma.PropertySelect;
 
 function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyWhereInput {
-  const { query, type, priceType, marketRegion, country, zone, minPrice, maxPrice, bedrooms } = filters;
+  const normalizedFilters = normalizeCatalogFilters({
+    ...filters,
+    minPrice: filters.minPrice?.toString(),
+    maxPrice: filters.maxPrice?.toString(),
+    minSurface: filters.minSurface?.toString(),
+  });
+  const { query, type, priceType, country, zone, minPrice, maxPrice, minSurface, hasAvailableLots } = normalizedFilters;
   const textMatch = query
     ? {
         contains: query,
         mode: 'insensitive' as const,
       }
     : undefined;
-  const and: Prisma.PropertyWhereInput[] = [{ published: true }];
+  const and: Prisma.PropertyWhereInput[] = [
+    { published: true },
+    { country: 'Chile' },
+    { type: { in: ['terreno', 'casa'] } },
+    {
+      OR: [
+        { coverImage: null },
+        { coverImage: { not: { startsWith: 'https://images.unsplash.com' } } },
+      ],
+    },
+  ];
 
   if (query) {
     and.push({
@@ -121,10 +159,6 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
     and.push({ priceType });
   }
 
-  if (marketRegion) {
-    and.push({ marketRegion });
-  }
-
   if (country) {
     and.push({ country });
   }
@@ -141,20 +175,45 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
     });
   }
 
-  if (minPrice !== undefined || maxPrice !== undefined) {
+  const minPriceValue = parsePositiveNumber(minPrice);
+  const maxPriceValue = parsePositiveNumber(maxPrice);
+
+  if (minPriceValue !== null || maxPriceValue !== null) {
     and.push({
       price: {
-        ...(minPrice !== undefined && { gte: minPrice }),
-        ...(maxPrice !== undefined && { lte: maxPrice }),
+        ...(minPriceValue !== null && { gte: minPriceValue }),
+        ...(maxPriceValue !== null && { lte: maxPriceValue }),
       },
     });
   }
 
-  if (bedrooms !== undefined) {
-    and.push({ bedrooms: { gte: bedrooms } });
+  const minSurfaceValue = parsePositiveNumber(minSurface);
+
+  if (minSurfaceValue !== null) {
+    and.push({
+      OR: [
+        { lotSurfaceM2: { gte: minSurfaceValue } },
+        { totalArea: { gte: minSurfaceValue } },
+        { area: { gte: minSurfaceValue } },
+        { builtArea: { gte: minSurfaceValue } },
+      ],
+    });
   }
 
-  return and.length === 1 ? and[0] : { AND: and };
+  if (filters.marketRegion) {
+    and.push({ marketRegion: filters.marketRegion });
+  }
+
+  if (hasAvailableLots) {
+    and.push({
+      OR: [
+        { availableLots: { gt: 0 } },
+        { availableLots: null },
+      ],
+    });
+  }
+
+  return { AND: and };
 }
 
 export function createPropertyRepository(db: PropertyDbClient) {
@@ -184,9 +243,9 @@ export function createPropertyRepository(db: PropertyDbClient) {
       };
     },
 
-    async listStaticCatalog(locale: Locale = 'es', limit = 100) {
+    async listStaticCatalog(locale: Locale = 'es', limit = 500) {
       const properties = await db.property.findMany({
-        where: { published: true },
+        where: buildPublishedPropertyWhere({ priceType: 'venta', country: 'Chile' }),
         select: propertyCardSelect,
         orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
         take: limit,
@@ -206,7 +265,12 @@ export function createPropertyRepository(db: PropertyDbClient) {
 
     async listFeatured(locale: Locale = 'es') {
       const properties = await db.property.findMany({
-        where: { published: true, featured: true },
+        where: {
+          AND: [
+            buildPublishedPropertyWhere({ priceType: 'venta', country: 'Chile' }),
+            { featured: true },
+          ],
+        },
         select: propertyCardSelect,
         orderBy: { createdAt: 'desc' },
         take: 6,
@@ -218,7 +282,7 @@ export function createPropertyRepository(db: PropertyDbClient) {
     async listZones(locale: Locale = 'es') {
       const isEn = locale === 'en';
       const zones = await db.property.findMany({
-        where: { published: true },
+        where: buildPublishedPropertyWhere({ country: 'Chile' }),
         select: { zoneEs: true, zoneEn: true },
         orderBy: { zoneEs: 'asc' },
       });

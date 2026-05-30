@@ -15,15 +15,16 @@ model Property {
   descriptionEs String
   descriptionEn String?
   price       Float
+  priceFrom   Boolean  @default(false)
   priceType   String   @default("venta")
-  currency    String   @default("USD")
+  currency    String   @default("CLP")
   zoneEs      String
   zoneEn      String?
   cityEs      String
   cityEn      String?
   address     String?
   province    String?
-  country     String?  @default("Espana")
+  country     String?  @default("Chile")
   marketRegion String  @default("latam")
   postalCode  String?
   addressVisibility String @default("zona")
@@ -49,6 +50,24 @@ model Property {
   frontage    Float?
   depth       Float?
   zoning      String?
+  mapUrl      String?
+  virtualTourUrl String?
+  lotSurfaceM2 Float?
+  totalLots   Int?
+  availableLots Int?
+  stageName   String?
+  paymentTerms String?
+  commissionPercent Float?
+  operationalExpenses String?
+  reservationAmount Float?
+  waterStatus String?
+  electricityStatus String?
+  accessType  String?
+  roadType    String?
+  hasOwnRol   Boolean  @default(false)
+  availabilityNotes String?
+  commercialNotes String?
+  distanceHighlights String @default("[]")
   services    String   @default("[]")
   amenities   String   @default("[]")
   images      String   @default("[]")
@@ -73,6 +92,8 @@ model Property {
   @@index([published, zoneEn])
   @@index([published, price])
   @@index([published, bedrooms])
+  @@index([published, availableLots])
+  @@index([published, lotSurfaceM2])
 }
 
 model Lead {
@@ -84,11 +105,20 @@ model Lead {
   status     String    @default("pendiente")
   propertyId String?
   property   Property? @relation(fields: [propertyId], references: [id])
+  leadSource String    @default("web_form")
+  landingPath String?
+  referrer   String?
+  utmSource  String?
+  utmMedium  String?
+  utmCampaign String?
+  utmContent String?
+  utmTerm    String?
   createdAt  DateTime  @default(now())
 
   @@index([createdAt])
   @@index([propertyId])
   @@index([status, createdAt])
+  @@index([utmCampaign, createdAt])
 }
 
 model User {
@@ -98,6 +128,37 @@ model User {
   name      String
   role      String   @default("admin")
   createdAt DateTime @default(now())
+}
+
+model HomeHeroSettings {
+  id           String   @id @default("main")
+  imageUrl     String?
+  titleLine1Es String?
+  titleLine2Es String?
+  subtitleEs   String?
+  titleLine1En String?
+  titleLine2En String?
+  subtitleEn   String?
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteSeoSettings {
+  id                       String   @id @default("main")
+  siteName                 String   @default("Calafate Propiedades")
+  titleTemplate            String   @default("%s | Calafate Propiedades")
+  defaultTitleEs           String   @default("Calafate Propiedades | Parcelas, terrenos y proyectos en Chile")
+  defaultDescriptionEs     String   @default("Compra parcelas, terrenos y loteos seleccionados con Calafate Propiedades. Proyectos con informacion clara, tours 360, precios desde y asesoria directa.")
+  defaultTitleEn           String?
+  defaultDescriptionEn     String?
+  keywords                 String   @default("[]")
+  canonicalBaseUrl         String   @default("https://calafetapropiedades.vercel.app")
+  defaultOgImage           String?
+  googleSiteVerification   String?
+  googleAnalyticsId        String?
+  metaPixelId              String?
+  allowIndexing            Boolean  @default(true)
+  robotsDisallow           String   @default("[\"/admin/\",\"/api/\",\"/gracias\"]")
+  updatedAt                DateTime @updatedAt
 }
 
 model StaticPage {

@@ -1,8 +1,8 @@
-export type PropertyType = 'casa' | 'apartamento' | 'local' | 'oficina' | 'terreno';
-export type PropertyStatus = 'disponible' | 'vendido' | 'alquilado';
-export type PriceType = 'venta' | 'alquiler';
-export type Currency = 'USD' | 'EUR' | 'MXN' | 'CLP' | 'CLF';
-export type PropertyMarketRegion = 'espana_europa' | 'mexico' | 'latam' | 'centroamerica' | 'estados_unidos';
+export type PropertyType = 'casa' | 'terreno';
+export type PropertyStatus = 'disponible' | 'vendido';
+export type PriceType = 'venta' | 'arriendo';
+export type Currency = 'CLP' | 'CLF' | 'USD';
+export type PropertyMarketRegion = 'latam';
 
 export interface Property {
   id: string;
@@ -10,6 +10,7 @@ export interface Property {
   title: string;
   description: string;
   price: number;
+  priceFrom: boolean;
   priceType: PriceType;
   currency: Currency;
   zone: string;
@@ -41,6 +42,24 @@ export interface Property {
   frontage: number | null;
   depth: number | null;
   zoning: string | null;
+  mapUrl: string | null;
+  virtualTourUrl: string | null;
+  lotSurfaceM2: number | null;
+  totalLots: number | null;
+  availableLots: number | null;
+  stageName: string | null;
+  paymentTerms: string | null;
+  commissionPercent: number | null;
+  operationalExpenses: string | null;
+  reservationAmount: number | null;
+  waterStatus: string | null;
+  electricityStatus: string | null;
+  accessType: string | null;
+  roadType: string | null;
+  hasOwnRol: boolean;
+  availabilityNotes: string | null;
+  commercialNotes: string | null;
+  distanceHighlights: string[];
   services: string[];
   amenities: string[];
   images: string[];
@@ -60,6 +79,7 @@ export interface PropertyCard {
   slug: string;
   title: string;
   price: number;
+  priceFrom: boolean;
   priceType: PriceType;
   currency: Currency;
   zone: string;
@@ -72,6 +92,9 @@ export interface PropertyCard {
   bedrooms: number | null;
   bathrooms: number | null;
   area: number | null;
+  lotSurfaceM2: number | null;
+  totalLots: number | null;
+  availableLots: number | null;
   coverImage: string | null;
 }
 
@@ -84,7 +107,8 @@ export interface PropertyFilters {
   zone?: string;
   minPrice?: number;
   maxPrice?: number;
-  bedrooms?: number;
+  minSurface?: number;
+  hasAvailableLots?: boolean;
   page?: number;
   limit?: number;
 }

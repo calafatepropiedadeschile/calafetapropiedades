@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Prisma } from '@prisma/client';
-import { AlertCircle, Mail, Search } from 'lucide-react';
+import { AlertCircle, Download, Mail, Search } from 'lucide-react';
 import AdminLeadActions from '@/components/admin/AdminLeadActions';
 import { requireAdminSession } from '@/lib/auth/require-admin';
 import { withDatabaseRole } from '@/lib/db/rls';
@@ -38,6 +38,14 @@ function parsePage(value: string | undefined) {
   return Number.isFinite(page) && page > 0 ? page : 1;
 }
 
+function createExportHref(params: { q: string; status: LeadStatus | 'todas' }) {
+  const nextParams = new URLSearchParams();
+  if (params.q) nextParams.set('q', params.q);
+  if (params.status !== 'todas') nextParams.set('status', params.status);
+  const queryString = nextParams.toString();
+  return queryString ? `/admin/leads/export?${queryString}` : '/admin/leads/export';
+}
+
 function createQueryString(params: { q: string; status: LeadStatus | 'todas'; page?: number }) {
   const nextParams = new URLSearchParams();
 
@@ -68,6 +76,8 @@ function buildLeadWhere(q: string, status: LeadStatus | 'todas'): Prisma.LeadWhe
         { email: textMatch },
         { phone: textMatch },
         { message: textMatch },
+        { utmCampaign: textMatch },
+        { utmSource: textMatch },
         { property: { is: { titleEs: textMatch } } },
       ],
     });
@@ -98,6 +108,7 @@ async function getLeadsPageData(where: Prisma.LeadWhereInput, page: number) {
           phone: true,
           message: true,
           status: true,
+          utmCampaign: true,
           createdAt: true,
           property: {
             select: {
@@ -162,6 +173,12 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
               : `Mostrando ${firstResult}-${lastResult} de ${total} consultas`}
           </p>
         </div>
+        {total > 0 && (
+          <a href={createExportHref({ q, status })} className="btn btn-outline">
+            <Download size={18} />
+            Exportar CSV
+          </a>
+        )}
       </div>
 
       <form className="admin-table-shell" style={{ marginBottom: 'var(--space-lg)', padding: 'var(--space-lg)' }}>
@@ -219,6 +236,7 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
                   <th>Cliente</th>
                   <th>Contacto</th>
                   <th>Propiedad interesada</th>
+                  <th>Campaña</th>
                   <th>Mensaje</th>
                   <th>Acciones</th>
                 </tr>
@@ -244,7 +262,9 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
                         </span>
                       </td>
                       <td>
-                        <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>{lead.name}</div>
+                        <Link href={`/admin/leads/${lead.id}`} style={{ fontWeight: 700, color: 'var(--color-text)', textDecoration: 'underline' }}>
+                          {lead.name}
+                        </Link>
                       </td>
                       <td>
                         <div className="text-xs">{lead.email}</div>
@@ -258,6 +278,9 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
                         ) : (
                           <span className="text-muted">Consulta general</span>
                         )}
+                      </td>
+                      <td className="text-xs text-muted">
+                        {lead.utmCampaign ?? '-'}
                       </td>
                       <td style={{ maxWidth: '300px' }}>
                         <p className="text-xs admin-clamped-text">

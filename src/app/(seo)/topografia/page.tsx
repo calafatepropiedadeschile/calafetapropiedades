@@ -1,7 +1,8 @@
-import SeoLandingPage, { metadataForSeoLanding } from '../seo-page';
+import type { CatalogPageParams } from '@/features/properties/property.service';
+import SeoLandingPage, { generateMetadataForSeoLanding } from '../seo-page';
 
-export const metadata = metadataForSeoLanding('topografia');
+export const generateMetadata = () => generateMetadataForSeoLanding('topografia');
 
-export default function TopografiaPage() {
-  return <SeoLandingPage pageKey="topografia" />;
+export default function TopografiaPage({ searchParams }: { searchParams: Promise<CatalogPageParams> }) {
+  return <SeoLandingPage pageKey="topografia" searchParams={searchParams} />;
 }

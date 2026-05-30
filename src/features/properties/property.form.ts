@@ -1,6 +1,7 @@
 import type { PropertyInput } from './property.schemas';
 import { PropertySchema } from './property.schemas';
 import { getMarketRegionForCountry, isPropertyMarketRegion } from './property-markets';
+import { normalizeLandAmenities, normalizeLandServices } from './property-land-options';
 
 function optionalString(value: FormDataEntryValue | null): string | null {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -53,13 +54,24 @@ function newlineList(value: FormDataEntryValue | null): string[] {
     }, []);
 }
 
+function textLineList(value: FormDataEntryValue | null): string[] {
+  if (typeof value !== 'string') {
+    return [];
+  }
+
+  return value
+    .split('\n')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function optionalUrl(value: FormDataEntryValue | null): string | null {
   const text = optionalString(value);
   return text ? text.replace(/\s+/g, '') : null;
 }
 
 export function parsePropertyFormData(formData: FormData): PropertyInput {
-  const country = optionalString(formData.get('country')) ?? 'Espana';
+  const country = optionalString(formData.get('country')) ?? 'Chile';
   const marketRegion = optionalString(formData.get('marketRegion'));
 
   const parsed = PropertySchema.safeParse({
@@ -68,8 +80,9 @@ export function parsePropertyFormData(formData: FormData): PropertyInput {
     descriptionEs: formData.get('descriptionEs'),
     descriptionEn: optionalString(formData.get('descriptionEn')),
     price: Number.parseFloat(String(formData.get('price') ?? '')),
+    priceFrom: formData.get('priceFrom') === 'on',
     priceType: formData.get('priceType'),
-    currency: optionalString(formData.get('currency')) ?? 'USD',
+    currency: optionalString(formData.get('currency')) ?? 'CLP',
     zoneEs: formData.get('zoneEs'),
     zoneEn: optionalString(formData.get('zoneEn')),
     cityEs: formData.get('cityEs'),
@@ -83,7 +96,7 @@ export function parsePropertyFormData(formData: FormData): PropertyInput {
     latitude: optionalFloat(formData.get('latitude')),
     longitude: optionalFloat(formData.get('longitude')),
     type: formData.get('type'),
-    status: optionalString(formData.get('status')) ?? 'disponible',
+    status: optionalString(formData.get('status')) === 'vendido' ? 'vendido' : 'disponible',
     published: formData.get('published') === 'on',
     featured: formData.get('featured') === 'on',
     bedrooms: optionalInt(formData.get('bedrooms')),
@@ -101,8 +114,26 @@ export function parsePropertyFormData(formData: FormData): PropertyInput {
     frontage: optionalFloat(formData.get('frontage')),
     depth: optionalFloat(formData.get('depth')),
     zoning: optionalString(formData.get('zoning')),
-    services: formList(formData, 'services'),
-    amenities: formList(formData, 'amenities'),
+    mapUrl: optionalUrl(formData.get('mapUrl')),
+    virtualTourUrl: optionalUrl(formData.get('virtualTourUrl')),
+    lotSurfaceM2: optionalFloat(formData.get('lotSurfaceM2')),
+    totalLots: optionalInt(formData.get('totalLots')),
+    availableLots: optionalInt(formData.get('availableLots')),
+    stageName: optionalString(formData.get('stageName')),
+    paymentTerms: optionalString(formData.get('paymentTerms')),
+    commissionPercent: optionalFloat(formData.get('commissionPercent')),
+    operationalExpenses: optionalString(formData.get('operationalExpenses')),
+    reservationAmount: optionalFloat(formData.get('reservationAmount')),
+    waterStatus: optionalString(formData.get('waterStatus')),
+    electricityStatus: optionalString(formData.get('electricityStatus')),
+    accessType: optionalString(formData.get('accessType')),
+    roadType: optionalString(formData.get('roadType')),
+    hasOwnRol: formData.get('hasOwnRol') === 'on',
+    availabilityNotes: optionalString(formData.get('availabilityNotes')),
+    commercialNotes: optionalString(formData.get('commercialNotes')),
+    distanceHighlights: textLineList(formData.get('distanceHighlights')),
+    services: normalizeLandServices(formList(formData, 'services')),
+    amenities: normalizeLandAmenities(formList(formData, 'amenities')),
     images: newlineList(formData.get('images')),
     coverImage: optionalUrl(formData.get('coverImage')),
     seoTitleEs: optionalString(formData.get('seoTitleEs')),
@@ -129,6 +160,7 @@ export function toPropertyPersistenceData(input: PropertyInput) {
     ...input,
     area: input.builtArea ?? input.totalArea ?? input.area,
     coverImage: input.coverImage ?? input.images[0] ?? null,
+    distanceHighlights: JSON.stringify(input.distanceHighlights),
     services: JSON.stringify(input.services),
     amenities: JSON.stringify(input.amenities),
     images: JSON.stringify(input.images),

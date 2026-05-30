@@ -1,15 +1,37 @@
 import Link from 'next/link';
-import PropertyCatalog from '@/components/properties/PropertyCatalog';
+import PropertyCatalog, { type CatalogPagination } from '@/components/properties/PropertyCatalog';
+import RentalsEmptyLanding from '@/components/seo/RentalsEmptyLanding';
 import CtaBanner from '@/components/ui/CtaBanner';
+import StaticPageContent from '@/components/site/StaticPageContent';
 import type { SeoLandingPageConfig } from '@/config/seo-pages';
+import type { StaticPageView } from '@/features/site-content/static-page';
+import type { CatalogFilterState } from '@/features/properties/property-filtering';
 import type { PropertyCard } from '@/types/property';
 
 interface Props {
   config: SeoLandingPageConfig;
   properties: PropertyCard[];
+  zoneOptions: string[];
+  initialFilters: CatalogFilterState;
+  pagination: CatalogPagination;
+  cmsPage?: StaticPageView | null;
 }
 
-export default function SeoCatalogLanding({ config, properties }: Props) {
+export default function SeoCatalogLanding({
+  config,
+  properties,
+  zoneOptions,
+  initialFilters,
+  pagination,
+  cmsPage,
+}: Props) {
+  const showCatalog = config.showCatalog !== false;
+  const isRentalsPage = config.filters.priceType === 'arriendo';
+  const hasRentalInventory = pagination.total > 0;
+  const showRentalsEmptyLanding = showCatalog && isRentalsPage && !hasRentalInventory;
+  const title = cmsPage?.title ?? config.title;
+  const description = cmsPage?.seoDescription ?? config.description;
+
   return (
     <section className="section container">
       <div style={{
@@ -32,10 +54,10 @@ export default function SeoCatalogLanding({ config, properties }: Props) {
             {config.eyebrow}
           </span>
           <h1 className="heading-2 heading-display" style={{ marginBottom: 'var(--space-md)' }}>
-            {config.title}
+            {title}
           </h1>
           <p className="text-muted" style={{ fontSize: '1.05rem', lineHeight: 1.75, maxWidth: '760px' }}>
-            {config.description}
+            {description}
           </p>
           <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap', marginTop: 'var(--space-xl)' }}>
             <Link href={config.primaryCta.href} className="btn btn-primary">
@@ -62,31 +84,50 @@ export default function SeoCatalogLanding({ config, properties }: Props) {
         </aside>
       </div>
 
-      {/* CTA 3: Pre-catálogo — refuerza la intención de búsqueda del usuario SEO */}
-      <CtaBanner
-        variant="inline"
-        eyebrow="Encuentra tu propiedad"
-        headline={`${config.primaryCta.label} — revisa el catálogo actualizado.`}
-        sub="Filtra por zona, precio y tipo. Si no encuentras lo que buscas, te asesoramos sin costo."
-        ctas={[
-          { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
-          { label: 'Consultar disponibilidad', href: '/contacto' },
-        ]}
-        id="cta-seo-catalogo"
-      />
+      {cmsPage?.content ? (
+        <div style={{ maxWidth: '860px', margin: '0 0 var(--space-3xl)' }}>
+          <StaticPageContent content={cmsPage.content} />
+        </div>
+      ) : null}
 
-      <PropertyCatalog
-        properties={properties}
-        initialFilters={{
-          query: '',
-          type: config.filters.type ?? '',
-          priceType: config.filters.priceType ?? '',
-          marketRegion: config.filters.marketRegion ?? '',
-          country: config.filters.country ?? '',
-          zone: config.filters.zone ?? '',
-        }}
-        showPriceModeTabs={false}
-      />
+      {showRentalsEmptyLanding ? (
+        <RentalsEmptyLanding contactHref={config.secondaryCta.href} />
+      ) : showCatalog ? (
+        <>
+          <CtaBanner
+            variant="inline"
+            eyebrow="Encuentra tu propiedad"
+            headline={`${config.primaryCta.label} — revisa el catalogo actualizado.`}
+            sub="Filtra por zona, precio y tipo. Si no encuentras lo que buscas, te asesoramos sin costo."
+            ctas={[
+              { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
+              { label: 'Consultar disponibilidad', href: '/contacto' },
+            ]}
+            id="cta-seo-catalogo"
+          />
+
+          <PropertyCatalog
+            properties={properties}
+            zoneOptions={zoneOptions}
+            initialFilters={initialFilters}
+            pagination={pagination}
+            showPriceModeTabs={isRentalsPage}
+            catalogPriceMode={isRentalsPage ? 'arriendo' : 'venta'}
+          />
+        </>
+      ) : (
+        <CtaBanner
+          variant="inline"
+          eyebrow="Consulta comercial"
+          headline="Coordinamos arriendos segun disponibilidad actual."
+          sub="El equipo comercial puede indicarte opciones vigentes, condiciones y zonas. Escríbenos para recibir asesoria."
+          ctas={[
+            { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
+            { label: config.secondaryCta.label, href: config.secondaryCta.href },
+          ]}
+          id="cta-seo-arriendos"
+        />
+      )}
 
       <section style={{ marginTop: 'var(--space-4xl)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>
         <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: 'var(--space-lg)' }}>

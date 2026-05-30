@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, CircleDot, Mail, MessageCircle, Trash2, XCircle } from 'lucide-react';
+import { CheckCircle2, CircleDot, Eye, Mail, MessageCircle, Trash2, XCircle } from 'lucide-react';
 import { useTransition } from 'react';
 import type { LeadStatus } from '@/features/leads/lead-status';
 import { siteConfig } from '@/config/site';
@@ -68,6 +69,10 @@ export default function AdminLeadActions({
 
   return (
     <div className="admin-actions-row">
+      <Link href={`/admin/leads/${id}`} className="btn btn-outline btn-sm">
+        <Eye size={15} />
+        Ver ficha
+      </Link>
       <a className="btn btn-outline btn-sm" href={`mailto:${email}?subject=${encodeURIComponent(`Consulta ${siteConfig.name}`)}`}>
         <Mail size={15} />
         Email

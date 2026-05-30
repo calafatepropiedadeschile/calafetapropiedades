@@ -2,19 +2,22 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
 import { siteConfig } from '@/config/site';
 
-// Columnas de navegación del footer
-// Estructura inspirada en el layout de referencia: header en caps + lista de links
-const FOOTER_COLUMNS = [
+function buildFooterColumns(showRentalsLink: boolean) {
+  const propertyLinks = [
+    { label: 'Parcelas en venta', href: '/propiedades?priceType=venta&type=terreno' },
+    { label: 'Casas en venta', href: '/propiedades?priceType=venta&type=casa' },
+    { label: 'Proyectos de loteo', href: '/propiedades?priceType=venta' },
+    ...(showRentalsLink ? [{ label: 'Arriendos', href: '/arriendos' }] : []),
+    { label: 'Ver todo el catálogo', href: '/propiedades' },
+  ];
+
+  return [
   {
     title: 'Propiedades',
-    links: [
-      { label: 'Parcelas en venta', href: '/propiedades?priceType=venta&type=terreno' },
-      { label: 'Casas en venta', href: '/propiedades?priceType=venta&type=casa' },
-      { label: 'Proyectos de loteo', href: '/propiedades?priceType=venta' },
-      { label: 'Ver todo el catálogo', href: '/propiedades' },
-    ],
+    links: propertyLinks,
   },
   {
     title: 'Empresa',
@@ -32,13 +35,29 @@ const FOOTER_COLUMNS = [
       { label: 'LinkedIn', href: siteConfig.contact.social.linkedin, external: true },
     ],
   },
-];
+  ];
+}
 
 export default function Footer() {
+  const { showRentalsLink } = useRentalsNav();
+  const footerColumns = buildFooterColumns(showRentalsLink);
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="site-footer" role="contentinfo">
+      
+      {/* ── Imagen de fondo (Volcán) con overlay ── */}
+      <div className="footer-bg-image" aria-hidden="true">
+        <Image
+          src="/site/volcano-footer-wide.png"
+          alt="Volcán de fondo"
+          fill
+          priority
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          sizes="100vw"
+        />
+        <div className="footer-bg-overlay" />
+      </div>
 
       {/* ── Partículas decorativas de fondo (CSS-only) ── */}
       <div className="footer-particles" aria-hidden="true">
@@ -87,7 +106,7 @@ export default function Footer() {
 
         {/* ── Columnas de navegación ── */}
         <nav className="footer-nav-columns" aria-label="Links del footer">
-          {FOOTER_COLUMNS.map((col) => (
+          {footerColumns.map((col) => (
             <div key={col.title} className="footer-nav-col">
               <h3 className="footer-nav-title">{col.title}</h3>
               <ul className="footer-nav-list" role="list">

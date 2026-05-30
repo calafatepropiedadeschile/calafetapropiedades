@@ -1,0 +1,2 @@
+ALTER TABLE public."Property"
+ADD COLUMN IF NOT EXISTS "priceFrom" BOOLEAN NOT NULL DEFAULT false;

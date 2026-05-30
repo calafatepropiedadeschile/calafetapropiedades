@@ -64,6 +64,24 @@ type PropertyDraft = {
   frontage?: number | null;
   depth?: number | null;
   zoning?: string | null;
+  mapUrl?: string | null;
+  virtualTourUrl?: string | null;
+  lotSurfaceM2?: number | null;
+  totalLots?: number | null;
+  availableLots?: number | null;
+  stageName?: string | null;
+  paymentTerms?: string | null;
+  commissionPercent?: number | null;
+  operationalExpenses?: string | null;
+  reservationAmount?: number | null;
+  waterStatus?: string | null;
+  electricityStatus?: string | null;
+  accessType?: string | null;
+  roadType?: string | null;
+  hasOwnRol?: boolean;
+  availabilityNotes?: string | null;
+  commercialNotes?: string | null;
+  distanceHighlights?: string[];
   services?: string[];
   amenities?: string[];
   seoTitleEs?: string | null;
@@ -347,6 +365,84 @@ function parseTotalArea(text: string) {
   return area && area > 0 ? area : null;
 }
 
+function parseFirstUrl(text: string, pattern: RegExp) {
+  const match = pattern.exec(text);
+  return match?.[0]?.replace(/[).,;]+$/, '') ?? null;
+}
+
+function parseTotalLots(text: string) {
+  const stageMatches = Array.from(text.matchAll(/Etapa\s*\d+\s*:\s*(\d+)\s+parcelas/gi))
+    .map((match) => Number(match[1]))
+    .filter((value) => Number.isFinite(value));
+
+  if (stageMatches.length > 0) {
+    return stageMatches.reduce((total, value) => total + value, 0);
+  }
+
+  const match = /(?:proyecto de|contempla|considera)\s+(\d+)\s+parcelas/i.exec(text);
+  return match ? Number(match[1]) : null;
+}
+
+function parseAvailableLots(text: string) {
+  const explicit = /Disponibilidad\s*:\s*(\d+)\s+unidades/i.exec(text);
+  if (explicit) return Number(explicit[1]);
+
+  const availableBlock = /Disponibles\s*:\s*([\s\S]*?)(?:PORTALES|Texto|$)/i.exec(text)?.[1];
+  if (!availableBlock) return null;
+
+  const parcelMatches = availableBlock.match(/Parcela\s+\d+/gi);
+  return parcelMatches?.length ?? null;
+}
+
+function parseCommissionPercent(text: string) {
+  const match = /comisi[oó]n\s*(?:de\s*)?(\d+(?:[.,]\d+)?)\s*%/i.exec(text);
+  return match ? parseNumberValue(match[1]) : null;
+}
+
+function parseReservationAmount(text: string) {
+  const match = /Reserva\s*:\s*\$?\s*([\d.,]+)/i.exec(text);
+  return match ? parseNumberValue(match[1]) : null;
+}
+
+function parseDistanceHighlights(text: string) {
+  return Array.from(text.matchAll(/A\s+(?:prox\.\s*)?[^.\n-]{3,90}/gi))
+    .map((match) => normalizeSpaces(match[0]))
+    .filter((value, index, items) => items.indexOf(value) === index)
+    .slice(0, 6);
+}
+
+function parseInfrastructure(text: string) {
+  const normalized = stripAccents(text).toLowerCase();
+
+  return {
+    hasOwnRol: /\brol propio\b/i.test(normalized),
+    waterStatus: normalized.includes('agua potable')
+      ? 'Agua potable'
+      : normalized.includes('pozo')
+        ? 'Agua mediante pozo / factibilidad'
+        : null,
+    electricityStatus: normalized.includes('electricidad') || normalized.includes('luz')
+      ? normalized.includes('factibilidad') || normalized.includes('100 metros')
+        ? 'Factibilidad electrica / empalme a gestionar'
+        : 'Electricidad disponible'
+      : null,
+    accessType: normalized.includes('camino publico')
+      ? 'Camino publico'
+      : normalized.includes('acceso autorizado')
+        ? 'Acceso autorizado'
+        : normalized.includes('acceso')
+          ? 'Acceso disponible'
+          : null,
+    roadType: normalized.includes('ripiado')
+      ? 'Caminos ripiados compactados'
+      : normalized.includes('estabilizado')
+        ? 'Camino estabilizado'
+        : normalized.includes('caminos interiores')
+          ? 'Caminos interiores'
+          : null,
+  };
+}
+
 function parseLocation(location: string | null) {
   if (!location) {
     return { zoneEs: null, cityEs: null, province: null };
@@ -399,6 +495,9 @@ function parseDocxProperty(sourceDir: string): PropertyDraft {
   const price = parsePriceFromText(searchableText);
   const location = parseLocation(captureField(searchableText, 'Ubicacion'));
   const totalArea = parseTotalArea(searchableText);
+  const mapUrl = parseFirstUrl(text, /https?:\/\/(?:maps\.app\.goo\.gl|www\.google\.com\/maps|google\.com\/maps)[^\s)]+/i);
+  const virtualTourUrl = parseFirstUrl(text, /https?:\/\/vtour\.cl\/[^\s)]+/i);
+  const infrastructure = parseInfrastructure(text);
   const type = captureField(searchableText, 'Tipo')?.toLowerCase().includes('terreno') ? 'terreno' : undefined;
   const operation = captureField(searchableText, 'Operacion')?.toLowerCase().includes('alquiler') ? 'alquiler' : 'venta';
 
@@ -416,6 +515,17 @@ function parseDocxProperty(sourceDir: string): PropertyDraft {
     marketRegion: 'latam',
     type,
     totalArea,
+    lotSurfaceM2: totalArea,
+    totalLots: parseTotalLots(text),
+    availableLots: parseAvailableLots(text),
+    mapUrl,
+    virtualTourUrl,
+    paymentTerms: captureField(text, 'Facilidad de pago'),
+    commissionPercent: parseCommissionPercent(text),
+    operationalExpenses: /gastos operacionales/i.test(text) ? 'Gastos operacionales segun proyecto' : null,
+    reservationAmount: parseReservationAmount(text),
+    distanceHighlights: parseDistanceHighlights(text),
+    ...infrastructure,
   };
 }
 
@@ -575,6 +685,24 @@ function propertyData(property: ResolvedProperty, images: string[]) {
     frontage: property.frontage ?? null,
     depth: property.depth ?? null,
     zoning: property.zoning ?? null,
+    mapUrl: property.mapUrl ?? null,
+    virtualTourUrl: property.virtualTourUrl ?? null,
+    lotSurfaceM2: property.lotSurfaceM2 ?? property.totalArea ?? null,
+    totalLots: property.totalLots ?? null,
+    availableLots: property.availableLots ?? null,
+    stageName: property.stageName ?? null,
+    paymentTerms: property.paymentTerms ?? null,
+    commissionPercent: property.commissionPercent ?? null,
+    operationalExpenses: property.operationalExpenses ?? null,
+    reservationAmount: property.reservationAmount ?? null,
+    waterStatus: property.waterStatus ?? null,
+    electricityStatus: property.electricityStatus ?? null,
+    accessType: property.accessType ?? null,
+    roadType: property.roadType ?? null,
+    hasOwnRol: property.hasOwnRol ?? false,
+    availabilityNotes: property.availabilityNotes ?? null,
+    commercialNotes: property.commercialNotes ?? null,
+    distanceHighlights: JSON.stringify(property.distanceHighlights ?? []),
     services: JSON.stringify(property.services ?? []),
     amenities: JSON.stringify(property.amenities ?? []),
     images: JSON.stringify(images),

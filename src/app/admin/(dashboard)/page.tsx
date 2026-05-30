@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { CheckCircle2, FilePenLine, Home, Mail, Plus } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FilePenLine, Home, ImageIcon, Mail, Plus } from 'lucide-react';
 import { withDatabaseRole } from '@/lib/db/rls';
 
 type RecentLead = {
   id: string;
   name: string;
   email: string;
+  status: string;
   createdAt: Date;
   property: { titleEs: string } | null;
 };
@@ -14,17 +15,19 @@ async function getDashboardData(): Promise<{
   totalProps: number;
   publishedProps: number;
   totalLeads: number;
+  pendingLeads: number;
   recentLeads: RecentLead[];
   databaseError: boolean;
 }> {
   try {
-    const [propertyPublicationCounts, totalLeads, recentLeads] = await withDatabaseRole('admin', async (db) => (
+    const [propertyPublicationCounts, totalLeads, pendingLeads, recentLeads] = await withDatabaseRole('admin', async (db) => (
       Promise.all([
         db.property.groupBy({
           by: ['published'],
           _count: { _all: true },
         }),
         db.lead.count(),
+        db.lead.count({ where: { status: 'pendiente' } }),
         db.lead.findMany({
           orderBy: { createdAt: 'desc' },
           take: 5,
@@ -32,6 +35,7 @@ async function getDashboardData(): Promise<{
             id: true,
             name: true,
             email: true,
+            status: true,
             createdAt: true,
             property: { select: { titleEs: true } },
           },
@@ -46,6 +50,7 @@ async function getDashboardData(): Promise<{
       totalProps,
       publishedProps,
       totalLeads,
+      pendingLeads,
       recentLeads,
       databaseError: false,
     };
@@ -56,6 +61,7 @@ async function getDashboardData(): Promise<{
       totalProps: 0,
       publishedProps: 0,
       totalLeads: 0,
+      pendingLeads: 0,
       recentLeads: [],
       databaseError: true,
     };
@@ -63,13 +69,13 @@ async function getDashboardData(): Promise<{
 }
 
 export default async function AdminDashboard() {
-  const { totalProps, publishedProps, totalLeads, recentLeads, databaseError } = await getDashboardData();
+  const { totalProps, publishedProps, totalLeads, pendingLeads, recentLeads, databaseError } = await getDashboardData();
 
   const stats = [
-    { label: 'Total propiedades', value: totalProps, icon: Home },
-    { label: 'Publicadas', value: publishedProps, icon: CheckCircle2 },
-    { label: 'Consultas recibidas', value: totalLeads, icon: Mail },
-    { label: 'Borradores', value: totalProps - publishedProps, icon: FilePenLine },
+    { label: 'Total propiedades', value: totalProps, icon: Home, href: '/admin/propiedades' },
+    { label: 'Publicadas', value: publishedProps, icon: CheckCircle2, href: '/admin/propiedades?published=publicadas' },
+    { label: 'Consultas recibidas', value: totalLeads, icon: Mail, href: '/admin/leads' },
+    { label: 'Borradores', value: totalProps - publishedProps, icon: FilePenLine, href: '/admin/propiedades?published=borradores' },
   ];
 
   return (
@@ -79,10 +85,22 @@ export default async function AdminDashboard() {
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem' }}>Dashboard</h1>
           <p className="text-muted text-sm">Resumen general de la plataforma</p>
         </div>
-        <Link href="/admin/propiedades/nueva" className="btn btn-primary">
-          <Plus size={18} />
-          Nueva propiedad
-        </Link>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
+          <Link href="/admin/inicio" className="btn btn-outline">
+            <ImageIcon size={18} />
+            Hero inicio
+          </Link>
+          <Link href="/admin/paginas" className="btn btn-outline">
+            Paginas
+          </Link>
+          <Link href="/admin/campanas" className="btn btn-outline">
+            Campanas
+          </Link>
+          <Link href="/admin/propiedades/nueva" className="btn btn-primary">
+            <Plus size={18} />
+            Nueva propiedad
+          </Link>
+        </div>
       </div>
 
       {databaseError && (
@@ -94,13 +112,28 @@ export default async function AdminDashboard() {
         </div>
       )}
 
+      {pendingLeads > 0 && (
+        <div className="admin-empty-state compact" style={{ marginBottom: 'var(--space-lg)', alignItems: 'flex-start', textAlign: 'left', borderColor: 'var(--color-gold)' }}>
+          <AlertCircle size={22} style={{ color: 'var(--color-gold)' }} />
+          <div>
+            <strong>{pendingLeads} consulta{pendingLeads === 1 ? '' : 's'} pendiente{pendingLeads === 1 ? '' : 's'} de respuesta</strong>
+            <p className="text-muted text-sm" style={{ marginTop: 'var(--space-xs)' }}>
+              Revisa y marca el estado cuando contactes al cliente.
+            </p>
+            <Link href="/admin/leads?status=pendiente" className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-sm)' }}>
+              Ver pendientes
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="admin-stats-grid">
         {stats.map((stat) => (
-          <div key={stat.label} className="admin-stat-card">
+          <Link key={stat.label} href={stat.href} className="admin-stat-card" style={{ textDecoration: 'none' }}>
             <stat.icon size={26} style={{ color: 'var(--color-primary)', marginBottom: 'var(--space-sm)' }} />
             <p className="admin-stat-value">{stat.value}</p>
             <p className="admin-stat-label">{stat.label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -119,6 +152,7 @@ export default async function AdminDashboard() {
             <thead>
               <tr>
                 <th>Nombre</th>
+                <th>Estado</th>
                 <th>Email</th>
                 <th>Propiedad</th>
                 <th>Fecha</th>
@@ -127,7 +161,16 @@ export default async function AdminDashboard() {
             <tbody>
               {recentLeads.map((lead) => (
                 <tr key={lead.id}>
-                  <td style={{ color: 'var(--color-text)' }}>{lead.name}</td>
+                  <td>
+                    <Link href={`/admin/leads/${lead.id}`} style={{ color: 'var(--color-text)', textDecoration: 'underline' }}>
+                      {lead.name}
+                    </Link>
+                  </td>
+                  <td>
+                    <span className={`badge ${lead.status === 'pendiente' ? 'badge-gold' : lead.status === 'contactada' ? 'badge-green' : 'badge-red'}`}>
+                      {lead.status}
+                    </span>
+                  </td>
                   <td>{lead.email}</td>
                   <td>{lead.property?.titleEs ?? '-'}</td>
                   <td>{new Date(lead.createdAt).toLocaleDateString('es-ES')}</td>

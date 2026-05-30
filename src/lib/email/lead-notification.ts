@@ -78,6 +78,9 @@ function buildLeadEmail({ lead, property }: LeadNotificationInput) {
     ? `Nueva consulta por propiedad: ${property.title}`
     : `Nueva consulta desde ${siteConfig.name}`;
 
+  const campaignLine = lead.utmCampaign ? `Campaña UTM: ${lead.utmCampaign}` : null;
+  const landingLine = lead.landingPath ? `Landing: ${lead.landingPath}` : null;
+
   const textLines = [
     `Nueva consulta recibida en ${siteConfig.name}`,
     '',
@@ -86,6 +89,10 @@ function buildLeadEmail({ lead, property }: LeadNotificationInput) {
     `Telefono: ${lead.phone || '-'}`,
     property ? `Propiedad: ${property.title}` : 'Origen: Formulario de contacto',
     propertyUrl ? `URL: ${propertyUrl}` : null,
+    campaignLine,
+    landingLine,
+    lead.utmSource ? `utm_source: ${lead.utmSource}` : null,
+    lead.utmMedium ? `utm_medium: ${lead.utmMedium}` : null,
     '',
     'Mensaje:',
     lead.message || '-',
@@ -101,6 +108,10 @@ function buildLeadEmail({ lead, property }: LeadNotificationInput) {
           <tr><td style="padding:8px 0;font-weight:700">Telefono</td><td>${escapeHtml(lead.phone || '-')}</td></tr>
           <tr><td style="padding:8px 0;font-weight:700">Origen</td><td>${property ? escapeHtml(property.title) : 'Formulario de contacto'}</td></tr>
           ${propertyUrl ? `<tr><td style="padding:8px 0;font-weight:700">URL</td><td><a href="${escapeHtml(propertyUrl)}">${escapeHtml(propertyUrl)}</a></td></tr>` : ''}
+          ${lead.utmCampaign ? `<tr><td style="padding:8px 0;font-weight:700">Campaña</td><td>${escapeHtml(lead.utmCampaign)}</td></tr>` : ''}
+          ${lead.landingPath ? `<tr><td style="padding:8px 0;font-weight:700">Landing</td><td>${escapeHtml(lead.landingPath)}</td></tr>` : ''}
+          ${lead.utmSource ? `<tr><td style="padding:8px 0;font-weight:700">utm_source</td><td>${escapeHtml(lead.utmSource)}</td></tr>` : ''}
+          ${lead.utmMedium ? `<tr><td style="padding:8px 0;font-weight:700">utm_medium</td><td>${escapeHtml(lead.utmMedium)}</td></tr>` : ''}
         </tbody>
       </table>
       <div style="margin-top:20px">

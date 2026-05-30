@@ -2,8 +2,12 @@
 
 import Script from 'next/script';
 
-export default function GoogleAnalytics() {
-  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+interface Props {
+  measurementId?: string | null;
+}
+
+export default function GoogleAnalytics({ measurementId }: Props) {
+  const gaId = measurementId ?? process.env.NEXT_PUBLIC_GA_ID;
 
   // Render nothing if the environment variable is not defined
   if (!gaId) {

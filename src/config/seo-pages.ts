@@ -4,7 +4,7 @@ import { buildMailto, siteConfig } from '@/config/site';
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL
   || process.env.APP_ORIGIN
-  || 'https://calafatepropiedades.cl'
+  || 'https://calafetapropiedades.vercel.app'
 ).replace(/\/$/, '');
 
 export type SeoLandingKey = 'comprar' | 'arriendos' | 'proyectos' | 'terrenos' | 'vender' | 'topografia';
@@ -16,6 +16,8 @@ export interface SeoLandingPageConfig {
   description: string;
   metadataTitle: string;
   metadataDescription: string;
+  /** Si es false, la landing no muestra catálogo filtrable. */
+  showCatalog?: boolean;
   filters: Partial<PropertyFilters>;
   primaryCta: {
     label: string;
@@ -63,25 +65,29 @@ export const seoLandingPages: Record<SeoLandingKey, SeoLandingPageConfig> = {
     path: '/arriendos',
     eyebrow: 'Arriendos',
     title: 'Propiedades en arriendo',
-    description: 'Revisa propiedades disponibles para arriendo y deja tus datos para recibir asesoria directa del equipo comercial.',
+    description: 'Consulta arriendos en el sur de Chile. Si no hay fichas publicadas por ahora, dejanos tu mensaje y te avisamos cuando haya opciones disponibles.',
     metadataTitle: 'Arriendos | Calafate Propiedades',
     metadataDescription: 'Propiedades en arriendo gestionadas por Calafate Propiedades. Consulta disponibilidad, condiciones y ubicaciones.',
-    filters: { priceType: 'alquiler' },
-    primaryCta: { label: 'Ver arriendos', href: '/propiedades?priceType=alquiler' },
+    filters: { priceType: 'arriendo' },
+    primaryCta: { label: 'Ver arriendos', href: '/arriendos' },
     secondaryCta: { label: 'Hablar con un asesor', href: '/contacto' },
     highlights: [
-      'Busqueda por zona y tipo de propiedad.',
-      'Informacion ordenada para evaluar condiciones de arriendo.',
-      'Contacto directo para confirmar disponibilidad.',
+      'Cartera visible en el sitio cuando hay propiedades publicadas.',
+      'Si no hay stock web, igual puedes consultar por disponibilidad.',
+      'Asesoria directa por formulario o WhatsApp.',
     ],
     faqs: [
       {
-        question: 'Como consulto por un arriendo?',
-        answer: 'Puedes enviar una solicitud desde la ficha de la propiedad o escribir al equipo comercial desde la pagina de contacto.',
+        question: 'Por que no veo propiedades en arriendo?',
+        answer: 'Significa que aun no hay fichas publicadas en el sitio. Puedes contactarnos y te informamos de opciones vigentes o cuando se publique una nueva.',
       },
       {
-        question: 'Las propiedades se actualizan?',
-        answer: 'Si. El panel de administracion permite mantener disponibilidad, precio y estado al dia.',
+        question: 'Como aparecen nuevos arriendos en la web?',
+        answer: 'Cuando el equipo publica una propiedad con operacion Arriendo en el panel de administracion, se muestra automaticamente en esta pagina.',
+      },
+      {
+        question: 'Como consulto por un arriendo?',
+        answer: 'Desde la ficha de cada propiedad o escribiendo al equipo comercial desde la pagina de contacto.',
       },
     ],
   },

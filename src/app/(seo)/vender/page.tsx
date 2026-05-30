@@ -1,7 +1,8 @@
-import SeoLandingPage, { metadataForSeoLanding } from '../seo-page';
+import type { CatalogPageParams } from '@/features/properties/property.service';
+import SeoLandingPage, { generateMetadataForSeoLanding } from '../seo-page';
 
-export const metadata = metadataForSeoLanding('vender');
+export const generateMetadata = () => generateMetadataForSeoLanding('vender');
 
-export default function VenderPage() {
-  return <SeoLandingPage pageKey="vender" />;
+export default function VenderPage({ searchParams }: { searchParams: Promise<CatalogPageParams> }) {
+  return <SeoLandingPage pageKey="vender" searchParams={searchParams} />;
 }

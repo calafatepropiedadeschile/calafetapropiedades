@@ -1,199 +1,290 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useMemo, useRef, useState, useId } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { SlidersHorizontal, X } from 'lucide-react';
 import PropertyCard from '@/components/properties/PropertyCard';
+import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
+import { PROPERTY_LOCATION_FILTERS } from '@/features/properties/property-zone-filters';
 import {
-  PROPERTY_MARKET_REGIONS,
-  PROPERTY_MARKET_REGION_TRANSLATION_KEYS,
-  type PropertyMarketRegion,
-} from '@/features/properties/property-markets';
-import {
-  PROPERTY_LOCATION_FILTERS,
-  propertyMatchesZoneFilter,
-} from '@/features/properties/property-zone-filters';
-import type { PropertyCard as PropertyCardType, PriceType, PropertyType } from '@/types/property';
+  buildCatalogFilterSearchParams,
+  DEFAULT_CATALOG_FILTERS,
+  normalizeCatalogFilters,
+  type CatalogFilterState,
+} from '@/features/properties/property-filtering';
+import type { PropertyCard as PropertyCardType, PropertyType } from '@/types/property';
+import { persistCatalogPreferencesClient } from '@/lib/catalog/catalog-preferences';
 
 const PROPERTY_TYPES: Array<{ value: PropertyType | ''; labelKey: TranslationKey }> = [
-  { value: '', labelKey: 'catalog.allTypes' },
-  { value: 'casa', labelKey: 'property.house' },
-  { value: 'apartamento', labelKey: 'property.apartment' },
-  { value: 'local', labelKey: 'property.retail' },
-  { value: 'oficina', labelKey: 'property.office' },
+  { value: '', labelKey: 'catalog.landAndHouses' },
   { value: 'terreno', labelKey: 'property.lot' },
+  { value: 'casa', labelKey: 'property.house' },
 ];
 
-interface Filters {
-  query: string;
-  type: PropertyType | '';
-  priceType: PriceType | '';
-  marketRegion: PropertyMarketRegion | '';
-  country: string;
-  zone: string;
-  minPrice: string;
-  maxPrice: string;
-  bedrooms: string;
-  region: string;
+const QUERY_DEBOUNCE_MS = 400;
+
+export interface CatalogPagination {
+  page: number;
+  totalPages: number;
+  total: number;
+  limit: number;
+}
+
+type CatalogPriceMode = 'venta' | 'arriendo';
+
+interface CustomCatalogSelectProps {
+  value: string;
+  options: { value: string; label: string; description?: string }[];
+  onChange: (value: string) => void;
+}
+
+function CustomCatalogSelect({ value, options, onChange }: CustomCatalogSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+  const selectedOption = options.find((o) => o.value === value) ?? options[0];
+
+  useEffect(() => {
+    function handlePointerDown(e: MouseEvent) {
+      if (!wrapperRef.current?.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  return (
+    <div ref={wrapperRef} style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        className={`select${isOpen ? ' is-open' : ''}`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={listboxId}
+        onClick={() => setIsOpen((c) => !c)}
+        style={{ textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '1rem' }}>
+          {selectedOption?.label || ''}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="property-search-dropdown" role="listbox" id={listboxId} style={{ top: 'calc(100% + 8px)', width: '100%', zIndex: 50, padding: '8px' }}>
+          {options.map((option) => {
+            const isSelected = option.value === selectedOption?.value;
+            return (
+              <button
+                key={option.value || 'empty'}
+                type="button"
+                className={`property-search-option${isSelected ? ' is-selected' : ''}`}
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                style={{ padding: '8px 12px' }}
+              >
+                <span className="property-search-option-copy">
+                  <span className="property-search-option-label" style={{ fontSize: '0.9rem' }}>{option.label}</span>
+                  {option.description && (
+                    <span className="property-search-option-description" style={{ fontSize: '0.8rem' }}>{option.description}</span>
+                  )}
+                </span>
+                {isSelected && (
+                  <svg className="property-search-option-check" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m20 6-11 11-5-5" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 interface Props {
   properties: PropertyCardType[];
-  initialFilters?: Partial<Filters>;
+  zoneOptions: string[];
+  initialFilters?: Partial<CatalogFilterState>;
+  pagination: CatalogPagination;
   showPriceModeTabs?: boolean;
+  catalogPriceMode?: CatalogPriceMode;
 }
-
-const initialFilters: Filters = {
-  query: '',
-  type: '',
-  priceType: 'venta',
-  marketRegion: '',
-  country: '',
-  zone: '',
-  minPrice: '',
-  maxPrice: '',
-  bedrooms: '',
-  region: '',
-};
 
 export default function PropertyCatalog({
   properties,
+  zoneOptions,
   initialFilters: providedFilters,
+  pagination,
   showPriceModeTabs = false,
+  catalogPriceMode = 'venta',
 }: Props) {
   const { t } = useI18n();
-  const [filters, setFilters] = useState<Filters>({
-    ...initialFilters,
+  const { hasPublishedRentals } = useRentalsNav();
+  const router = useRouter();
+  const pathname = usePathname();
+  const filtersKey = useMemo(
+    () => JSON.stringify(normalizeCatalogFilters({ ...DEFAULT_CATALOG_FILTERS, ...providedFilters })),
+    [providedFilters]
+  );
+
+  const [filters, setFilters] = useState<CatalogFilterState>(() => normalizeCatalogFilters({
+    ...DEFAULT_CATALOG_FILTERS,
     ...providedFilters,
-  });
+  }));
+  const [queryDraft, setQueryDraft] = useState(() => filters.query);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+
+  useEffect(() => {
+    const next = normalizeCatalogFilters({ ...DEFAULT_CATALOG_FILTERS, ...providedFilters });
+    setFilters(next);
+    setQueryDraft(next.query);
+  }, [filtersKey, providedFilters]);
+
+  function applyFilters(nextFilters: CatalogFilterState, page = pagination.page) {
+    const normalized = normalizeCatalogFilters(nextFilters);
+    setFilters(normalized);
+    persistCatalogPreferencesClient({
+      type: normalized.type === 'terreno' || normalized.type === 'casa' ? normalized.type : '',
+      zone: normalized.zone,
+    });
+    const params = buildCatalogFilterSearchParams(normalized, page);
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+  }
+
+  useEffect(() => {
+    if (queryDraft === filters.query) return;
+
+    const timeout = window.setTimeout(() => {
+      applyFilters({ ...filtersRef.current, query: queryDraft }, 1);
+    }, QUERY_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [queryDraft, filters.query, pathname, router, pagination.page]);
 
   const zones = useMemo(() => {
     const groupedZones = PROPERTY_LOCATION_FILTERS.filter((location) => location.value);
-    const realZones = Array.from(new Set(properties.map((property) => property.zone)))
-      .sort()
-      .filter((zone) => !groupedZones.some((location) => location.label === zone || location.value === zone));
+    const normalizedGroupLabels = new Set(groupedZones.map((location) => location.label.toLowerCase()));
+
+    const extraZones = zoneOptions
+      .filter((zone) => zone && !normalizedGroupLabels.has(zone.toLowerCase()))
+      .sort();
 
     return [
       ...groupedZones,
-      ...realZones.map((zone) => ({ value: zone, label: zone })),
+      ...extraZones.map((zone) => ({ value: zone, label: zone })),
     ];
-  }, [properties]);
-  const countries = useMemo(
-    () => Array.from(new Set(properties.map((property) => property.country).filter((country): country is string => Boolean(country)))).sort(),
-    [properties]
-  );
+  }, [zoneOptions]);
 
-  const filteredProperties = useMemo(() => {
-    const query = filters.query.trim().toLowerCase();
-    const minPrice = filters.minPrice ? Number(filters.minPrice) : null;
-    const maxPrice = filters.maxPrice ? Number(filters.maxPrice) : null;
-    const bedrooms = filters.bedrooms ? Number(filters.bedrooms) : null;
+  const pageNumbers = useMemo(() => {
+    const { page, totalPages } = pagination;
+    if (totalPages <= 1) return [] as number[];
 
-    // Helper to group property countries into broader regions
-    const getPropertyRegion = (country: string | null): string => {
-      if (!country) return '';
-      const c = country.trim().toLowerCase();
-      
-      // España / Europa
-      if (['españa', 'espana', 'spain', 'europa', 'europe', 'portugal', 'francia', 'france', 'italia', 'italy', 'alemania', 'germany'].includes(c)) {
-        return 'europa';
-      }
-      
-      // México
-      if (['méxico', 'mexico'].includes(c)) {
-        return 'mexico';
-      }
-      
-      // Estados Unidos
-      if (['estados unidos', 'eeuu', 'usa', 'united states', 'us'].includes(c)) {
-        return 'usa';
-      }
-      
-      // Centroamérica
-      if (['panamá', 'panama', 'costa rica', 'guatemala', 'honduras', 'el salvador', 'nicaragua', 'república dominicana', 'caribe', 'caribbean'].includes(c)) {
-        return 'centroamerica';
-      }
-      
-      // LATAM (default for South America and fallback)
-      if (['paraguay', 'argentina', 'uruguay', 'chile', 'colombia', 'perú', 'peru', 'ecuador', 'bolivia', 'venezuela', 'brasil', 'brazil', 'latam', 'sudamerica', 'south america'].includes(c)) {
-        return 'latam';
-      }
-      
-      return 'latam';
-    };
+    const pages = new Set<number>([1, totalPages, page, page - 1, page + 1]);
+    return Array.from(pages)
+      .filter((p) => p >= 1 && p <= totalPages)
+      .sort((a, b) => a - b);
+  }, [pagination]);
 
-    return properties.filter((property) => {
-      const matchesQuery = !query || [property.title, property.zone, property.city]
-        .some((value) => value.toLowerCase().includes(query));
+  const activeFilters = useMemo(() => [
+    filters.query,
+    filters.type,
+    filters.zone,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.minSurface,
+    filters.hasAvailableLots ? 'available' : '',
+  ].filter(Boolean).length, [filters]);
 
-      // Match selected region/country
-      let matchesRegion = true;
-      if (filters.region) {
-        const countryLower = property.country?.trim().toLowerCase() ?? '';
-        const regionType = getPropertyRegion(property.country);
-        
-        if (filters.region === 'europa') {
-          matchesRegion = regionType === 'europa';
-        } else if (filters.region === 'mexico') {
-          matchesRegion = regionType === 'mexico';
-        } else if (filters.region === 'paraguay') {
-          matchesRegion = countryLower === 'paraguay';
-        } else if (filters.region === 'latam_others') {
-          matchesRegion = regionType === 'latam' && countryLower !== 'paraguay';
-        } else if (filters.region === 'centroamerica') {
-          matchesRegion = regionType === 'centroamerica';
-        } else if (filters.region === 'usa') {
-          matchesRegion = regionType === 'usa';
-        }
-      }
+  function updateFilter<K extends keyof CatalogFilterState>(key: K, value: CatalogFilterState[K]) {
+    if (key === 'query') {
+      setQueryDraft(String(value));
+      return;
+    }
+    applyFilters({ ...filters, [key]: value }, 1);
+  }
 
-      return (
-        matchesQuery &&
-        matchesRegion &&
-        (!filters.type || property.type === filters.type) &&
-        (!filters.priceType || property.priceType === filters.priceType) &&
-        (!filters.marketRegion || property.marketRegion === filters.marketRegion) &&
-        (!filters.country || property.country === filters.country) &&
-        propertyMatchesZoneFilter(property, filters.zone) &&
-        (minPrice === null || property.price >= minPrice) &&
-        (maxPrice === null || property.price <= maxPrice) &&
-        (bedrooms === null || (property.bedrooms ?? 0) >= bedrooms)
-      );
-    });
-  }, [filters, properties]);
+  function clearFilters() {
+    setQueryDraft('');
+    applyFilters(DEFAULT_CATALOG_FILTERS, 1);
+    setIsFilterOpen(false);
+  }
 
-  function updateFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
-    setFilters((current) => ({ ...current, [key]: value }));
+  function goToPage(page: number) {
+    applyFilters(filters, page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   return (
     <>
-      <div className="property-filter-panel" style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border-light)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 'var(--space-lg)',
-        marginBottom: 'var(--space-2xl)',
-      }}>
-        {showPriceModeTabs && (
-          <div className="search-tabs catalog-tabs" style={{ marginBottom: 'var(--space-lg)' }}>
-            {(['venta', 'alquiler'] as const).map((priceType) => (
-              <button
-                key={priceType}
-                className={`search-tab ${filters.priceType === priceType ? 'active' : ''}`}
-                onClick={() => updateFilter('priceType', priceType)}
-              >
-                {priceType === 'venta' ? t('catalog.buyTab') : t('catalog.rentTab')}
-              </button>
-            ))}
+      <div className="catalog-mobile-filter-bar">
+        <div>
+          <span className="catalog-mobile-filter-kicker">{t('catalog.filtersTitle')}</span>
+          <strong>{pagination.total} {pagination.total === 1 ? t('catalog.oneResult') : t('catalog.manyResults')}</strong>
+        </div>
+        <button
+          type="button"
+          className="catalog-filter-toggle"
+          aria-expanded={isFilterOpen}
+          onClick={() => setIsFilterOpen((current) => !current)}
+        >
+          {isFilterOpen ? <X size={18} aria-hidden="true" /> : <SlidersHorizontal size={18} aria-hidden="true" />}
+          <span>{isFilterOpen ? t('catalog.closeFilters') : t('catalog.mobileFilterButton')}</span>
+          {activeFilters > 0 && <span className="catalog-filter-count">{activeFilters}</span>}
+        </button>
+      </div>
+
+      <div className={`property-filter-panel ${isFilterOpen ? 'is-open' : ''}`}>
+        <div className="catalog-filter-header">
+          <div>
+            <span className="catalog-filter-eyebrow">{t('catalog.countryLocked')}</span>
+            <h2>{t('catalog.filtersTitle')}</h2>
+            <p>{t('catalog.filtersSubtitle')}</p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm catalog-clear-filters"
+            onClick={clearFilters}
+            disabled={activeFilters === 0}
+          >
+            {t('catalog.clearFilters')}
+          </button>
+        </div>
+
+        {showPriceModeTabs && hasPublishedRentals && (
+          <div className="search-tabs catalog-tabs">
             <button
-              className={`search-tab ${filters.priceType === '' ? 'active' : ''}`}
-              onClick={() => updateFilter('priceType', '')}
+              type="button"
+              className={`search-tab ${catalogPriceMode === 'venta' ? 'active' : ''}`}
+              onClick={() => router.push('/propiedades')}
             >
-              {t('catalog.allTab')}
+              {t('catalog.buyTab')}
+            </button>
+            <button
+              type="button"
+              className={`search-tab ${catalogPriceMode === 'arriendo' ? 'active' : ''}`}
+              onClick={() => router.push('/arriendos')}
+            >
+              {t('catalog.rentTab')}
             </button>
           </div>
         )}
+
+        <div className="catalog-country-pill" aria-label={t('catalog.country')}>
+          <span>{t('catalog.country')}</span>
+          <strong>{t('catalog.chileOnly')}</strong>
+        </div>
 
         <div className="catalog-filter-grid">
           <div className="input-group">
@@ -201,83 +292,34 @@ export default function PropertyCatalog({
             <input
               className="input"
               placeholder={t('catalog.searchPlaceholder')}
-              value={filters.query}
+              value={queryDraft}
               onChange={(event) => updateFilter('query', event.target.value)}
             />
           </div>
 
           <div className="input-group">
-            <label className="input-label">{t('catalog.destination')}</label>
-            <select
-              className="select"
-              value={filters.region}
-              onChange={(event) => updateFilter('region', event.target.value)}
-            >
-              <option value="">{t('catalog.allDestinations')}</option>
-              <option value="europa">{t('catalog.regionEurope')}</option>
-              <option value="mexico">{t('catalog.regionMexico')}</option>
-              <option value="paraguay">{t('catalog.regionParaguay')}</option>
-              <option value="latam_others">{t('catalog.regionLatamOthers')}</option>
-              <option value="centroamerica">{t('catalog.regionCentralAmerica')}</option>
-              <option value="usa">{t('catalog.regionUSA')}</option>
-            </select>
-          </div>
-
-          <div className="input-group">
             <label className="input-label">{t('catalog.propertyType')}</label>
-            <select
-              className="select"
+            <CustomCatalogSelect
               value={filters.type}
-              onChange={(event) => updateFilter('type', event.target.value as Filters['type'])}
-            >
-              {PROPERTY_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>{t(type.labelKey)}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="input-group">
-            <label className="input-label">{t('catalog.marketRegion')}</label>
-            <select
-              className="select"
-              value={filters.marketRegion}
-              onChange={(event) => updateFilter('marketRegion', event.target.value as Filters['marketRegion'])}
-            >
-              <option value="">{t('catalog.allMarkets')}</option>
-              {PROPERTY_MARKET_REGIONS.map((marketRegion) => (
-                <option key={marketRegion} value={marketRegion}>
-                  {t(PROPERTY_MARKET_REGION_TRANSLATION_KEYS[marketRegion])}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="input-group">
-            <label className="input-label">{t('catalog.country')}</label>
-            <select
-              className="select"
-              value={filters.country}
-              onChange={(event) => updateFilter('country', event.target.value)}
-            >
-              <option value="">{t('catalog.allCountries')}</option>
-              {countries.map((country) => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
+              onChange={(value) => updateFilter('type', value as CatalogFilterState['type'])}
+              options={PROPERTY_TYPES.map((type) => ({
+                value: type.value,
+                label: t(type.labelKey),
+                description: type.value === 'terreno' ? 'Parcelas y loteos' : type.value === 'casa' ? 'Casas con terreno' : 'Todas las propiedades',
+              }))}
+            />
           </div>
 
           <div className="input-group">
             <label className="input-label">{t('catalog.zone')}</label>
-            <select
-              className="select"
+            <CustomCatalogSelect
               value={filters.zone}
-              onChange={(event) => updateFilter('zone', event.target.value)}
-            >
-              <option value="">{t('catalog.allZones')}</option>
-              {zones.map((zone) => (
-                <option key={zone.value} value={zone.value}>{zone.label}</option>
-              ))}
-            </select>
+              onChange={(value) => updateFilter('zone', value)}
+              options={[
+                { value: '', label: t('catalog.allZones') },
+                ...zones.map((zone) => ({ value: zone.value, label: zone.label })),
+              ]}
+            />
           </div>
 
           <div className="input-group">
@@ -285,7 +327,8 @@ export default function PropertyCatalog({
             <input
               className="input"
               type="number"
-              placeholder="US$ 0"
+              min={0}
+              placeholder="$ 0"
               value={filters.minPrice}
               onChange={(event) => updateFilter('minPrice', event.target.value)}
             />
@@ -296,6 +339,7 @@ export default function PropertyCatalog({
             <input
               className="input"
               type="number"
+              min={0}
               placeholder={t('catalog.noLimit')}
               value={filters.maxPrice}
               onChange={(event) => updateFilter('maxPrice', event.target.value)}
@@ -303,37 +347,98 @@ export default function PropertyCatalog({
           </div>
 
           <div className="input-group">
-            <label className="input-label">{t('catalog.minBedrooms')}</label>
-            <select
-              className="select"
-              value={filters.bedrooms}
-              onChange={(event) => updateFilter('bedrooms', event.target.value)}
-            >
-              <option value="">{t('catalog.anyBedrooms')}</option>
-              {[1, 2, 3, 4, 5].map((bedrooms) => (
-                <option key={bedrooms} value={bedrooms}>{bedrooms}+</option>
-              ))}
-            </select>
+            <label className="input-label">{t('catalog.minSurface')}</label>
+            <input
+              className="input"
+              type="number"
+              min={0}
+              placeholder={t('catalog.minSurfacePlaceholder')}
+              value={filters.minSurface}
+              onChange={(event) => updateFilter('minSurface', event.target.value)}
+            />
           </div>
+
+          <label className="form-check catalog-availability-filter">
+            <input
+              type="checkbox"
+              checked={filters.hasAvailableLots}
+              onChange={(event) => updateFilter('hasAvailableLots', event.target.checked)}
+            />
+            {t('catalog.availableLotsOnly')}
+          </label>
         </div>
       </div>
 
-      {filteredProperties.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-muted)' }}>
-          <h3 style={{ marginBottom: '0.5rem' }}>{t('catalog.noResultsTitle')}</h3>
-          <p>{t('catalog.noResultsCopy')}</p>
+      {properties.length === 0 ? (
+        <div className="catalog-empty-state">
+          <h3>{catalogPriceMode === 'arriendo' ? t('catalog.noRentalsTitle') : t('catalog.noResultsTitle')}</h3>
+          <p>{catalogPriceMode === 'arriendo' ? t('catalog.noRentalsCopy') : t('catalog.noResultsCopy')}</p>
+          {catalogPriceMode === 'arriendo' ? (
+            <Link href="/contacto" className="btn btn-primary btn-sm">
+              {t('catalog.rentalContactCta')}
+            </Link>
+          ) : (
+            <button type="button" className="btn btn-outline btn-sm" onClick={clearFilters}>
+              {t('catalog.clearFilters')}
+            </button>
+          )}
         </div>
       ) : (
         <>
-          <p className="text-muted text-sm" style={{ marginBottom: 'var(--space-lg)' }}>
-            {filteredProperties.length} {filteredProperties.length === 1 ? t('catalog.oneResult') : t('catalog.manyResults')}
-          </p>
+          <div className="catalog-results-summary">
+            <div>
+              <span>{t('catalog.resultsEyebrow')}</span>
+              <strong>{pagination.total} {pagination.total === 1 ? t('catalog.oneResult') : t('catalog.manyResults')}</strong>
+            </div>
+            {pagination.totalPages > 1 && (
+              <p>{t('catalog.page')} {pagination.page} / {pagination.totalPages}</p>
+            )}
+          </div>
 
           <div className="properties-grid">
-            {filteredProperties.map((property) => (
+            {properties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
           </div>
+
+          {pagination.totalPages > 1 && (
+            <nav className="catalog-pagination" aria-label={t('catalog.paginationLabel')}>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                disabled={pagination.page <= 1}
+                onClick={() => goToPage(pagination.page - 1)}
+              >
+                {t('catalog.prevPage')}
+              </button>
+              {pageNumbers.map((pageNumber, index) => {
+                const prev = pageNumbers[index - 1];
+                const showEllipsis = prev !== undefined && pageNumber - prev > 1;
+
+                return (
+                  <span key={pageNumber} className="catalog-pagination-group">
+                    {showEllipsis && <span className="text-muted" aria-hidden="true">...</span>}
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${pageNumber === pagination.page ? 'btn-primary' : 'btn-outline'}`}
+                      aria-current={pageNumber === pagination.page ? 'page' : undefined}
+                      onClick={() => goToPage(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  </span>
+                );
+              })}
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                disabled={pagination.page >= pagination.totalPages}
+                onClick={() => goToPage(pagination.page + 1)}
+              >
+                {t('catalog.nextPage')}
+              </button>
+            </nav>
+          )}
         </>
       )}
     </>

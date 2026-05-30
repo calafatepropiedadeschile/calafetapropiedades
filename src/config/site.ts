@@ -1,3 +1,5 @@
+import { primaryContact } from '@/config/contact';
+
 export type SiteOffice = {
   id: string;
   country: {
@@ -47,10 +49,12 @@ export const siteConfig = {
     ],
   },
   contact: {
-    primaryPhoneLabel: '+34 000 000 000',
-    primaryPhoneHref: 'tel:+34000000000',
-    primaryEmail: 'contacto@calafatepropiedades.com',
-    salesEmail: 'contacto@calafatepropiedades.com',
+    primaryPhoneLabel: primaryContact.displayPhone,
+    primaryPhoneHref: primaryContact.phoneHref,
+    primaryEmail: primaryContact.email,
+    salesEmail: primaryContact.email,
+    whatsappNumber: primaryContact.whatsappNumber,
+    whatsappDisplay: primaryContact.displayPhone,
     sellSubject: 'Quiero vender una propiedad',
     advisorySubject: 'Quiero asesoria inmobiliaria',
     social: {
@@ -72,11 +76,11 @@ export const siteConfig = {
         es: 'Asesoria inmobiliaria',
         en: 'Real estate advisory',
       },
-      email: 'contacto@calafatepropiedades.com',
-      phoneLabel: '+34 000 000 000',
-      phoneHref: 'tel:+34000000000',
-      whatsappNumber: '34000000000',
-      addressLines: ['Direccion pendiente de confirmar'],
+      email: primaryContact.email,
+      phoneLabel: primaryContact.displayPhone,
+      phoneHref: primaryContact.phoneHref,
+      whatsappNumber: primaryContact.whatsappNumber,
+      addressLines: ['Chile'],
       scope: {
         es: 'Parcelas, terrenos, loteos y apoyo comercial',
         en: 'Lots, land, development projects, and commercial support',
@@ -107,6 +111,7 @@ export const siteConfig = {
       ],
     },
     discover: {
+      imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
       eyebrow: 'Criterio local',
       title: 'Proyectos claros para decisiones importantes',
       paragraphs: [

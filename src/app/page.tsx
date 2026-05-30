@@ -1,15 +1,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { cookies } from 'next/headers';
+import { readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyCard from '@/components/properties/PropertyCard';
 import PropertySearch from '@/components/properties/PropertySearch';
+import HomeHeroSection from '@/components/home/HomeHeroSection';
 import ServicesSection from '@/components/home/ServicesSection';
 import MasterplanInteractiveSection from '@/components/home/MasterplanInteractiveSection';
 import TrustStatsSection from '@/components/home/TrustStatsSection';
 import CtaBanner from '@/components/ui/CtaBanner';
 import { getFeaturedProperties, getStaticPropertyCatalog } from '@/features/properties/property.service';
-import { DEFAULT_LOCALE } from '@/lib/i18n/config';
+import { getHomeHeroContent } from '@/features/site-content/home-hero';
+import { HOME_HERO_DEFAULTS } from '@/features/site-content/home-hero.defaults';
+import { DEFAULT_LOCALE, isSupportedLocale } from '@/lib/i18n/config';
 import { buildMailto, siteConfig } from '@/config/site';
 
 export const revalidate = 300;
@@ -41,7 +46,6 @@ async function getSafePropertyCatalog() {
 const CATEGORY_LINKS = [
   { label: 'Terrenos', href: '/terrenos', primary: true },
   { label: 'Casas', href: '/propiedades?type=casa' },
-  { label: 'Apartamentos', href: '/propiedades?type=apartamento' },
 ];
 
 const HOME_ACTIONS = [
@@ -66,9 +70,27 @@ const HOME_ACTIONS = [
 ];
 
 export default async function HomePage() {
-  const [featuredProperties, propertyCatalog] = await Promise.all([
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
+  const locale = isSupportedLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+  const catalogPreferences = readCatalogPreferences(cookieStore);
+
+  const [featuredProperties, propertyCatalog, hero] = await Promise.all([
     getSafeFeaturedProperties(),
     getSafePropertyCatalog(),
+    hasDatabaseUrl
+      ? getHomeHeroContent(locale).catch(() => ({
+          imageUrl: '/heroe.jpg',
+          titleLine1: HOME_HERO_DEFAULTS.titleLine1Es,
+          titleLine2: HOME_HERO_DEFAULTS.titleLine2Es,
+          subtitle: HOME_HERO_DEFAULTS.subtitleEs,
+        }))
+      : Promise.resolve({
+          imageUrl: '/heroe.jpg',
+          titleLine1: HOME_HERO_DEFAULTS.titleLine1Es,
+          titleLine2: HOME_HERO_DEFAULTS.titleLine2Es,
+          subtitle: HOME_HERO_DEFAULTS.subtitleEs,
+        }),
   ]);
 
   const featured = featuredProperties.length > 0 ? featuredProperties : propertyCatalog.slice(0, 6);
@@ -77,23 +99,13 @@ export default async function HomePage() {
     <>
       <Navbar />
       <main>
-        <section id="hero" className="hero home-hero">
-          <div className="container" style={{ position: 'relative', zIndex: 20 }}>
-            <div className="hero-content" style={{ maxWidth: '860px', margin: 'var(--space-2xl) auto var(--space-xl)', textAlign: 'center' }}>
-              <h1 className="hero-title" style={{ color: '#fff', textShadow: '0 4px 18px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15)', marginBottom: 'var(--space-md)', textAlign: 'center', lineHeight: '1.12', fontWeight: 800, fontSize: 'clamp(2.25rem, 5vw, 4rem)' }}>
-                Parcelas, loteos y terrenos
-                <br />
-                en el sur de Chile
-              </h1>
-              <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', lineHeight: 1.7, margin: '0 auto', maxWidth: '720px', textShadow: '0 2px 10px rgba(0,0,0,0.28)' }}>
-                Proyectos seleccionados con ubicacion, precio desde, superficie y condiciones comerciales claras para decidir mejor.
-              </p>
-            </div>
-          </div>
-        </section>
+        <HomeHeroSection hero={hero} />
 
         <div className="home-search-overlay-container">
-          <PropertySearch />
+          <PropertySearch
+            initialType={catalogPreferences.type || 'terreno'}
+            initialZone={catalogPreferences.zone}
+          />
         </div>
 
         <section className="section container featured-properties-section">
@@ -199,8 +211,8 @@ export default async function HomePage() {
           <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', gap: 'var(--space-3xl)', alignItems: 'center' }}>
             <div style={{ position: 'relative', height: '480px', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }} className="discover-image-wrapper">
               <Image
-                src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop"
-                alt={`${siteConfig.name} proyecto de parcelas`}
+                src={siteConfig.copy.discover.imageUrl}
+                alt={`Casa de madera con vista al entorno natural — ${siteConfig.name}`}
                 fill
                 style={{ objectFit: 'cover' }}
                 sizes="(max-width: 768px) 100vw, 50vw"

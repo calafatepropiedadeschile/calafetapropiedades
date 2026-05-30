@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VirtualTour from '../properties/VirtualTour';
 import PropertyCard from '../properties/PropertyCard';
@@ -13,6 +13,7 @@ interface ProyectoTour {
   description: string;
   slugFilter: string;
   projectHref: string;
+  amenities: string[];
 }
 
 const PROJECTS_DATA: ProyectoTour[] = [
@@ -20,9 +21,10 @@ const PROJECTS_DATA: ProyectoTour[] = [
     id: 'portal-los-muermos',
     name: 'Portal Los Muermos',
     tourUrl: 'https://vtour.cl/360/portallosmuermos/tour',
-    description: '81 parcelas de 5.000 m2 en Los Muermos, con foco en naturaleza, acceso y conectividad hacia Puerto Montt.',
+    description: '81 parcelas de 5.000 m2 en Los Muermos, con foco en naturacion, acceso y conectividad hacia Puerto Montt.',
     slugFilter: 'portal-los-muermos',
     projectHref: '/proyectos/portal-los-muermos',
+    amenities: ['Agua potable en proyecto', 'Electricidad en red', 'Acceso pavimentado', 'Topografia disponible', 'Parcelas desde 5.000 m2'],
   },
   {
     id: 'praderas-del-maule',
@@ -31,6 +33,7 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: 'Parcelas con entorno rural y buena conexion en la Region del Maule, pensadas para segunda vivienda o inversion.',
     slugFilter: 'praderas-del-maule',
     projectHref: '/proyectos/praderas-del-maule',
+    amenities: ['Entorno rural y tranquilo', 'Conexion a ruta principal', 'Factibilidad de servicios', 'Ideal segunda vivienda', 'Etapas en desarrollo'],
   },
   {
     id: 'vive-puquila',
@@ -39,6 +42,7 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: 'Proyecto con etapas activas en el sector Puquila, ideal para revisar ubicacion y entorno antes de coordinar visita.',
     slugFilter: 'vive-puquila',
     projectHref: '/proyectos/vive-puquila',
+    amenities: ['Sector Puquila', 'Etapas con disponibilidad', 'Recorrido 360 por lote', 'Cercania a servicios', 'Asesoria comercial directa'],
   },
   {
     id: 'altos-del-tepual',
@@ -47,6 +51,7 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: 'Parcelas en el sector Tepual, cercanas a Puerto Montt, con recorrido virtual disponible y unidades identificadas.',
     slugFilter: 'altos-del-tepual',
     projectHref: '/proyectos/altos-del-tepual',
+    amenities: ['Cercania a Puerto Montt', 'Lotes identificados en tour', 'Agua y electricidad en evaluacion', 'Camino de acceso', 'Condiciones de pago flexibles'],
   },
 ];
 
@@ -56,17 +61,30 @@ interface Props {
 
 export default function MasterplanInteractiveSection({ allProperties }: Props) {
   const [activeProject, setActiveProject] = useState<ProyectoTour>(PROJECTS_DATA[0]);
+  const [loadedTourIds, setLoadedTourIds] = useState<Set<string>>(() => new Set([PROJECTS_DATA[0].id]));
 
-  const filteredProperties = allProperties
-    .filter((property) => {
-      const slug = property.slug.toLowerCase();
-      const zone = property.zone.toLowerCase();
-      return slug.includes(activeProject.slugFilter) || zone.includes(activeProject.slugFilter.replaceAll('-', ' '));
-    })
-    .slice(0, 4);
+  const filteredProperties = useMemo(() => (
+    allProperties
+      .filter((property) => {
+        const slug = property.slug.toLowerCase();
+        const zone = property.zone.toLowerCase();
+        return slug.includes(activeProject.slugFilter)
+          || zone.includes(activeProject.slugFilter.replaceAll('-', ' '));
+      })
+      .slice(0, 4)
+  ), [allProperties, activeProject.slugFilter]);
+
+  function selectProject(project: ProyectoTour) {
+    setActiveProject(project);
+    setLoadedTourIds((current) => {
+      const next = new Set(current);
+      next.add(project.id);
+      return next;
+    });
+  }
 
   return (
-    <section className="section container" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4xl)', position: 'relative', zIndex: 10 }}>
+    <section className="section container masterplan-section" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4xl)', position: 'relative', zIndex: 10 }}>
       <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
         <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', display: 'block', marginBottom: 'var(--space-xs)' }}>
           Tours 360 disponibles
@@ -75,36 +93,15 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
           Explora proyectos reales antes de visitar
         </h2>
 
-        <div style={{
-          display: 'flex',
-          gap: 'var(--space-xs)',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          margin: 'var(--space-lg) auto 0',
-          maxWidth: 'fit-content',
-          backgroundColor: 'var(--color-surface-2)',
-          padding: '6px',
-          borderRadius: '100px',
-          border: '1px solid var(--color-border-light)'
-        }}>
+        <div className="masterplan-project-tabs">
           {PROJECTS_DATA.map((project) => {
             const isActive = project.id === activeProject.id;
             return (
               <button
                 key={project.id}
                 type="button"
-                onClick={() => setActiveProject(project)}
-                style={{
-                  padding: '8px 22px',
-                  borderRadius: '100px',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  border: 'none',
-                  backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
-                  color: isActive ? '#ffffff' : 'var(--color-text-subtle)',
-                  transition: 'all var(--transition-fast)'
-                }}
+                onClick={() => selectProject(project)}
+                className={`masterplan-project-tab${isActive ? ' is-active' : ''}`}
               >
                 {project.name}
               </button>
@@ -112,7 +109,7 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
           })}
         </div>
 
-        <p className="text-muted" style={{ maxWidth: '660px', margin: 'var(--space-md) auto 0', fontSize: '0.95rem', lineHeight: 1.7 }}>
+        <p className="text-muted masterplan-project-description">
           {activeProject.description}
         </p>
       </div>
@@ -126,42 +123,68 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
             <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700 }}>Disponible</span>
           </div>
           <div className="masterplan-tour-frame">
-            <VirtualTour
-              key={activeProject.id}
-              src={activeProject.tourUrl}
-              title={`Tour virtual 360 ${activeProject.name}`}
-            />
+            {PROJECTS_DATA.map((project) => (
+              loadedTourIds.has(project.id) ? (
+                <VirtualTour
+                  key={project.id}
+                  src={project.tourUrl}
+                  title={`Tour virtual 360 ${project.name}`}
+                  visible={project.id === activeProject.id}
+                  eager={project.id === PROJECTS_DATA[0].id}
+                />
+              ) : null
+            ))}
           </div>
         </div>
       </div>
 
-      <div style={{ marginTop: 'var(--space-2xl)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
+      <div className="masterplan-commercial-section">
+        <div className="masterplan-commercial-header">
           <div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-dark)', margin: 0 }}>
+            <h3 className="masterplan-commercial-title">
               Ficha comercial de {activeProject.name}
             </h3>
-            <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem' }}>
+            <p className="text-muted masterplan-commercial-subtitle">
               Revisa ubicacion, precio desde, superficie y condiciones del proyecto.
             </p>
           </div>
-          <Link href={activeProject.projectHref} className="btn btn-outline btn-sm" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-            Ver pagina del proyecto
-          </Link>
         </div>
 
-        {filteredProperties.length > 0 ? (
-          <div className="masterplan-cards-grid">
-            {filteredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
+        <div className="masterplan-commercial-grid">
+          <div className="masterplan-commercial-main">
+            {filteredProperties.length > 0 ? (
+              <div className="masterplan-cards-grid">
+                {filteredProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+            ) : (
+              <div className="masterplan-commercial-placeholder">
+                <h4>Publicacion en curso</h4>
+                <p>
+                  Estamos actualizando las fichas de {activeProject.name}. Mientras tanto,
+                  revisa el tour 360 y contactanos para disponibilidad vigente.
+                </p>
+                <Link href="/contacto" className="btn btn-primary btn-sm">
+                  Consultar proyecto
+                </Link>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="empty-state">
-            <h3>Proyecto en preparacion</h3>
-            <p>La ficha de este proyecto se mostrara cuando quede publicada en el catalogo.</p>
-          </div>
-        )}
+
+          <aside className="masterplan-commercial-aside">
+            <p className="masterplan-aside-eyebrow">Resumen del proyecto</p>
+            <h4 className="masterplan-aside-title">Servicios y condiciones clave</h4>
+            <ul className="masterplan-amenities-list">
+              {activeProject.amenities.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <Link href={activeProject.projectHref} className="btn btn-outline btn-sm masterplan-aside-cta">
+              Ver pagina del proyecto
+            </Link>
+          </aside>
+        </div>
       </div>
     </section>
   );

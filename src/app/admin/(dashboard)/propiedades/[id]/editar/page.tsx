@@ -29,11 +29,13 @@ export default async function EditarPropiedadPage({ params }: Props) {
       where: { id },
       select: {
         id: true,
+        slug: true,
         titleEs: true,
         titleEn: true,
         descriptionEs: true,
         descriptionEn: true,
         price: true,
+        priceFrom: true,
         priceType: true,
         currency: true,
         zoneEs: true,
@@ -67,6 +69,24 @@ export default async function EditarPropiedadPage({ params }: Props) {
         frontage: true,
         depth: true,
         zoning: true,
+        mapUrl: true,
+        virtualTourUrl: true,
+        lotSurfaceM2: true,
+        totalLots: true,
+        availableLots: true,
+        stageName: true,
+        paymentTerms: true,
+        commissionPercent: true,
+        operationalExpenses: true,
+        reservationAmount: true,
+        waterStatus: true,
+        electricityStatus: true,
+        accessType: true,
+        roadType: true,
+        hasOwnRol: true,
+        availabilityNotes: true,
+        commercialNotes: true,
+        distanceHighlights: true,
         services: true,
         amenities: true,
         images: true,
@@ -88,6 +108,7 @@ export default async function EditarPropiedadPage({ params }: Props) {
     ...property,
     services: parseJsonList(property.services),
     amenities: parseJsonList(property.amenities),
+    distanceHighlights: parseJsonList(property.distanceHighlights),
     images: parseJsonList(property.images),
   };
 
@@ -99,7 +120,12 @@ export default async function EditarPropiedadPage({ params }: Props) {
           <p className="text-muted text-sm">{property.titleEs}</p>
         </div>
       </div>
-      <PropertyForm action={boundUpdate} defaultValues={formProperty} />
+      <PropertyForm
+        action={boundUpdate}
+        defaultValues={formProperty}
+        propertyId={property.id}
+        slug={property.slug}
+      />
     </div>
   );
 }
