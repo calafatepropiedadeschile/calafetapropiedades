@@ -93,29 +93,15 @@ export default function SeoCatalogLanding({
       {showRentalsEmptyLanding ? (
         <RentalsEmptyLanding contactHref={config.secondaryCta.href} />
       ) : showCatalog ? (
-        <>
-          <CtaBanner
-            variant="inline"
-            eyebrow="Encuentra tu propiedad"
-            headline={`${config.primaryCta.label} — revisa el catálogo actualizado.`}
-            sub="Filtra por zona, precio y tipo. Si no encuentras lo que buscas, te asesoramos sin costo."
-            ctas={[
-              { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
-              { label: 'Consultar disponibilidad', href: '/contacto' },
-            ]}
-            id="cta-seo-catalogo"
-          />
-
-          <PropertyCatalog
-            key={JSON.stringify(initialFilters)}
-            properties={properties}
-            zoneOptions={zoneOptions}
-            initialFilters={initialFilters}
-            pagination={pagination}
-            showPriceModeTabs={isRentalsPage}
-            catalogPriceMode={isRentalsPage ? 'arriendo' : 'venta'}
-          />
-        </>
+        <PropertyCatalog
+          key={JSON.stringify(initialFilters)}
+          properties={properties}
+          zoneOptions={zoneOptions}
+          initialFilters={initialFilters}
+          pagination={pagination}
+          showPriceModeTabs={isRentalsPage}
+          catalogPriceMode={isRentalsPage ? 'arriendo' : 'venta'}
+        />
       ) : (
         <CtaBanner
           variant="inline"
