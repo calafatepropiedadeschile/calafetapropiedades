@@ -117,6 +117,9 @@ body {
   body {
     padding-bottom: 80px; /* Prevenir solapamiento del botón flotante de WhatsApp */
   }
+  .pdp-main {
+    padding-bottom: 8rem !important;
+  }
 }
 
 img, video {
@@ -3059,8 +3062,25 @@ input, textarea, select {
   color: var(--color-primary);
 }
 
+.property-description-body.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .property-description-actions {
   margin-top: var(--space-md);
+}
+
+@keyframes skeletonPulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.skeleton-pulse {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
 .property-description-toggle {
@@ -7164,4 +7184,105 @@ input:checked + .slider:before {
 .static-page-prose-empty {
   color: var(--color-text-muted);
   font-style: italic;
+}
+
+/* --- PDP Hero Header --- */
+.pdp-hero-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 0 0 var(--space-xl) 0;
+}
+
+.pdp-hero-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.pdp-hero-title {
+  font-size: 2.25rem;
+  font-family: var(--font-serif, Georgia, serif);
+  font-weight: 400;
+  color: var(--color-dark);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.pdp-save-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-top: 4px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.pdp-save-btn:hover {
+  transform: scale(1.05);
+  color: var(--color-primary);
+}
+
+.pdp-hero-price {
+  font-size: 1.75rem;
+  color: var(--color-dark);
+  font-weight: 400;
+  margin-bottom: var(--space-xs);
+}
+
+.pdp-hero-badges {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.pdp-hero-badge {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pdp-hero-badge--primary {
+  background-color: #f1dfcf; /* Pale orange as seen in reference */
+  color: #333;
+}
+
+.pdp-hero-badge--secondary {
+  background-color: #f1dfcf;
+  color: #333;
+}
+
+.pdp-hero-specs-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: #666;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-top: var(--space-sm);
+}
+
+.pdp-hero-spec-item {
+  color: #556;
+}
+
+.pdp-hero-spec-dot {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .pdp-hero-title {
+    font-size: 1.75rem;
+  }
+  .pdp-hero-price {
+    font-size: 1.4rem;
+  }
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Bed, Bath, Ruler, CheckCircle2 } from 'lucide-react';
+import { Bed, Bath, Ruler, CheckCircle2, Heart } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
@@ -236,7 +236,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
   return (
     <>
       <Navbar />
-      <main lang={locale} style={{ paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))', backgroundColor: 'var(--color-surface-2)', minHeight: '100vh' }}>
+      <main lang={locale} className="pdp-main" style={{ paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))', backgroundColor: 'var(--color-surface-2)', minHeight: '100vh' }}>
         <section className="container section-padding" style={{ paddingBottom: 'var(--space-4xl)', paddingTop: 'var(--space-2xl)' }}>
           <div className="property-detail-layout">
             <div>
@@ -244,74 +244,70 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
               <PropertyGallery images={galleryImages} title={title} locale={locale} />
 
               <div style={{ marginBottom: 'var(--space-2xl)' }}>
-                <div className="detail-header-row">
-                  <div className="detail-header-left">
-                    <h1 className="detail-title-modern">{title}</h1>
-                    <p className="detail-location-modern">{zone}, {city}, {province}</p>
+                <div className="pdp-hero-header">
+                  <div className="pdp-hero-title-row">
+                    <h1 className="pdp-hero-title">{title}</h1>
+                    <button className="pdp-save-btn" aria-label="Guardar propiedad">
+                      <Heart size={28} strokeWidth={1.5} />
+                    </button>
                   </div>
                   
-                  <div className="detail-header-right">
-                    <span className="detail-status-modern">
+                  <div className="pdp-hero-price">
+                    {formatPropertyPrice(price, currency, {
+                      priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
+                      locale,
+                      priceType,
+                      displayCurrency,
+                      rates: exchangeRates,
+                    })}
+                  </div>
+
+                  <div className="pdp-hero-badges">
+                    <span className="pdp-hero-badge pdp-hero-badge--primary">
                       {priceTypeKey ? t(priceTypeKey) : priceType}
                     </span>
-                    <div className="detail-price-modern">
-                      {formatPropertyPrice(price, currency, {
-                        priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
-                        locale,
-                        priceType,
-                        displayCurrency,
-                        rates: exchangeRates,
-                      })}
-                    </div>
+                    {statusKey && (
+                      <span className="pdp-hero-badge pdp-hero-badge--secondary">
+                        {t(statusKey)}
+                      </span>
+                    )}
                   </div>
-                </div>
 
-                <div className="modern-specs-row">
-                  {bedrooms && (
-                    <div className="modern-spec-item">
-                      <Bed className="modern-spec-icon" size={20} />
-                      <div className="modern-spec-item-col">
-                        <span className="modern-spec-label">{t('property.bedrooms')}</span>
-                        <span className="modern-spec-value">{bedrooms}</span>
-                      </div>
-                    </div>
-                  )}
-                  {bathrooms && (
-                    <div className="modern-spec-item">
-                      <Bath className="modern-spec-icon" size={20} />
-                      <div className="modern-spec-item-col">
-                        <span className="modern-spec-label">{t('property.bathrooms')}</span>
-                        <span className="modern-spec-value">{bathrooms}</span>
-                      </div>
-                    </div>
-                  )}
-                  {(builtArea || area) && (
-                    <div className="modern-spec-item">
-                      <Ruler className="modern-spec-icon" size={20} />
-                      <div className="modern-spec-item-col">
-                        <span className="modern-spec-label">Área</span>
-                        <span className="modern-spec-value">{Math.round(builtArea ?? area ?? 0)} m²</span>
-                      </div>
-                    </div>
-                  )}
-                  {lotSurfaceM2 && (
-                    <div className="modern-spec-item">
-                      <Ruler className="modern-spec-icon" size={20} />
-                      <div className="modern-spec-item-col">
-                        <span className="modern-spec-label">Lote</span>
-                        <span className="modern-spec-value">{Math.round(lotSurfaceM2)} m²</span>
-                      </div>
-                    </div>
-                  )}
-                  {availableLots != null && (
-                    <div className="modern-spec-item">
-                      <CheckCircle2 className="modern-spec-icon" size={20} />
-                      <div className="modern-spec-item-col">
-                        <span className="modern-spec-label">Disp.</span>
-                        <span className="modern-spec-value">{availableLots}</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="pdp-hero-specs-inline">
+                    <span className="pdp-hero-spec-item">
+                      {[province, city, zone].filter(Boolean).join(', ')}
+                    </span>
+                    {(builtArea || area) ? (
+                      <>
+                        <span className="pdp-hero-spec-dot">•</span>
+                        <span className="pdp-hero-spec-item">{Math.round(builtArea ?? area ?? 0)} m²</span>
+                      </>
+                    ) : null}
+                    {lotSurfaceM2 ? (
+                      <>
+                        <span className="pdp-hero-spec-dot">•</span>
+                        <span className="pdp-hero-spec-item">{Math.round(lotSurfaceM2)} m² {t('property.lotSurface')}</span>
+                      </>
+                    ) : null}
+                    {bedrooms ? (
+                      <>
+                        <span className="pdp-hero-spec-dot">•</span>
+                        <span className="pdp-hero-spec-item">{bedrooms} {t('property.bedrooms')}</span>
+                      </>
+                    ) : null}
+                    {bathrooms ? (
+                      <>
+                        <span className="pdp-hero-spec-dot">•</span>
+                        <span className="pdp-hero-spec-item">{bathrooms} {t('property.bathrooms')}</span>
+                      </>
+                    ) : null}
+                    {availableLots != null ? (
+                      <>
+                        <span className="pdp-hero-spec-dot">•</span>
+                        <span className="pdp-hero-spec-item">{availableLots} disp.</span>
+                      </>
+                    ) : null}
+                  </div>
                 </div>
 
 

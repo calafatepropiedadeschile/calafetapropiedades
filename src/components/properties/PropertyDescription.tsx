@@ -20,8 +20,7 @@ export default function PropertyDescription({ parsed, sectionTitle, hint }: Prop
     return null;
   }
 
-  const showCollapsed = parsed.isCollapsible && !expanded;
-  const visibleBlockCount = showCollapsed ? parsed.previewBlockCount : parsed.blocks.length;
+  const isCollapsible = parsed.isCollapsible;
 
   return (
     <section className="property-description-section" aria-labelledby="property-description-heading">
@@ -36,7 +35,9 @@ export default function PropertyDescription({ parsed, sectionTitle, hint }: Prop
         <p className="property-description-lead">{parsed.lead}</p>
       ) : null}
 
-      <PropertyDescriptionBlocks blocks={parsed.blocks} limit={visibleBlockCount} />
+      <div className={`property-description-body ${expanded ? 'expanded' : 'collapsed'}`}>
+        <PropertyDescriptionBlocks blocks={parsed.blocks} />
+      </div>
 
       {parsed.isCollapsible ? (
         <div className="property-description-actions">

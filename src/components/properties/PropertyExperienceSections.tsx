@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { Property } from '@/types/property';
@@ -6,9 +8,18 @@ import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import dynamic from 'next/dynamic';
 import { isEmbeddableMapUrl } from '@/lib/maps/google-maps-embed';
 
-const PropertyGoogleMapEmbed = dynamic(() => import('@/components/properties/PropertyGoogleMapEmbed'));
-const PropertyMapClient = dynamic(() => import('@/components/properties/PropertyMapClient'));
-const VirtualTour = dynamic(() => import('@/components/properties/VirtualTour'));
+const PropertyGoogleMapEmbed = dynamic(() => import('@/components/properties/PropertyGoogleMapEmbed'), { 
+  ssr: false, 
+  loading: () => <div style={{ height: 300, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" /> 
+});
+const PropertyMapClient = dynamic(() => import('@/components/properties/PropertyMapClient'), { 
+  ssr: false, 
+  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" /> 
+});
+const VirtualTour = dynamic(() => import('@/components/properties/VirtualTour'), { 
+  ssr: false, 
+  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" /> 
+});
 
 interface Props {
   property: Property;

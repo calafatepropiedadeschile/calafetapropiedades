@@ -150,7 +150,7 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
     commissionPercent: property.commissionPercent ?? null,
     operationalExpenses: property.operationalExpenses ?? null,
     reservationAmount: property.reservationAmount ?? null,
-    waterStatus: property.waterStatus ?? null,
+    waterStatus: property.waterStatus ? property.waterStatus.replace(/^a\s+/i, 'Agua ') : null,
     electricityStatus: property.electricityStatus ?? null,
     accessType: property.accessType ?? null,
     roadType: property.roadType ?? null,
