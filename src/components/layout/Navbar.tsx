@@ -496,7 +496,6 @@ export default function Navbar() {
 
               <NavSocialLinks className="mobile-social-links" linkClassName="mobile-social-link" />
             </div>
-          </div>
         </div>
       </div>
     </>
