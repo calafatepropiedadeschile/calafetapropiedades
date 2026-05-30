@@ -28,7 +28,7 @@ function getAuthSecret() {
 
 function authorizeEnvAdmin(email: string, password: string) {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
 
   if (!adminEmail || !adminPassword) return null;
   if (email !== adminEmail || password !== adminPassword) return null;

@@ -25,10 +25,12 @@ export function withDatabaseRole<T>(
   const prisma = getPrismaClient();
 
   return prisma.$transaction(async (tx) => {
+    await tx.$executeRawUnsafe('SAVEPOINT app_role_switch');
     try {
       await tx.$executeRawUnsafe(`SET LOCAL ROLE "${roleName}"`);
     } catch (error) {
       if (!isMissingRoleError(error)) throw error;
+      await tx.$executeRawUnsafe('ROLLBACK TO SAVEPOINT app_role_switch');
       console.warn(
         `Database role "${roleName}" is missing. Run scripts/setup-calafate-rls-roles.sql in Supabase. Continuing without SET ROLE.`,
       );
