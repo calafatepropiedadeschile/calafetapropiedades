@@ -134,12 +134,28 @@ export default function SeoCatalogLanding({
         <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: 'var(--space-lg)' }}>
           Preguntas frecuentes
         </h2>
-        <div style={{ display: 'grid', gap: 'var(--space-lg)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
           {config.faqs.map((faq) => (
-            <article key={faq.question}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: 'var(--space-xs)' }}>{faq.question}</h3>
-              <p className="text-muted" style={{ margin: 0, lineHeight: 1.7 }}>{faq.answer}</p>
-            </article>
+            <details 
+              key={faq.question}
+              style={{
+                borderBottom: '1px solid var(--color-border-light)',
+                paddingBottom: 'var(--space-sm)',
+              }}
+            >
+              <summary style={{ 
+                fontSize: '1rem', 
+                fontWeight: 800, 
+                cursor: 'pointer',
+                color: 'var(--color-dark)',
+                padding: 'var(--space-sm) 0',
+              }}>
+                {faq.question}
+              </summary>
+              <p className="text-muted" style={{ margin: 0, paddingBottom: 'var(--space-sm)', lineHeight: 1.7 }}>
+                {faq.answer}
+              </p>
+            </details>
           ))}
         </div>
       </section>
