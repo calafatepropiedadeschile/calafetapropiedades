@@ -293,11 +293,6 @@ export default function PropertyCatalog({
           </div>
         )}
 
-        <div className="catalog-country-pill" aria-label={t('catalog.country')}>
-          <span>{t('catalog.country')}</span>
-          <strong>{t('catalog.chileOnly')}</strong>
-        </div>
-
         <div className="catalog-filter-grid">
           <div className="input-group">
             <label className="input-label">{t('catalog.search')}</label>
