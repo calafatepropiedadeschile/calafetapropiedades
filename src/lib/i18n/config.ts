@@ -1,5 +1,5 @@
 export const SUPPORTED_LOCALES = ['es', 'en'] as const;
-export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'MXN'] as const;
+export const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'MXN', 'CLP', 'CLF'] as const;
 
 export type Locale = typeof SUPPORTED_LOCALES[number];
 export type SupportedCurrency = typeof SUPPORTED_CURRENCIES[number];
@@ -16,6 +16,8 @@ export const CURRENCY_OPTIONS: Array<{ value: SupportedCurrency; label: string; 
   { value: 'USD', label: 'Dolar estadounidense', symbol: 'US$' },
   { value: 'EUR', label: 'Euro', symbol: 'EUR' },
   { value: 'MXN', label: 'Peso mexicano', symbol: 'MXN' },
+  { value: 'CLP', label: 'Peso chileno', symbol: 'CLP' },
+  { value: 'CLF', label: 'Unidad de fomento', symbol: 'UF' },
 ];
 
 export function isSupportedLocale(value: string | null | undefined): value is Locale {

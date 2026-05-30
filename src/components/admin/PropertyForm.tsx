@@ -61,6 +61,12 @@ interface DefaultValues {
   amenities?: string[];
   images?: string[];
   coverImage?: string | null;
+  seoTitleEs?: string | null;
+  seoTitleEn?: string | null;
+  seoDescriptionEs?: string | null;
+  seoDescriptionEn?: string | null;
+  customCanonical?: string | null;
+  ogImage?: string | null;
 }
 
 interface Props {
@@ -111,7 +117,7 @@ const LAND_SERVICE_OPTIONS = [
   { value: 'street_lighting', labelKey: 'property.serviceStreetLighting' },
 ] as const;
 
-const CURRENCY_VALUES = ['USD', 'EUR', 'MXN'] as const;
+const CURRENCY_VALUES = ['USD', 'EUR', 'MXN', 'CLP', 'CLF'] as const;
 
 function resolveCurrency(value: string | undefined) {
   return CURRENCY_VALUES.includes(value as typeof CURRENCY_VALUES[number])
@@ -268,6 +274,12 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
       amenities: defaultValues.amenities ?? [],
       images: defaultValues.images ?? [],
       coverImage: defaultValues.coverImage ?? null,
+      seoTitleEs: defaultValues.seoTitleEs ?? '',
+      seoTitleEn: defaultValues.seoTitleEn ?? '',
+      seoDescriptionEs: defaultValues.seoDescriptionEs ?? '',
+      seoDescriptionEn: defaultValues.seoDescriptionEn ?? '',
+      customCanonical: defaultValues.customCanonical ?? '',
+      ogImage: defaultValues.ogImage ?? '',
     },
   });
 
@@ -501,6 +513,8 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
               <option value="USD">USD (US$)</option>
               <option value="EUR">EUR (EUR)</option>
               <option value="MXN">MXN ($)</option>
+              <option value="CLP">CLP ($)</option>
+              <option value="CLF">UF (CLF)</option>
             </select>
           </div>
 
@@ -834,6 +848,51 @@ export default function PropertyForm({ action, defaultValues = {} }: Props) {
               onChange={(event) => setValue('images', fromTextareaValue(event.target.value), { shouldDirty: true, shouldValidate: true })}
             />
             {errors.images && <p className="form-error">{errors.images.message}</p>}
+          </div>
+        </div>
+      </section>
+
+      <section className="admin-form-section">
+        <h2 className="admin-form-section-title">SEO</h2>
+        <div className="form-grid form-grid-2">
+          <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
+            <div className="input-group">
+              <label className="input-label">Titulo SEO (Espanol)</label>
+              <input className="input" maxLength={70} placeholder="Titulo para Google" {...register('seoTitleEs')} />
+              {errors.seoTitleEs && <p className="form-error">{errors.seoTitleEs.message}</p>}
+            </div>
+
+            <div className="input-group">
+              <label className="input-label">Descripcion SEO (Espanol)</label>
+              <textarea className="textarea" rows={3} maxLength={170} placeholder="Resumen breve para buscadores." {...register('seoDescriptionEs')} />
+              {errors.seoDescriptionEs && <p className="form-error">{errors.seoDescriptionEs.message}</p>}
+            </div>
+          </div>
+
+          <div style={{ display: activeLangTab === 'en' ? 'contents' : 'none' }}>
+            <div className="input-group">
+              <label className="input-label">Titulo SEO en ingles</label>
+              <input className="input" maxLength={70} placeholder="Search title" {...register('seoTitleEn')} />
+              {errors.seoTitleEn && <p className="form-error">{errors.seoTitleEn.message}</p>}
+            </div>
+
+            <div className="input-group">
+              <label className="input-label">Descripcion SEO en ingles</label>
+              <textarea className="textarea" rows={3} maxLength={170} placeholder="Short search description." {...register('seoDescriptionEn')} />
+              {errors.seoDescriptionEn && <p className="form-error">{errors.seoDescriptionEn.message}</p>}
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Canonical personalizado</label>
+            <input className="input" type="url" placeholder="https://calafatepropiedades.cl/propiedades/..." {...register('customCanonical')} />
+            {errors.customCanonical && <p className="form-error">{errors.customCanonical.message}</p>}
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Imagen OG personalizada</label>
+            <input className="input" type="url" placeholder="https://.../imagen-og.jpg" {...register('ogImage')} />
+            {errors.ogImage && <p className="form-error">{errors.ogImage.message}</p>}
           </div>
         </div>
       </section>

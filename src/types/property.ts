@@ -1,7 +1,7 @@
 export type PropertyType = 'casa' | 'apartamento' | 'local' | 'oficina' | 'terreno';
 export type PropertyStatus = 'disponible' | 'vendido' | 'alquilado';
 export type PriceType = 'venta' | 'alquiler';
-export type Currency = 'USD' | 'EUR' | 'MXN';
+export type Currency = 'USD' | 'EUR' | 'MXN' | 'CLP' | 'CLF';
 export type PropertyMarketRegion = 'espana_europa' | 'mexico' | 'latam' | 'centroamerica' | 'estados_unidos';
 
 export interface Property {
@@ -47,6 +47,12 @@ export interface Property {
   coverImage: string | null;
   createdAt: Date;
   updatedAt: Date;
+  seoTitleEs?: string | null;
+  seoTitleEn?: string | null;
+  seoDescriptionEs?: string | null;
+  seoDescriptionEn?: string | null;
+  customCanonical?: string | null;
+  ogImage?: string | null;
 }
 
 export interface PropertyCard {

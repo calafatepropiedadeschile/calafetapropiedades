@@ -41,6 +41,14 @@ const optionalEmail = z.preprocess(
   z.string().email('Email de agente invalido').nullable()
 );
 
+const optionalUrl = z.preprocess(
+  (value) => {
+    if (value === '' || value === null || value === undefined) return null;
+    return typeof value === 'string' && value.trim() === '' ? null : value;
+  },
+  z.string().url('URL invalida').nullable()
+);
+
 export const PropertySchema = z.object({
   titleEs: z.string().min(5, 'El titulo en espanol es requerido (min. 5 carac.)').max(120),
   titleEn: z.string().max(120).optional().nullable(),
@@ -48,7 +56,7 @@ export const PropertySchema = z.object({
   descriptionEn: z.string().optional().nullable(),
   price: requiredPositiveNumber,
   priceType: z.enum(['venta', 'alquiler'], { error: 'Selecciona la operacion' }),
-  currency: z.enum(['USD', 'EUR', 'MXN']).default('USD'),
+  currency: z.enum(['USD', 'EUR', 'MXN', 'CLP', 'CLF']).default('USD'),
   zoneEs: z.string().min(2, 'La zona es requerida'),
   zoneEn: z.string().optional().nullable(),
   cityEs: z.string().min(2, 'La ciudad es requerida'),
@@ -84,6 +92,12 @@ export const PropertySchema = z.object({
   amenities: z.array(z.string()).default([]),
   images: z.array(z.string().url()).default([]),
   coverImage: z.string().url().optional().nullable(),
+  seoTitleEs: z.string().max(70, 'El titulo SEO debe tener maximo 70 caracteres').optional().nullable(),
+  seoTitleEn: z.string().max(70, 'El titulo SEO en ingles debe tener maximo 70 caracteres').optional().nullable(),
+  seoDescriptionEs: z.string().max(170, 'La descripcion SEO debe tener maximo 170 caracteres').optional().nullable(),
+  seoDescriptionEn: z.string().max(170, 'La descripcion SEO en ingles debe tener maximo 170 caracteres').optional().nullable(),
+  customCanonical: optionalUrl,
+  ogImage: optionalUrl,
 }).superRefine((property, context) => {
   const hasImage = Boolean(property.coverImage) || property.images.length > 0;
 

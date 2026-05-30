@@ -29,6 +29,9 @@ prisma/*.db
 prisma/*.db-journal
 public/Propiedades/
 public/Logo/
+*.zip
+Manual de marca.pdf
+public/WEB CALAFATE-20260529T235836Z-3-001/
 
 # debug
 npm-debug.log*

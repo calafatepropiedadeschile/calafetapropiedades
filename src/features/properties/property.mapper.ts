@@ -49,6 +49,12 @@ type PropertyRecord = {
   coverImage: string | null;
   createdAt?: Date;
   updatedAt?: Date;
+  seoTitleEs?: string | null;
+  seoTitleEn?: string | null;
+  seoDescriptionEs?: string | null;
+  seoDescriptionEn?: string | null;
+  customCanonical?: string | null;
+  ogImage?: string | null;
 };
 
 function parseJsonField<T>(value: string | undefined, fallback: T): T {
@@ -115,5 +121,11 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
     images: parseJsonField<string[]>(property.images, []),
     createdAt: property.createdAt ?? new Date(0),
     updatedAt: property.updatedAt ?? new Date(0),
+    seoTitleEs: property.seoTitleEs ?? null,
+    seoTitleEn: property.seoTitleEn ?? null,
+    seoDescriptionEs: property.seoDescriptionEs ?? null,
+    seoDescriptionEn: property.seoDescriptionEn ?? null,
+    customCanonical: property.customCanonical ?? null,
+    ogImage: property.ogImage ?? null,
   };
 }

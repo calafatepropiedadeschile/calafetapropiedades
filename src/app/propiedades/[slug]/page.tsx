@@ -11,6 +11,8 @@ import { formatPrice, formatArea } from '@/lib/utils/formatters';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { isSupportedLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
+import { auth } from '@/lib/auth/auth';
+import StructuredData from '@/components/seo/StructuredData';
 
 export const revalidate = 3600;
 
@@ -46,9 +48,9 @@ function getLocaleFromParam(value: string | undefined): Locale {
   return isSupportedLocale(value) ? value : DEFAULT_LOCALE;
 }
 
-async function getSafePropertyBySlug(slug: string, locale: Locale) {
+async function getSafePropertyBySlug(slug: string, locale: Locale, showUnpublished = false) {
   try {
-    return await getPropertyBySlug(slug, locale);
+    return await getPropertyBySlug(slug, locale, showUnpublished);
   } catch (error) {
     console.error(`Unable to load property detail for slug "${slug}".`, error);
     return null;
@@ -82,14 +84,43 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { slug } = await params;
   const search = await searchParams;
   const locale = getLocaleFromParam(search?.lang);
-  const property = await getSafePropertyBySlug(slug, locale);
+  
+  // Read session context for admin preview of draft properties
+  const session = await auth();
+  const isAdmin = session?.user?.role === 'admin';
+
+  const property = await getSafePropertyBySlug(slug, locale, isAdmin);
   if (!property) return { title: 'Propiedad no encontrada' };
 
+  // Use dynamic override fields or fallback to translation-aware intelligent defaults
+  const seoTitle = locale === 'en' 
+    ? (property.seoTitleEn || property.seoTitleEs || property.title)
+    : (property.seoTitleEs || property.title);
+
+  const seoDescription = locale === 'en'
+    ? (property.seoDescriptionEn || property.seoDescriptionEs || property.description.slice(0, 160))
+    : (property.seoDescriptionEs || property.description.slice(0, 160));
+
+  const canonicalUrl = property.customCanonical || `https://calafatepropiedades.cl/propiedades/${slug}${locale === 'en' ? '?lang=en' : ''}`;
+  const ogImageUrl = property.ogImage || property.coverImage || '';
+
   return {
-    title: property.title,
-    description: property.description.slice(0, 160),
+    title: seoTitle,
+    description: seoDescription,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      images: property.coverImage ? [property.coverImage] : [],
+      title: seoTitle,
+      description: seoDescription,
+      url: canonicalUrl,
+      images: ogImageUrl ? [{ url: ogImageUrl }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seoTitle,
+      description: seoDescription,
+      images: ogImageUrl ? [ogImageUrl] : [],
     },
   };
 }
@@ -134,7 +165,12 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
   const { slug } = await params;
   const search = await searchParams;
   const locale = getLocaleFromParam(search?.lang);
-  const property = await getSafePropertyBySlug(slug, locale);
+
+  // Authenticate session to preview draft properties
+  const session = await auth();
+  const isAdmin = session?.user?.role === 'admin';
+
+  const property = await getSafePropertyBySlug(slug, locale, isAdmin);
 
   if (!property) notFound();
 
@@ -310,6 +346,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
           </div>
         </section>
       </main>
+      <StructuredData property={property} locale={locale} />
       <Footer />
     </>
   );

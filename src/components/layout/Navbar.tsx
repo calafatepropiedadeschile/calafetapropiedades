@@ -1,19 +1,25 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { LANGUAGE_OPTIONS, type Locale } from '@/lib/i18n/config';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { buildMailto, siteConfig } from '@/config/site';
+import { siteConfig } from '@/config/site';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { locale, setLocale, t } = useI18n();
-  const ticking = useRef(false);
   const popoverRef = useRef<HTMLDivElement>(null);
-  const sellHref = buildMailto(siteConfig.contact.salesEmail, siteConfig.contact.sellSubject);
+  const navItems = [
+    { href: '/comprar', label: t('nav.buy') },
+    { href: '/arriendos', label: t('nav.rent') },
+    { href: '/proyectos', label: t('nav.projects') },
+    { href: '/vender', label: t('nav.sell') },
+    { href: '/topografia', label: t('nav.topography') },
+  ];
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -27,14 +33,21 @@ export default function Navbar() {
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!ticking.current) {
-        requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 20);
-          ticking.current = false;
-        });
-        ticking.current = true;
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+        document.body.style.overflow = '';
       }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
     };
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,29 +73,61 @@ export default function Navbar() {
     <>
       <nav className={`nav ${scrolled ? 'scrolled' : ''} ${mobileMenuOpen ? 'menu-open' : ''}`}>
         <div className="nav-inner container">
-          <a href={siteConfig.contact.primaryPhoneHref} className="nav-phone" aria-label={`Llamar a ${siteConfig.name}`}>
-            {siteConfig.contact.primaryPhoneLabel}
-          </a>
-          <ul className="nav-links">
-            <li><Link href="/propiedades?priceType=venta" className="nav-link">{t('nav.buy')}</Link></li>
-            <li><Link href="/propiedades?priceType=alquiler" className="nav-link">{t('nav.rent')}</Link></li>
-            <li><Link href="/propiedades?priceType=venta&marketRegion=mexico" className="nav-link">Preventas Mexico</Link></li>
-            <li><Link href={sellHref} className="nav-link">{t('nav.sell')}</Link></li>
-            <li><Link href="/propiedades" className="nav-link">{t('nav.properties')}</Link></li>
-            <li><Link href="/contacto" className="nav-link">{t('nav.contact')}</Link></li>
-          </ul>
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-xl)' }}>
-            <div className="social-links">
-              <a href={siteConfig.contact.social.instagram} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Instagram">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-              </a>
-              <a href={siteConfig.contact.social.linkedin} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-              </a>
-              <a href={siteConfig.contact.social.facebook} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Facebook">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z"/></svg>
-              </a>
-            </div>
+          {/* Left section: Hamburger (mobile) / Desktop Links */}
+          <div className="nav-left">
+            <button
+              className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={mobileMenuOpen}
+            >
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+            </button>
+
+            <ul className="nav-links">
+              {navItems.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="nav-link">{item.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Center section: Logo */}
+          <div className="nav-center">
+            <Link 
+              href="/" 
+              className="nav-logo-link" 
+              aria-label={siteConfig.name}
+              onClick={(e) => {
+                if (window.location.pathname === '/') {
+                  e.preventDefault();
+                  const heroEl = document.getElementById('hero');
+                  if (heroEl) {
+                    heroEl.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }
+              }}
+              style={{ display: 'inline-flex', alignItems: 'center', height: '100%' }}
+            >
+              <Image 
+                src="/brand/calafate-logo.png" 
+                alt={siteConfig.name} 
+                width={200} 
+                height={48} 
+                style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
+                priority
+              />
+            </Link>
+          </div>
+
+          {/* Right section: Contact, Language Popover, Sign In button */}
+          <div className="nav-right">
+            <Link href="/contacto" className="nav-link nav-contact-desktop">{t('nav.contact')}</Link>
 
             <div style={{ position: 'relative' }} ref={popoverRef}>
               <button
@@ -115,17 +160,9 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Hamburguer Mobile Button */}
-            <button
-              className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              aria-expanded={mobileMenuOpen}
-            >
-              <span className="hamburger-line"></span>
-              <span className="hamburger-line"></span>
-              <span className="hamburger-line"></span>
-            </button>
+            <Link href="/admin" className="nav-signin-btn">
+              {t('nav.signIn')}
+            </Link>
           </div>
         </div>
       </nav>
@@ -133,34 +170,21 @@ export default function Navbar() {
       {/* Mobile Nav Overlay */}
       <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}>
         <ul className="mobile-nav-links">
-          <li>
-            <Link href="/propiedades?priceType=venta" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              {t('nav.buy')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/propiedades?priceType=alquiler" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              {t('nav.rent')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/propiedades?priceType=venta&marketRegion=mexico" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              Preventas Mexico
-            </Link>
-          </li>
-          <li>
-            <Link href={sellHref} className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              {t('nav.sell')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/propiedades" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              {t('nav.properties')}
-            </Link>
-          </li>
+          {navItems.map((item) => (
+            <li key={item.label}>
+              <Link href={item.href} className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
+                {item.label}
+              </Link>
+            </li>
+          ))}
           <li>
             <Link href="/contacto" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
               {t('nav.contact')}
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
+              {t('nav.signIn')}
             </Link>
           </li>
         </ul>
@@ -176,29 +200,6 @@ export default function Navbar() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z"/></svg>
             </a>
           </div>
-        </div>
-      </div>
-      <div className={`secondary-logo-header ${scrolled ? 'scrolled' : ''} ${mobileMenuOpen ? 'menu-open' : ''}`}>
-        <div className="secondary-logo-inner container">
-          <Link 
-            href="/" 
-            className="secondary-logo-link" 
-            aria-label={siteConfig.name}
-            onClick={(e) => {
-              if (window.location.pathname === '/') {
-                e.preventDefault();
-                const heroEl = document.getElementById('hero');
-                if (heroEl) {
-                  heroEl.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }
-            }}
-          >
-            <span className="secondary-logo-red">{siteConfig.logo.primary}</span>
-            <span className="secondary-logo-dark">{siteConfig.logo.secondary}</span>
-          </Link>
         </div>
       </div>
     </>

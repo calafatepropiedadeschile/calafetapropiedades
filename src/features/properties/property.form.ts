@@ -105,6 +105,12 @@ export function parsePropertyFormData(formData: FormData): PropertyInput {
     amenities: formList(formData, 'amenities'),
     images: newlineList(formData.get('images')),
     coverImage: optionalUrl(formData.get('coverImage')),
+    seoTitleEs: optionalString(formData.get('seoTitleEs')),
+    seoTitleEn: optionalString(formData.get('seoTitleEn')),
+    seoDescriptionEs: optionalString(formData.get('seoDescriptionEs')),
+    seoDescriptionEn: optionalString(formData.get('seoDescriptionEn')),
+    customCanonical: optionalUrl(formData.get('customCanonical')),
+    ogImage: optionalUrl(formData.get('ogImage')),
   });
 
   if (!parsed.success) {

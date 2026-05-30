@@ -6,7 +6,6 @@ import type { PropertyCard as PropertyCardType } from '@/types/property';
 import { formatPrice } from '@/lib/utils/formatters';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { siteConfig } from '@/config/site';
 
 interface Props {
   property: PropertyCardType;
@@ -26,11 +25,6 @@ const PROPERTY_STATUS_KEYS = {
   alquilado: 'property.rented',
 } as const;
 
-const PRICE_TYPE_KEYS = {
-  venta: 'property.sale',
-  alquiler: 'property.rent',
-} as const;
-
 export default function PropertyCard({ property }: Props) {
   const { locale, t } = useI18n();
   const {
@@ -39,7 +33,6 @@ export default function PropertyCard({ property }: Props) {
     price,
     currency,
     bedrooms,
-    bathrooms,
     area,
     city,
     zone,
@@ -55,8 +48,8 @@ export default function PropertyCard({ property }: Props) {
   const propertyHref = locale === 'en' ? `/propiedades/${slug}?lang=en` : `/propiedades/${slug}`;
 
   return (
-    <article className="property-card">
-      <div className="property-card-image-wrapper">
+    <article className="property-card-flat">
+      <div className="property-card-flat-image-wrapper">
         <Link href={propertyHref} aria-label={`${t('property.viewDetails')}: ${title}`} style={{ position: 'absolute', inset: 0, display: 'block' }}>
           <Image
             src={coverImage || fallbackImage}
@@ -66,59 +59,33 @@ export default function PropertyCard({ property }: Props) {
             priority={false}
           />
         </Link>
-        {status !== 'disponible' ? (
-          <div className="property-card-badge">
+        {status !== 'disponible' && (
+          <div className="property-card-status-badge">
             {t(PROPERTY_STATUS_KEYS[status])}
-          </div>
-        ) : (
-          <div className="property-card-badge" style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}>
-            {t(PRICE_TYPE_KEYS[priceType])}
           </div>
         )}
       </div>
       
-      <div className="property-card-content">
-        <div className="property-card-price">
-          {formatPrice(price, currency)}
+      <div className="property-card-flat-content">
+        <h3 className="property-card-flat-title">
+          <Link href={propertyHref}>{title}</Link>
+        </h3>
+        
+        <div className="property-card-flat-location">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', color: 'var(--color-primary)' }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>{zone}, {city}</span>
         </div>
 
-        <p className="text-xs text-muted" style={{ fontWeight: 800, marginBottom: 'var(--space-xs)', textTransform: 'uppercase' }}>
-          {t(PROPERTY_TYPE_KEYS[type])}
+        <p className="property-card-flat-tagline">
+          {bedrooms ? `${bedrooms} ${t('property.bedroomsShort')} • ` : ''}
+          {type ? `${t(PROPERTY_TYPE_KEYS[type])}` : ''}
+          {area ? ` • ${Math.round(area)}m²` : ''}
         </p>
         
-        <div className="property-card-specs">
-          {bedrooms && (
-            <div className="property-card-spec">
-              {bedrooms}<span>{t('property.bedroomsShort')}</span>
-            </div>
-          )}
-          {bathrooms && (
-            <div className="property-card-spec">
-              {bathrooms}<span>{t('property.bathroomsShort')}</span>
-            </div>
-          )}
-          {area && (
-            <div className="property-card-spec">
-              {Math.round(area)}<span>m²</span>
-            </div>
-          )}
+        <div className="property-card-flat-price">
+          {formatPrice(price, currency)}
+          {priceType === 'alquiler' && <span className="price-period-flat"> / {t('property.periodMonth')}</span>}
         </div>
-        
-        <div className="property-card-address">
-          {zone}
-        </div>
-        <div className="property-card-city">
-          {city}
-        </div>
-      </div>
-
-      <div className="property-card-footer">
-        <span className="text-xs text-muted" style={{ fontWeight: 600, textTransform: 'uppercase' }}>
-          {siteConfig.name}
-        </span>
-        <Link href={propertyHref} className="btn btn-outline btn-sm" style={{ padding: '4px 12px' }}>
-          {t('property.viewDetails')}
-        </Link>
       </div>
     </article>
   );

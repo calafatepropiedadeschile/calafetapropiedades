@@ -1,183 +1,222 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { API_ROUTES } from '@/config/api';
-import { useI18n } from '@/lib/i18n/I18nProvider';
-import { formatPrice } from '@/lib/utils/formatters';
-import { getSiteImageUrl } from '@/lib/storage/public-images';
-import type { ApiResponse, PaginatedResponse, PropertyCard } from '@/types/property';
+import { PROPERTY_LOCATION_FILTERS } from '@/features/properties/property-zone-filters';
 
-type SearchResult = Pick<PropertyCard, 'id' | 'title' | 'slug' | 'city' | 'zone' | 'price' | 'priceType' | 'currency' | 'coverImage'>;
+type SearchOption = {
+  value: string;
+  label: string;
+  description: string;
+};
 
-const PRICE_TYPE_KEYS = {
-  venta: 'property.sale',
-  alquiler: 'property.rent',
-} as const;
+const PROPERTY_TYPES = [
+  { value: 'terreno', label: 'Terreno', description: 'Parcelas, loteos y terrenos' },
+  { value: 'casa', label: 'Casa', description: 'Casas o viviendas con terreno' },
+] as const satisfies readonly SearchOption[];
 
-export default function PropertySearch() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
+const LOCATION_OPTIONS = PROPERTY_LOCATION_FILTERS.map((location) => ({
+  ...location,
+  description: location.value
+    ? 'Filtrar propiedades por zona'
+    : 'Ver todas las ubicaciones',
+})) satisfies SearchOption[];
+
+interface SearchSelectProps {
+  label: string;
+  value: string;
+  options: readonly SearchOption[];
+  icon: ReactNode;
+  onChange: (value: string) => void;
+}
+
+function SearchSelect({ label, value, options, icon, onChange }: SearchSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { t, locale } = useI18n();
-  const router = useRouter();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const fallbackImage = getSiteImageUrl(
-    'site/property-search-fallback.webp',
-    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=100&auto=format&fit=crop'
-  );
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+  const selectedOption = options.find((option) => option.value === value) ?? options[0];
 
-  // Close dropdown on click outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    function handlePointerDown(event: MouseEvent) {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
         setIsOpen(false);
-        setIsLoading(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
   }, []);
 
-  const normalizedQuery = query.trim();
-  const hasSearchQuery = normalizedQuery.length >= 2;
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const controller = new AbortController();
-
-    const timer = setTimeout(async () => {
-      setIsLoading(true);
-      try {
-        const params = new URLSearchParams({ limit: '6' });
-        params.set('locale', locale);
-
-        if (hasSearchQuery) {
-          params.set('query', normalizedQuery);
-        }
-
-        const res = await fetch(`${API_ROUTES.properties}?${params.toString()}`, {
-          cache: 'no-store',
-          credentials: 'include',
-          signal: controller.signal,
-        });
-
-        if (res.ok) {
-          const json = await res.json() as ApiResponse<PaginatedResponse<PropertyCard>>;
-          setResults(json.data?.data ?? []);
-          setIsOpen(true);
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        console.error('Search error:', error);
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    }, hasSearchQuery ? 300 : 0);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [hasSearchQuery, isOpen, locale, normalizedQuery]);
-
-  function handleQueryChange(value: string) {
-    setQuery(value);
-    setIsLoading(true);
-    setIsOpen(true);
-  }
-
-  function openSuggestions() {
-    setIsLoading(true);
-    setIsOpen(true);
-  }
-
-  const handleSelect = (slug: string) => {
+  function selectOption(nextValue: string) {
+    onChange(nextValue);
     setIsOpen(false);
-    router.push(locale === 'en' ? `/propiedades/${slug}?lang=en` : `/propiedades/${slug}`);
-  };
-
-  function handleSearchSubmit() {
-    const params = new URLSearchParams({ priceType: 'venta' });
-
-    if (normalizedQuery) {
-      params.set('query', normalizedQuery);
-    }
-
-    setIsOpen(false);
-    router.push(`/propiedades?${params.toString()}`);
   }
 
   return (
-    <div className={`search-container-wrapper ${isOpen ? 'is-open' : ''}`} ref={dropdownRef} style={{ width: '100%', position: 'relative' }}>
-      <div className="hero-search-pill">
-        <input
-          type="text"
-          className="hero-search-input"
-          placeholder={t('search.placeholder')}
-          value={query}
-          onChange={(e) => handleQueryChange(e.target.value)}
-          onFocus={openSuggestions}
-          onPointerDown={openSuggestions}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              handleSearchSubmit();
-            }
-          }}
-        />
-        <button type="button" className="hero-search-btn-realtor" onClick={handleSearchSubmit}>
-          {t('search.button')}
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </button>
-      </div>
+    <div className="search-field search-field--custom" ref={wrapperRef}>
+      <span className="search-label">
+        {icon}
+        {label}
+      </span>
+      <button
+        type="button"
+        className={`search-select-trigger${isOpen ? ' is-open' : ''}`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={listboxId}
+        onClick={() => setIsOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            setIsOpen(false);
+          }
+        }}
+      >
+        <span className="search-select-value">{selectedOption.label}</span>
+        <svg
+          className="search-select-chevron"
+          aria-hidden="true"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
 
       {isOpen && (
-        <div className="search-dropdown animate-fade-in">
-          {isLoading ? (
-            <div className="search-dropdown-loading">{t('search.loading')}</div>
-          ) : results.length === 0 ? (
-            <div className="search-dropdown-empty">{t('search.noResults')}</div>
-          ) : (
-            <>
-              <div className="search-dropdown-header">
-                {hasSearchQuery ? t('search.topResults') : t('search.recentResults')}
-              </div>
-              <div className="search-results-list">
-                {results.map((prop) => (
-                  <button
-                    type="button"
-                    key={prop.id}
-                    className="search-result-item"
-                    onClick={() => handleSelect(prop.slug)}
+        <div className="property-search-dropdown" role="listbox" id={listboxId}>
+          {options.map((option) => {
+            const isSelected = option.value === selectedOption.value;
+            return (
+              <button
+                key={option.value || 'empty'}
+                type="button"
+                className={`property-search-option${isSelected ? ' is-selected' : ''}`}
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => selectOption(option.value)}
+              >
+                <span className="property-search-option-copy">
+                  <span className="property-search-option-label">{option.label}</span>
+                  <span className="property-search-option-description">{option.description}</span>
+                </span>
+                {isSelected && (
+                  <svg
+                    className="property-search-option-check"
+                    aria-hidden="true"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <div className="search-result-img">
-                      <Image
-                        src={prop.coverImage || fallbackImage}
-                        alt={prop.title}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div className="search-result-info">
-                      <div className="search-result-title">{prop.title}</div>
-                      <div className="search-result-meta">
-                        {t(PRICE_TYPE_KEYS[prop.priceType])} <span>{prop.city}</span> <span>{prop.zone}</span> <span>{formatPrice(prop.price, prop.currency)}</span>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+                    <path d="m20 6-11 11-5-5" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
+  );
+}
+
+export default function PropertySearch() {
+  const router = useRouter();
+  const [type, setType] = useState('terreno');
+  const [zone, setZone] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const params = new URLSearchParams();
+
+    if (type) params.set('type', type);
+    if (zone) params.set('zone', zone);
+
+    const queryString = params.toString();
+    router.push(`/propiedades${queryString ? `?${queryString}` : ''}`);
+  }
+
+  return (
+    <form
+      onSubmit={handleSearch}
+      className="property-search-form"
+      role="search"
+      aria-label="Buscar propiedades"
+    >
+      <div className="search-field-group">
+        <SearchSelect
+          label="Que buscas?"
+          value={type}
+          options={PROPERTY_TYPES}
+          onChange={setType}
+          icon={(
+            <svg
+              aria-hidden="true"
+              width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          )}
+        />
+
+        <div className="search-divider" aria-hidden="true" />
+
+        <SearchSelect
+          label="Donde?"
+          value={zone}
+          options={LOCATION_OPTIONS}
+          onChange={setZone}
+          icon={(
+            <svg
+              aria-hidden="true"
+              width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          )}
+        />
+
+        <button
+          type="submit"
+          className={`search-action-btn${isLoading ? ' loading' : ''}`}
+          disabled={isLoading}
+          aria-label="Buscar propiedades"
+        >
+          {isLoading ? (
+            <span className="search-spinner" aria-hidden="true" />
+          ) : (
+            <svg
+              aria-hidden="true"
+              width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          )}
+          <span>Buscar</span>
+        </button>
+      </div>
+    </form>
   );
 }

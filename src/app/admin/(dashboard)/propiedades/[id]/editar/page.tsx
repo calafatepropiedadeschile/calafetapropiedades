@@ -71,6 +71,12 @@ export default async function EditarPropiedadPage({ params }: Props) {
         amenities: true,
         images: true,
         coverImage: true,
+        seoTitleEs: true,
+        seoTitleEn: true,
+        seoDescriptionEs: true,
+        seoDescriptionEn: true,
+        customCanonical: true,
+        ogImage: true,
       },
     })
   ));

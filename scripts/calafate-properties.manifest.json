@@ -1,0 +1,83 @@
+[
+  {
+    "sourceDir": "1- Praderas del Maule",
+    "slug": "praderas-del-maule",
+    "zoneEs": "San Rafael",
+    "cityEs": "San Rafael",
+    "province": "Region del Maule",
+    "services": ["electricidad", "acceso"],
+    "amenities": ["porton", "camino-interior", "rol-propio"],
+    "seoTitleEs": "Praderas del Maule | Parcelas en San Rafael",
+    "seoDescriptionEs": "Parcelas de 5.000 m2 con rol propio, porton automatizado y conectividad cercana a Talca.",
+    "published": true,
+    "featured": true
+  },
+  {
+    "sourceDir": "2- Portal los Muermos",
+    "slug": "portal-los-muermos",
+    "zoneEs": "Los Muermos",
+    "cityEs": "Los Muermos",
+    "province": "Region de Los Lagos",
+    "services": ["electricidad", "agua-potable", "acceso"],
+    "amenities": ["porton", "camino-interior", "vista-volcanes"],
+    "seoTitleEs": "Portal Los Muermos | Parcelas en Los Lagos",
+    "seoDescriptionEs": "Parcelas de 5.000 m2 en Los Muermos con agua potable, electricidad, caminos interiores y vista a volcanes.",
+    "published": true,
+    "featured": true
+  },
+  {
+    "sourceDir": "3- Vive Puquila",
+    "slug": "vive-puquila",
+    "price": 37990000,
+    "zoneEs": "San Jose de la Mariquina",
+    "cityEs": "Mariquina",
+    "province": "Region de Los Rios",
+    "services": ["electricidad", "agua-potable", "acceso"],
+    "amenities": ["porton", "camino-interior", "rol-propio"],
+    "seoTitleEs": "Vive Puquila | Parcelas en Mariquina",
+    "seoDescriptionEs": "Parcelas rurales de 5.000 m2 en San Jose de la Mariquina, cerca de Valdivia y Playa Mehuin.",
+    "published": true,
+    "featured": true
+  },
+  {
+    "sourceDir": "4-. Altos del tepual",
+    "slug": "altos-del-tepual",
+    "price": 24000000,
+    "zoneEs": "Las Quemas",
+    "cityEs": "Puerto Montt",
+    "province": "Region de Los Lagos",
+    "services": ["electricidad", "agua-potable", "acceso"],
+    "amenities": ["camino-estabilizado", "rol-propio", "vista-volcanes"],
+    "seoTitleEs": "Altos del Tepual | Parcelas en Puerto Montt",
+    "seoDescriptionEs": "Parcelas de 5.000 m2 en Las Quemas, Puerto Montt, con acceso, servicios y conectividad.",
+    "published": true,
+    "featured": false
+  },
+  {
+    "sourceDir": "5-. Parcelas Quillahua_",
+    "slug": "parcelas-quillahua",
+    "titleEs": "Parcelas Quillahua",
+    "zoneEs": "Quillahua",
+    "cityEs": "Los Muermos",
+    "province": "Region de Los Lagos",
+    "services": ["electricidad", "agua-pozo", "acceso"],
+    "amenities": ["vista-mar", "cercania-playa", "camino-publico"],
+    "seoTitleEs": "Parcelas Quillahua | Terrenos en Los Muermos",
+    "seoDescriptionEs": "Terrenos de 5.000 m2 en Quillahua, Los Muermos, con vista al mar y cercania a la playa.",
+    "published": true,
+    "featured": false
+  },
+  {
+    "sourceDir": "6-. Parcelas Putrautrao_",
+    "slug": "parcelas-putrautrao",
+    "zoneEs": "Putrautrao",
+    "cityEs": "Los Muermos",
+    "province": "Region de Los Lagos",
+    "services": ["electricidad", "agua-pozo", "acceso"],
+    "amenities": ["vista-volcanes", "vista-rio", "entorno-natural"],
+    "seoTitleEs": "Parcelas Putrautrao | Terrenos en Los Muermos",
+    "seoDescriptionEs": "Terrenos de 5.000 m2 en Putrautrao, Los Muermos, con vista a volcanes y rio.",
+    "published": true,
+    "featured": false
+  }
+]

@@ -1,6 +1,7 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { PropertyFilters } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
+import { getPropertyZoneFilterValues } from './property-zone-filters';
 import { mapProperty, mapPropertyCard } from './property.mapper';
 
 type PropertyDbClient = PrismaClient | Prisma.TransactionClient;
@@ -77,6 +78,12 @@ const propertyDetailSelect = {
   coverImage: true,
   createdAt: true,
   updatedAt: true,
+  seoTitleEs: true,
+  seoTitleEn: true,
+  seoDescriptionEs: true,
+  seoDescriptionEn: true,
+  customCanonical: true,
+  ogImage: true,
 } satisfies Prisma.PropertySelect;
 
 function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyWhereInput {
@@ -87,12 +94,6 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
         mode: 'insensitive' as const,
       }
     : undefined;
-  const zoneMatch = zone
-    ? {
-        equals: zone,
-      }
-    : undefined;
-
   const and: Prisma.PropertyWhereInput[] = [{ published: true }];
 
   if (query) {
@@ -129,11 +130,14 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
   }
 
   if (zone) {
+    const zoneValues = getPropertyZoneFilterValues(zone);
     and.push({
-      OR: [
-        { zoneEs: zoneMatch },
-        { zoneEn: zoneMatch },
-      ],
+      OR: zoneValues.flatMap((zoneValue) => [
+        { zoneEs: { equals: zoneValue } },
+        { zoneEn: { equals: zoneValue } },
+        { cityEs: { equals: zoneValue } },
+        { cityEn: { equals: zoneValue } },
+      ]),
     });
   }
 
@@ -191,9 +195,9 @@ export function createPropertyRepository(db: PropertyDbClient) {
       return properties.map((p) => mapPropertyCard(p, locale));
     },
 
-    async findPublishedBySlug(slug: string, locale: Locale = 'es') {
+    async findPublishedBySlug(slug: string, locale: Locale = 'es', showUnpublished = false) {
       const property = await db.property.findFirst({
-        where: { slug, published: true },
+        where: showUnpublished ? { slug } : { slug, published: true },
         select: propertyDetailSelect,
       });
 

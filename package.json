@@ -14,7 +14,9 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "properties:migrate:supabase": "tsx scripts/migrate-calafate-properties-to-supabase.ts",
+    "properties:migrate:supabase:dry-run": "tsx scripts/migrate-calafate-properties-to-supabase.ts --dry-run"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -25,6 +27,7 @@
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
+    "heic-convert": "^2.1.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",

@@ -5,6 +5,7 @@ import {
   DEFAULT_LOCALE,
 } from '@/lib/i18n/config';
 import WhatsAppWidget from '@/components/layout/WhatsAppWidget';
+import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
 import { siteConfig } from '@/config/site';
 import './globals.css';
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
     <html lang={DEFAULT_LOCALE}>
       <body>
         <I18nProvider initialLocale={DEFAULT_LOCALE} initialCurrency={DEFAULT_CURRENCY}>
+          <GoogleAnalytics />
           {children}
           <WhatsAppWidget />
         </I18nProvider>

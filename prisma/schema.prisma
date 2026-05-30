@@ -57,6 +57,14 @@ model Property {
   updatedAt   DateTime @updatedAt
   leads       Lead[]
 
+  // SEO Enterprise autogestionables
+  seoTitleEs      String?
+  seoTitleEn      String?
+  seoDescriptionEs String?
+  seoDescriptionEn String?
+  customCanonical  String?
+  ogImage          String?
+
   @@index([published, featured, createdAt])
   @@index([published, type, priceType])
   @@index([published, marketRegion])
@@ -90,4 +98,26 @@ model User {
   name      String
   role      String   @default("admin")
   createdAt DateTime @default(now())
+}
+
+model StaticPage {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  titleEs          String
+  titleEn          String?
+  contentEs        String
+  contentEn        String?
+  published        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // SEO Enterprise autogestionables
+  seoTitleEs       String?
+  seoTitleEn       String?
+  seoDescriptionEs String?
+  seoDescriptionEn String?
+  customCanonical  String?
+  ogImage          String?
+
+  @@index([published, createdAt])
 }

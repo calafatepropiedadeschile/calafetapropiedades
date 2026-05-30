@@ -9,6 +9,10 @@ import {
   PROPERTY_MARKET_REGION_TRANSLATION_KEYS,
   type PropertyMarketRegion,
 } from '@/features/properties/property-markets';
+import {
+  PROPERTY_LOCATION_FILTERS,
+  propertyMatchesZoneFilter,
+} from '@/features/properties/property-zone-filters';
 import type { PropertyCard as PropertyCardType, PriceType, PropertyType } from '@/types/property';
 
 const PROPERTY_TYPES: Array<{ value: PropertyType | ''; labelKey: TranslationKey }> = [
@@ -63,10 +67,17 @@ export default function PropertyCatalog({
     ...providedFilters,
   });
 
-  const zones = useMemo(
-    () => Array.from(new Set(properties.map((property) => property.zone))).sort(),
-    [properties]
-  );
+  const zones = useMemo(() => {
+    const groupedZones = PROPERTY_LOCATION_FILTERS.filter((location) => location.value);
+    const realZones = Array.from(new Set(properties.map((property) => property.zone)))
+      .sort()
+      .filter((zone) => !groupedZones.some((location) => location.label === zone || location.value === zone));
+
+    return [
+      ...groupedZones,
+      ...realZones.map((zone) => ({ value: zone, label: zone })),
+    ];
+  }, [properties]);
   const countries = useMemo(
     () => Array.from(new Set(properties.map((property) => property.country).filter((country): country is string => Boolean(country)))).sort(),
     [properties]
@@ -143,7 +154,7 @@ export default function PropertyCatalog({
         (!filters.priceType || property.priceType === filters.priceType) &&
         (!filters.marketRegion || property.marketRegion === filters.marketRegion) &&
         (!filters.country || property.country === filters.country) &&
-        (!filters.zone || property.zone === filters.zone) &&
+        propertyMatchesZoneFilter(property, filters.zone) &&
         (minPrice === null || property.price >= minPrice) &&
         (maxPrice === null || property.price <= maxPrice) &&
         (bedrooms === null || (property.bedrooms ?? 0) >= bedrooms)
@@ -264,7 +275,7 @@ export default function PropertyCatalog({
             >
               <option value="">{t('catalog.allZones')}</option>
               {zones.map((zone) => (
-                <option key={zone} value={zone}>{zone}</option>
+                <option key={zone.value} value={zone.value}>{zone.label}</option>
               ))}
             </select>
           </div>
