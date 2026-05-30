@@ -104,9 +104,9 @@ export const seoLandingPages: Record<SeoLandingKey, SeoLandingPageConfig> = {
     primaryCta: { label: 'Ver proyectos', href: '/proyectos' },
     secondaryCta: { label: 'Ver terrenos', href: '/terrenos' },
     highlights: [
-      'Páginas individuales para cada proyecto indexable en Google.',
-      'Información de ubicación, precio desde y superficie.',
-      'Galerías subidas a Supabase Storage para carga estable.',
+      'Alta plusvalía garantizada en las mejores zonas del sur.',
+      'Información detallada de ubicación, precio desde y superficie.',
+      'Asesoría directa y visitas a terreno con nuestros agentes.',
     ],
     faqs: [
       {
