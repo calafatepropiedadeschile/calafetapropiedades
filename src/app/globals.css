@@ -808,18 +808,18 @@ input, textarea, select {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
 }
 
 .mobile-nav-item {
   opacity: 0;
   transform: translateY(20px);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .mobile-nav-overlay.open .mobile-nav-item,
 .mobile-nav-overlay.open .mobile-nav-footer {
   animation: stagger-slide-up 0.5s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
-  animation-delay: calc(0.1s + var(--animation-order) * 0.08s);
+  animation-delay: calc(0.05s + var(--animation-order) * 0.05s);
 }
 
 @keyframes stagger-slide-up {
@@ -829,43 +829,72 @@ input, textarea, select {
   }
 }
 
-.mobile-nav-link {
-  text-decoration: none;
-  color: var(--color-dark);
-  font-weight: 300;
-  font-size: 2.5rem;
-  letter-spacing: -0.03em;
-  font-family: var(--font-sans);
-  transition: color var(--transition-fast), padding-left var(--transition-fast);
-  display: block;
+.mobile-nav-row {
+  width: 100%;
 }
 
-.mobile-nav-link:hover {
-  color: var(--color-primary);
-  padding-left: 8px;
+.mobile-nav-link-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px 0;
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  color: var(--color-dark);
+  cursor: pointer;
+  text-align: left;
+}
+
+.mobile-nav-link-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--color-dark-2);
+}
+
+.mobile-nav-link-left svg {
+  color: var(--color-text-muted);
+}
+
+.mobile-nav-link-right {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.mobile-nav-submenu-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.mobile-nav-submenu-wrapper.open {
+  grid-template-rows: 1fr;
 }
 
 .mobile-nav-submenu {
-  display: grid;
-  gap: 0.75rem;
+  overflow: hidden;
   list-style: none;
-  margin: 1.25rem 0 0;
-  padding: 0 0 0 1.25rem;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0;
+  margin: 0;
 }
 
 .mobile-nav-sub-link {
+  display: block;
+  padding: 12px 0 12px 42px;
   color: var(--color-text-muted);
-  font-family: var(--font-sans);
-  font-size: 1.2rem;
-  font-weight: 400;
+  font-size: 0.95rem;
   text-decoration: none;
   transition: color var(--transition-fast);
-  display: block;
 }
 
 .mobile-nav-sub-link:hover {
-  color: var(--color-dark);
+  color: var(--color-primary);
 }
 
 /* Footer area */

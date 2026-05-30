@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone, Mail, X } from 'lucide-react';
+import { Phone, Mail, X, Home, Key, Map, DollarSign, Mountain, Info, MessageCircle, ChevronRight, ChevronDown } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useExchangeRates } from '@/lib/currency/ExchangeRatesProvider';
 import { formatMoney } from '@/lib/currency/format-money';
@@ -15,6 +15,7 @@ import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
 type NavItem = {
   href: string;
   label: string;
+  icon?: React.ReactNode;
   subItems?: { href: string; label: string }[];
 };
 
@@ -117,9 +118,12 @@ export default function Navbar() {
   const { rates } = useExchangeRates();
   const popoverRef = useRef<HTMLDivElement>(null);
 
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+
   const comprarItem = useMemo<NavItem>(() => ({
     href: '/comprar',
     label: t('nav.buy'),
+    icon: <Home size={20} strokeWidth={1.5} />,
     subItems: [
       { href: '/comprar?type=casa', label: t('property.house') },
       { href: '/comprar?type=terreno', label: t('property.lot') },
@@ -129,6 +133,7 @@ export default function Navbar() {
   const arriendosItem = useMemo<NavItem>(() => ({
     href: '/arriendos',
     label: t('nav.rent'),
+    icon: <Key size={20} strokeWidth={1.5} />,
     subItems: [
       { href: '/arriendos?type=casa', label: t('property.house') },
       { href: '/arriendos?type=terreno', label: t('property.lot') },
@@ -138,6 +143,7 @@ export default function Navbar() {
   const proyectosItem = useMemo<NavItem>(() => ({
     href: '/proyectos',
     label: t('nav.projects'),
+    icon: <Map size={20} strokeWidth={1.5} />,
     subItems: [
       { href: '/proyectos?type=terreno', label: t('common.projectsLots') },
       { href: '/proyectos?type=casa', label: t('common.projectsHouses') },
@@ -147,21 +153,25 @@ export default function Navbar() {
   const venderItem = useMemo<NavItem>(() => ({
     href: '/vender',
     label: t('nav.sell'),
+    icon: <DollarSign size={20} strokeWidth={1.5} />,
   }), [t]);
 
   const topografiaItem = useMemo<NavItem>(() => ({
     href: '/topografia',
     label: t('nav.topography'),
+    icon: <Mountain size={20} strokeWidth={1.5} />,
   }), [t]);
 
   const contactoItem = useMemo<NavItem>(() => ({
     href: '/contacto',
     label: t('nav.contact'),
+    icon: <MessageCircle size={20} strokeWidth={1.5} />,
   }), [t]);
 
   const nosotrosItem = useMemo<NavItem>(() => ({
     href: '/nosotros',
     label: t('nav.about'),
+    icon: <Info size={20} strokeWidth={1.5} />,
   }), [t]);
 
   /** Siempre 3 ítems a la izquierda y 3 a la derecha del logo. */
@@ -391,14 +401,9 @@ export default function Navbar() {
 
       <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-nav-header">
-          <Link href="/" className="mobile-nav-logo" onClick={closeMobileMenu}>
-            <Image 
-              src="/brand/calafate-logo.png" 
-              alt={siteConfig.name} 
-              width={140} 
-              height={31} 
-            />
-          </Link>
+          <span className="mobile-nav-welcome" style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-dark)', letterSpacing: '-0.02em' }}>
+            ¡Hola, bienvenido!
+          </span>
           <button
             type="button"
             className="mobile-menu-close-btn"
@@ -412,21 +417,59 @@ export default function Navbar() {
         <div className="mobile-nav-scroll-area">
           <ul className="mobile-nav-links">
             {navItemsMobile.map((item, i) => (
-              <li key={item.href} className="mobile-nav-item" style={{ '--animation-order': i } as React.CSSProperties}>
-                <Link href={item.href} className="mobile-nav-link" onClick={closeMobileMenu}>
-                  {item.label}
-                </Link>
-                {item.subItems ? (
-                  <ul className="mobile-nav-submenu" role="list">
-                    {item.subItems.map((subItem) => (
-                      <li key={subItem.href}>
-                        <Link href={subItem.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
-                          {subItem.label}
+              <li key={item.href} className="mobile-nav-item">
+                <div 
+                  className="mobile-nav-row"
+                  onClick={() => {
+                    if (item.subItems) {
+                      setExpandedItem(expandedItem === item.href ? null : item.href);
+                    } else {
+                      closeMobileMenu();
+                      // Redirect handled by Link, but since this is a div we should use Link inside. Wait, I should make the entire row clickable. 
+                    }
+                  }}
+                >
+                  {item.subItems ? (
+                    <button className="mobile-nav-link-btn" type="button">
+                      <div className="mobile-nav-link-left">
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </div>
+                      <div className="mobile-nav-link-right">
+                        {expandedItem === item.href ? <ChevronDown size={20} className="chevron" /> : <ChevronRight size={20} className="chevron" />}
+                      </div>
+                    </button>
+                  ) : (
+                    <Link href={item.href} className="mobile-nav-link-btn" onClick={closeMobileMenu}>
+                      <div className="mobile-nav-link-left">
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </div>
+                      <div className="mobile-nav-link-right">
+                        <ChevronRight size={20} className="chevron" />
+                      </div>
+                    </Link>
+                  )}
+                </div>
+
+                {item.subItems && (
+                  <div className={`mobile-nav-submenu-wrapper ${expandedItem === item.href ? 'open' : ''}`}>
+                    <ul className="mobile-nav-submenu" role="list">
+                      <li>
+                        <Link href={item.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
+                          Ver todo {item.label}
                         </Link>
                       </li>
-                    ))}
-                  </ul>
-                ) : null}
+                      {item.subItems.map((subItem) => (
+                        <li key={subItem.href}>
+                          <Link href={subItem.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
+                            {subItem.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
