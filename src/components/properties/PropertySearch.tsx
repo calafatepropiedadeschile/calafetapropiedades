@@ -145,11 +145,6 @@ export default function PropertySearch({
   const [zone, setZone] = useState(initialZone);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setType(initialType);
-    setZone(initialZone);
-  }, [initialType, initialZone]);
-
   function handleTypeChange(nextType: string) {
     setType(nextType);
     if (nextType === 'terreno' || nextType === 'casa') {

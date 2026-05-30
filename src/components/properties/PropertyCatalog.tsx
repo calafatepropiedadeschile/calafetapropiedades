@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, useId } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useId } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { SlidersHorizontal, X } from 'lucide-react';
 import PropertyCard from '@/components/properties/PropertyCard';
@@ -131,11 +131,6 @@ export default function PropertyCatalog({
   const { hasPublishedRentals } = useRentalsNav();
   const router = useRouter();
   const pathname = usePathname();
-  const filtersKey = useMemo(
-    () => JSON.stringify(normalizeCatalogFilters({ ...DEFAULT_CATALOG_FILTERS, ...providedFilters })),
-    [providedFilters]
-  );
-
   const [filters, setFilters] = useState<CatalogFilterState>(() => normalizeCatalogFilters({
     ...DEFAULT_CATALOG_FILTERS,
     ...providedFilters,
@@ -143,17 +138,15 @@ export default function PropertyCatalog({
   const [queryDraft, setQueryDraft] = useState(() => filters.query);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filtersRef = useRef(filters);
-  filtersRef.current = filters;
 
   useEffect(() => {
-    const next = normalizeCatalogFilters({ ...DEFAULT_CATALOG_FILTERS, ...providedFilters });
-    setFilters(next);
-    setQueryDraft(next.query);
-  }, [filtersKey, providedFilters]);
+    filtersRef.current = filters;
+  }, [filters]);
 
-  function applyFilters(nextFilters: CatalogFilterState, page = pagination.page) {
+  const applyFilters = useCallback((nextFilters: CatalogFilterState, page = pagination.page) => {
     const normalized = normalizeCatalogFilters(nextFilters);
     setFilters(normalized);
+    setQueryDraft(normalized.query);
     persistCatalogPreferencesClient({
       type: normalized.type === 'terreno' || normalized.type === 'casa' ? normalized.type : '',
       zone: normalized.zone,
@@ -161,7 +154,7 @@ export default function PropertyCatalog({
     const params = buildCatalogFilterSearchParams(normalized, page);
     const queryString = params.toString();
     router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
-  }
+  }, [pagination.page, pathname, router]);
 
   useEffect(() => {
     if (queryDraft === filters.query) return;
@@ -171,7 +164,7 @@ export default function PropertyCatalog({
     }, QUERY_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timeout);
-  }, [queryDraft, filters.query, pathname, router, pagination.page]);
+  }, [queryDraft, filters.query, applyFilters]);
 
   const zones = useMemo(() => {
     const groupedZones = PROPERTY_LOCATION_FILTERS.filter((location) => location.value);

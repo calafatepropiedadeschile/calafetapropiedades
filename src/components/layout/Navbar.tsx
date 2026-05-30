@@ -15,10 +15,37 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { locale, setLocale, t } = useI18n();
   const popoverRef = useRef<HTMLDivElement>(null);
-  const navItems = [
-    { href: '/comprar', label: t('nav.buy') },
-    ...(showRentalsLink ? [{ href: '/arriendos', label: t('nav.rent') }] : []),
-    { href: '/proyectos', label: t('nav.projects') },
+  type NavItem = {
+    href: string;
+    label: string;
+    subItems?: { href: string; label: string }[];
+  };
+
+  const navItems: NavItem[] = [
+    { 
+      href: '/comprar', 
+      label: t('nav.buy'),
+      subItems: [
+        { href: '/comprar?type=casa', label: t('property.house') },
+        { href: '/comprar?type=terreno', label: t('property.lot') },
+      ]
+    },
+    ...(showRentalsLink ? [{ 
+      href: '/arriendos', 
+      label: t('nav.rent'),
+      subItems: [
+        { href: '/arriendos?type=casa', label: t('property.house') },
+        { href: '/arriendos?type=terreno', label: t('property.lot') },
+      ]
+    }] : []),
+    { 
+      href: '/proyectos', 
+      label: t('nav.projects'),
+      subItems: [
+        { href: '/proyectos?type=terreno', label: 'Parcelas y Loteos' },
+        { href: '/proyectos?type=casa', label: 'Casas con Terreno' },
+      ]
+    },
     { href: '/vender', label: t('nav.sell') },
     { href: '/topografia', label: t('nav.topography') },
   ];
@@ -90,8 +117,26 @@ export default function Navbar() {
 
             <ul className="nav-links">
               {navItems.map((item) => (
-                <li key={item.label}>
-                  <Link href={item.href} className="nav-link">{item.label}</Link>
+                <li key={item.label} className={item.subItems ? 'has-dropdown' : ''}>
+                  <Link href={item.href} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                    {item.label}
+                    {item.subItems && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6, opacity: 0.7 }}><path d="m6 9 6 6 6-6"/></svg>
+                    )}
+                  </Link>
+                  {item.subItems && (
+                    <div className="nav-dropdown">
+                      <ul className="nav-dropdown-menu">
+                        {item.subItems.map((sub) => (
+                          <li key={sub.label}>
+                            <Link href={sub.href} className="nav-dropdown-link" onClick={() => setMobileMenuOpen(false)}>
+                              {sub.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -119,9 +164,9 @@ export default function Navbar() {
               <Image 
                 src="/brand/calafate-logo.png" 
                 alt={siteConfig.name} 
-                width={200} 
-                height={48} 
-                style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
+                width={176}
+                height={39}
+                className="nav-logo-image"
                 priority
               />
             </Link>
@@ -191,6 +236,22 @@ export default function Navbar() {
           </li>
         </ul>
         <div className="mobile-nav-footer">
+          <div className="mobile-locale-group" aria-label={t('nav.localeDialog')}>
+            <span className="mobile-locale-label">{t('nav.localeDialog')}</span>
+            <div className="mobile-locale-actions">
+              {LANGUAGE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`mobile-locale-btn ${locale === option.value ? 'active' : ''}`}
+                  onClick={() => toggleLang(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="mobile-social-links">
             <a href={siteConfig.contact.social.instagram} target="_blank" rel="noopener noreferrer" className="mobile-social-link" aria-label="Instagram">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>

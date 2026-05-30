@@ -122,6 +122,7 @@ export default async function PropiedadesPage({ searchParams }: Props) {
           </div>
 
           <PropertyCatalog
+            key={JSON.stringify(filters)}
             properties={properties}
             zoneOptions={zoneOptions}
             initialFilters={filters}

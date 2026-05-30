@@ -154,12 +154,6 @@ function getAmenityTranslationKey(slug: string): TranslationKey {
   return `property.amenity${capitalized}` as TranslationKey;
 }
 
-function getServiceTranslationKey(slug: string): TranslationKey {
-  const camel = slug.replace(/[_-]([a-z0-9])/g, (_, letter) => letter.toUpperCase());
-  const capitalized = camel.charAt(0).toUpperCase() + camel.slice(1);
-  return `property.service${capitalized}` as TranslationKey;
-}
-
 function detailSpec(labelKey: TranslationKey, value: ReactNode | null) {
   return { labelKey, value };
 }
@@ -187,10 +181,8 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
   const {
     id, title, description, price, priceFrom, priceType, currency, zone, city, address, province, addressVisibility,
     type, status, bedrooms, bathrooms, area, totalArea, builtArea, yearBuilt,
-    expenses, parking, frontage, depth, zoning, services, amenities, images, coverImage,
-    mapUrl, virtualTourUrl, lotSurfaceM2, totalLots, availableLots, stageName, paymentTerms,
-    commissionPercent, operationalExpenses, reservationAmount, waterStatus, electricityStatus,
-    accessType, roadType, hasOwnRol, availabilityNotes, commercialNotes, distanceHighlights,
+    expenses, parking, frontage, depth, zoning, amenities, images, coverImage,
+    lotSurfaceM2, totalLots, availableLots, stageName,
   } = property;
 
   const allImages = coverImage && isValidImageSource(coverImage)

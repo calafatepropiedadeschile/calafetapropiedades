@@ -4,9 +4,9 @@ import { cookies } from 'next/headers';
 import { readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import PropertyCard from '@/components/properties/PropertyCard';
 import PropertySearch from '@/components/properties/PropertySearch';
 import HomeHeroSection from '@/components/home/HomeHeroSection';
+import HomeFeaturedProperties from '@/components/home/HomeFeaturedProperties';
 import ServicesSection from '@/components/home/ServicesSection';
 import MasterplanInteractiveSection from '@/components/home/MasterplanInteractiveSection';
 import TrustStatsSection from '@/components/home/TrustStatsSection';
@@ -42,11 +42,6 @@ async function getSafePropertyCatalog() {
     return [];
   }
 }
-
-const CATEGORY_LINKS = [
-  { label: 'Terrenos', href: '/terrenos', primary: true },
-  { label: 'Casas', href: '/propiedades?type=casa' },
-];
 
 const HOME_ACTIONS = [
   {
@@ -93,7 +88,7 @@ export default async function HomePage() {
         }),
   ]);
 
-  const featured = featuredProperties.length > 0 ? featuredProperties : propertyCatalog.slice(0, 6);
+  const featured = propertyCatalog.length > 0 ? propertyCatalog : featuredProperties;
 
   return (
     <>
@@ -116,47 +111,10 @@ export default async function HomePage() {
             <p className="text-muted" style={{ maxWidth: '740px', margin: 'var(--space-xs) auto 0', fontSize: '1.05rem', lineHeight: '1.6' }}>
               Revisa la cartera actual de Calafate: parcelas de 5.000 m2, loteos con tours 360 y terrenos disponibles en zonas con alta demanda.
             </p>
-            <div style={{
-              display: 'flex',
-              gap: 'var(--space-xs)',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              margin: 'var(--space-xl) auto 3rem',
-              maxWidth: 'fit-content',
-              backgroundColor: 'var(--color-surface-2)',
-              padding: '6px',
-              borderRadius: '100px',
-              border: '1px solid var(--color-border-light)'
-            }} aria-label="Filtro de categorias">
-              {CATEGORY_LINKS.map((category) => (
-                <Link
-                  key={category.href}
-                  href={category.href}
-                  style={{
-                    padding: '8px 24px',
-                    borderRadius: '100px',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    border: 'none',
-                    backgroundColor: category.primary ? 'var(--color-primary)' : 'transparent',
-                    color: category.primary ? '#ffffff' : 'var(--color-text-subtle)',
-                    transition: 'all var(--transition-fast)',
-                    textDecoration: 'none'
-                  }}
-                >
-                  {category.label}
-                </Link>
-              ))}
-            </div>
           </div>
 
           {featured.length > 0 ? (
-            <div className="property-grid">
-              {featured.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+            <HomeFeaturedProperties properties={featured} />
           ) : (
             <div className="empty-state">
               <h3>Estamos ordenando el catalogo</h3>

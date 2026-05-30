@@ -74,9 +74,6 @@ export default async function AdminCampaignsGuidePage() {
   const publishedRentals = data.rentalLinks.filter((p) => p.published);
   const draftRentals = data.rentalLinks.filter((p) => !p.published);
   const totalPublishedForAds = publishedProjects.length + publishedListings.length;
-  const campaignRate = data.stats.leadsLast30Days > 0
-    ? Math.round((data.stats.leadsWithCampaignLast30Days / data.stats.leadsLast30Days) * 100)
-    : 0;
 
   return (
     <div>

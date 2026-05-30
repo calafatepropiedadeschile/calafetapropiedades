@@ -70,10 +70,10 @@ function LoginForm() {
       {/* Close Button x */}
       <Link href="/" style={{
         position: 'absolute',
-        top: '24px',
-        right: '24px',
-        width: '36px',
-        height: '36px',
+        top: '20px',
+        right: '20px',
+        width: '44px',
+        height: '44px',
         borderRadius: '50%',
         background: '#F3F4F6',
         display: 'flex',
@@ -181,9 +181,11 @@ function LoginForm() {
             onClick={() => setShowPassword(!showPassword)}
             style={{
               position: 'absolute',
-              right: '18px',
+              right: '10px',
               top: '50%',
               transform: 'translateY(-50%)',
+              width: '44px',
+              height: '44px',
               color: '#9CA3AF',
               background: 'none',
               border: 'none',

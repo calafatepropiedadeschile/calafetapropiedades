@@ -322,7 +322,8 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
     },
   });
 
-  const images = useWatch({ control, name: 'images' }) ?? [];
+  const watchedImages = useWatch({ control, name: 'images' });
+  const images = useMemo(() => watchedImages ?? [], [watchedImages]);
   const coverImage = useWatch({ control, name: 'coverImage' }) ?? '';
   const distanceHighlights = useWatch({ control, name: 'distanceHighlights' }) ?? [];
   const isPublished = useWatch({ control, name: 'published' }) ?? false;

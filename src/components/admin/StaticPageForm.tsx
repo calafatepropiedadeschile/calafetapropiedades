@@ -10,7 +10,7 @@ interface Props {
   pageId?: string;
 }
 
-export default function StaticPageForm({ action, defaultValues = {}, pageId }: Props) {
+export default function StaticPageForm({ action, defaultValues = {} }: Props) {
   const [activeLangTab, setActiveLangTab] = useState<'es' | 'en'>('es');
   const [formError, setFormError] = useState('');
   const [isPending, startTransition] = useTransition();

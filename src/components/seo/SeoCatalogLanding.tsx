@@ -107,6 +107,7 @@ export default function SeoCatalogLanding({
           />
 
           <PropertyCatalog
+            key={JSON.stringify(initialFilters)}
             properties={properties}
             zoneOptions={zoneOptions}
             initialFilters={initialFilters}

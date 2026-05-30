@@ -19,15 +19,10 @@ export default function VirtualTour({
 }: VirtualTourProps) {
   const [shouldLoad, setShouldLoad] = useState(eager || visible);
   const containerRef = useRef<HTMLDivElement>(null);
+  const shouldRenderIframe = shouldLoad || eager || visible;
 
   useEffect(() => {
-    if (eager || visible) {
-      setShouldLoad(true);
-    }
-  }, [eager, visible]);
-
-  useEffect(() => {
-    if (shouldLoad || !visible) return;
+    if (shouldRenderIframe || !visible) return;
 
     if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
       const timeout = globalThis.setTimeout(() => setShouldLoad(true), 0);
@@ -49,7 +44,7 @@ export default function VirtualTour({
     if (node) observer.observe(node);
 
     return () => observer.disconnect();
-  }, [shouldLoad, visible]);
+  }, [shouldRenderIframe, visible]);
 
   return (
     <div
@@ -57,7 +52,7 @@ export default function VirtualTour({
       className={`virtual-tour-root${visible ? ' is-visible' : ' is-hidden'}`}
       aria-hidden={!visible}
     >
-      {shouldLoad ? (
+      {shouldRenderIframe ? (
         <iframe
           src={src}
           title={title}
