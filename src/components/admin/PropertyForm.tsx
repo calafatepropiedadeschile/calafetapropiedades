@@ -708,6 +708,12 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             {errors.mapUrl && <p className="form-error">{errors.mapUrl.message}</p>}
           </div>
 
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Tour virtual 360</label>
+            <input className="input" type="url" placeholder="https://vtour.cl/360/..." {...register('virtualTourUrl')} />
+            {errors.virtualTourUrl && <p className="form-error">{errors.virtualTourUrl.message}</p>}
+          </div>
+
           <div className="input-group">
             <label className="input-label">Latitud (mapa embebido)</label>
             <input
@@ -802,11 +808,6 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             <div className="input-group">
               <label className="input-label">Etapa</label>
               <input className="input" placeholder="Ej: Etapa 1 / Etapa 2" {...register('stageName')} />
-            </div>
-            <div className="input-group">
-              <label className="input-label">Tour virtual 360</label>
-              <input className="input" type="url" placeholder="https://vtour.cl/360/..." {...register('virtualTourUrl')} />
-              {errors.virtualTourUrl && <p className="form-error">{errors.virtualTourUrl.message}</p>}
             </div>
             <div className="input-group">
               <label className="input-label">Agua / factibilidad</label>

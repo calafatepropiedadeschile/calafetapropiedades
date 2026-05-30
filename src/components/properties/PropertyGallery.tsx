@@ -73,19 +73,20 @@ export default function PropertyGallery({ images, title, locale = DEFAULT_LOCALE
 
   return (
     <>
-      <div className="detail-gallery">
-        <button type="button" className="detail-gallery-main detail-gallery-button" onClick={() => openImage(0)}>
+      <div className="modern-floating-gallery">
+        <button type="button" style={{ width: '100%', height: '100%', border: 'none', background: 'transparent', padding: 0 }} onClick={() => openImage(0)}>
           <Image
             src={galleryImages[0]}
             alt={title}
             fill
             sizes="(max-width: 1024px) 100vw, 66vw"
-            preload
+            className="modern-floating-gallery-img"
+            priority
           />
-          <span className="gallery-open-badge">
-            <Images size={16} />
-            {galleryImages.length > 1 ? `${t('gallery.viewPhotos')} (${galleryImages.length})` : t('gallery.viewPhoto')}
-          </span>
+        </button>
+        <button type="button" className="modern-gallery-pill" onClick={() => openImage(0)}>
+          <Images size={16} />
+          {galleryImages.length > 1 ? `${galleryImages.length} Fotos` : t('gallery.viewPhoto')}
         </button>
       </div>
 

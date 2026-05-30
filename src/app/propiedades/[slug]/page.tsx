@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Bed, Bath, Ruler, CheckCircle2 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
@@ -11,10 +12,12 @@ import { formatArea, formatPrice, formatPropertyPrice } from '@/lib/utils/format
 import PropertyCommercialHighlights from '@/components/properties/PropertyCommercialHighlights';
 import PropertyDescription from '@/components/properties/PropertyDescription';
 import PropertyLandProjectSections from '@/components/properties/PropertyLandProjectSections';
+import PropertyExperienceSections from '@/components/properties/PropertyExperienceSections';
 import { parsePropertyDescription } from '@/features/properties/property-description-content';
 import { isLandParcel, shouldShowPriceFrom } from '@/features/properties/property-land-options';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { isSupportedLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
+import { getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { auth } from '@/lib/auth/auth';
 import StructuredData from '@/components/seo/StructuredData';
@@ -50,8 +53,12 @@ interface Props {
   }>;
 }
 
-function getLocaleFromParam(value: string | undefined): Locale {
-  return isSupportedLocale(value) ? value : DEFAULT_LOCALE;
+async function resolvePageLocale(search?: { lang?: string }): Promise<Locale> {
+  if (isSupportedLocale(search?.lang)) {
+    return search.lang;
+  }
+
+  return getServerLocale(search);
 }
 
 async function getSafePropertyBySlug(slug: string, locale: Locale, showUnpublished = false) {
@@ -89,8 +96,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const { slug } = await params;
   const search = await searchParams;
-  const locale = getLocaleFromParam(search?.lang);
-  
+  const locale = await resolvePageLocale(search);
+
   // Read session context for admin preview of draft properties
   const session = await auth();
   const isAdmin = session?.user?.role === 'admin';
@@ -167,7 +174,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
 
   const { slug } = await params;
   const search = await searchParams;
-  const locale = getLocaleFromParam(search?.lang);
+  const locale = await resolvePageLocale(search);
 
   // Authenticate session to preview draft properties
   const session = await auth();
@@ -225,55 +232,85 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
     <>
       <Navbar />
       <main lang={locale} style={{ paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))', backgroundColor: 'var(--color-surface-2)', minHeight: '100vh' }}>
-        <section className="container" style={{ paddingTop: 'var(--space-md)' }}>
-          <PropertyGallery images={galleryImages} title={title} locale={locale} />
-        </section>
-
-        <section className="container section-padding" style={{ paddingBottom: 'var(--space-4xl)' }}>
+        <section className="container section-padding" style={{ paddingBottom: 'var(--space-4xl)', paddingTop: 'var(--space-2xl)' }}>
           <div className="property-detail-layout">
             <div>
+              {/* Modern Gallery is now INSIDE the left column */}
+              <PropertyGallery images={galleryImages} title={title} locale={locale} />
+
               <div style={{ marginBottom: 'var(--space-2xl)' }}>
-                <div className="detail-badges">
-                  <span className="badge" style={{ backgroundColor: 'var(--color-primary)', color: '#fff', border: 'none' }}>
-                    {priceTypeKey ? t(priceTypeKey) : priceType}
-                  </span>
-                  <span className="badge" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-dark)', border: '1px solid var(--color-border)' }}>
-                    {statusKey ? t(statusKey) : status}
-                  </span>
+                <div className="detail-header-row">
+                  <div className="detail-header-left">
+                    <h1 className="detail-title-modern">{title}</h1>
+                    <p className="detail-location-modern">{zone}, {city}, {province}</p>
+                  </div>
+                  
+                  <div className="detail-header-right">
+                    <span className="detail-status-modern">
+                      {priceTypeKey ? t(priceTypeKey) : priceType}
+                    </span>
+                    <div className="detail-price-modern">
+                      {formatPropertyPrice(price, currency, {
+                        priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
+                        locale,
+                        priceType,
+                      })}
+                    </div>
+                  </div>
                 </div>
+
+                <div className="modern-specs-row">
+                  {bedrooms && (
+                    <div className="modern-spec-item">
+                      <Bed className="modern-spec-icon" size={20} />
+                      <div className="modern-spec-item-col">
+                        <span className="modern-spec-label">{t('property.bedrooms')}</span>
+                        <span className="modern-spec-value">{bedrooms}</span>
+                      </div>
+                    </div>
+                  )}
+                  {bathrooms && (
+                    <div className="modern-spec-item">
+                      <Bath className="modern-spec-icon" size={20} />
+                      <div className="modern-spec-item-col">
+                        <span className="modern-spec-label">{t('property.bathrooms')}</span>
+                        <span className="modern-spec-value">{bathrooms}</span>
+                      </div>
+                    </div>
+                  )}
+                  {(builtArea || area) && (
+                    <div className="modern-spec-item">
+                      <Ruler className="modern-spec-icon" size={20} />
+                      <div className="modern-spec-item-col">
+                        <span className="modern-spec-label">Área</span>
+                        <span className="modern-spec-value">{Math.round(builtArea ?? area ?? 0)} m²</span>
+                      </div>
+                    </div>
+                  )}
+                  {lotSurfaceM2 && (
+                    <div className="modern-spec-item">
+                      <Ruler className="modern-spec-icon" size={20} />
+                      <div className="modern-spec-item-col">
+                        <span className="modern-spec-label">Lote</span>
+                        <span className="modern-spec-value">{Math.round(lotSurfaceM2)} m²</span>
+                      </div>
+                    </div>
+                  )}
+                  {availableLots != null && (
+                    <div className="modern-spec-item">
+                      <CheckCircle2 className="modern-spec-icon" size={20} />
+                      <div className="modern-spec-item-col">
+                        <span className="modern-spec-label">Disp.</span>
+                        <span className="modern-spec-value">{availableLots}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap', marginBottom: 'var(--space-md)' }} aria-label="Idioma de la publicacion">
-                  <Link
-                    href={spanishHref}
-                    className={`btn btn-sm ${locale === 'es' ? 'btn-primary' : 'btn-outline'}`}
-                  >
-                    Espanol
-                  </Link>
-                  <Link
-                    href={englishHref}
-                    className={`btn btn-sm ${locale === 'en' ? 'btn-primary' : 'btn-outline'}`}
-                  >
-                    English
-                  </Link>
+                  <Link href={spanishHref} className={`btn btn-sm ${locale === 'es' ? 'btn-primary' : 'btn-outline'}`}>Español</Link>
+                  <Link href={englishHref} className={`btn btn-sm ${locale === 'en' ? 'btn-primary' : 'btn-outline'}`}>English</Link>
                 </div>
-                <h1 className="detail-title">{title}</h1>
-                <p className="detail-price" aria-label={t('property.mode')}>
-                  {formatPropertyPrice(price, currency, {
-                    priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
-                    locale,
-                    priceType,
-                  })}
-                </p>
-                <div className="property-card-specs detail-inline-specs">
-                  {bedrooms && <div className="property-card-spec">{bedrooms}<span>{t('property.bedroomsShort')}</span></div>}
-                  {bathrooms && <div className="property-card-spec">{bathrooms}<span>{t('property.bathroomsShort')}</span></div>}
-                  {(builtArea || area) && <div className="property-card-spec">{Math.round(builtArea ?? area ?? 0)}<span>m²</span></div>}
-                  {lotSurfaceM2 && <div className="property-card-spec">{Math.round(lotSurfaceM2)}<span>m2/lote</span></div>}
-                  {availableLots != null && <div className="property-card-spec">{availableLots}<span>disp.</span></div>}
-                  {totalArea && <div className="property-card-spec">{formatArea(totalArea)}<span>{t('property.total')}</span></div>}
-                </div>
-                <p style={{ fontSize: '1.125rem', color: 'var(--color-text-muted)' }}>
-                  {formatVisibleAddress(address, addressVisibility, zone, city, province)}
-                </p>
               </div>
 
               <PropertyCommercialHighlights property={property} locale={locale} title={t('property.commercialSnapshot')} />
@@ -283,6 +320,10 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                 sectionTitle={t('property.about')}
                 hint={showLandSections ? t('property.descriptionHint') : undefined}
               />
+
+              {!showLandSections && (
+                <PropertyExperienceSections property={property} locale={locale} />
+              )}
 
               {showLandSections ? (
                 <>
@@ -354,13 +395,15 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
             </div>
 
             <aside className="property-contact-panel">
-              <PropertyLeadPanel
-                propertyId={id}
-                propertyTitle={title}
-                propertySlug={slug}
-                locale={locale}
-                pageLabel={`/propiedades/${slug}`}
-              />
+              <div className="floating-contact-card">
+                <PropertyLeadPanel
+                  propertyId={id}
+                  propertyTitle={title}
+                  propertySlug={slug}
+                  locale={locale}
+                  pageLabel={`/propiedades/${slug}`}
+                />
+              </div>
             </aside>
           </div>
         </section>

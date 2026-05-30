@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 interface VirtualTourProps {
   src: string;
@@ -17,6 +18,7 @@ export default function VirtualTour({
   visible = true,
   eager = false,
 }: VirtualTourProps) {
+  const { t } = useI18n();
   const [shouldLoad, setShouldLoad] = useState(eager || visible);
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldRenderIframe = shouldLoad || eager || visible;
@@ -59,13 +61,15 @@ export default function VirtualTour({
           width="100%"
           height="100%"
           className="virtual-tour-iframe"
+          allow="accelerometer; autoplay; fullscreen; gyroscope; magnetometer; xr-spatial-tracking"
           allowFullScreen
-          loading="eager"
+          loading={eager || visible ? 'eager' : 'lazy'}
+          referrerPolicy="strict-origin-when-cross-origin"
         />
       ) : (
         <div className="virtual-tour-placeholder">
           <div className="virtual-tour-spinner" aria-hidden />
-          <span>Cargando tour virtual...</span>
+          <span>{t('masterplan.loadingTour')}</span>
         </div>
       )}
     </div>

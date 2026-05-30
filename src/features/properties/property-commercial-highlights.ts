@@ -46,6 +46,18 @@ export function buildCommercialHighlights(property: Property, locale: Locale): C
     if (property.electricityStatus) {
       items.push({ id: 'electricity', label: t('property.electricityLabel'), value: property.electricityStatus });
     }
+
+    if (property.roadType) {
+      items.push({ id: 'road', label: t('property.roadLabel'), value: property.roadType });
+    }
+
+    if (property.accessType) {
+      items.push({ id: 'access', label: t('property.accessLabel'), value: property.accessType });
+    }
+
+    if (property.hasOwnRol) {
+      items.push({ id: 'rol', label: 'Rol', value: 'Rol propio' });
+    }
   } else {
     if (property.bedrooms != null) {
       items.push({
@@ -92,5 +104,5 @@ export function buildCommercialHighlights(property: Property, locale: Locale): C
     });
   }
 
-  return items.slice(0, 5);
+  return items;
 }

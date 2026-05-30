@@ -1,27 +1,16 @@
 'use client';
 
-import { ReactNode, useEffect, useId, useRef, useState } from 'react';
+import { ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROPERTY_LOCATION_FILTERS } from '@/features/properties/property-zone-filters';
 import { persistCatalogPreferencesClient } from '@/lib/catalog/catalog-preferences';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 type SearchOption = {
   value: string;
   label: string;
   description: string;
 };
-
-const PROPERTY_TYPES = [
-  { value: 'terreno', label: 'Terreno', description: 'Parcelas, loteos y terrenos' },
-  { value: 'casa', label: 'Casa', description: 'Casas o viviendas con terreno' },
-] as const satisfies readonly SearchOption[];
-
-const LOCATION_OPTIONS = PROPERTY_LOCATION_FILTERS.map((location) => ({
-  ...location,
-  description: location.value
-    ? 'Filtrar propiedades por zona'
-    : 'Ver todas las ubicaciones',
-})) satisfies SearchOption[];
 
 interface SearchSelectProps {
   label: string;
@@ -141,9 +130,20 @@ export default function PropertySearch({
   initialZone = '',
 }: PropertySearchProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const [type, setType] = useState<string>(initialType);
   const [zone, setZone] = useState(initialZone);
   const [isLoading, setIsLoading] = useState(false);
+
+  const propertyTypes = useMemo(() => ([
+    { value: 'terreno', label: t('propertySearch.typeTerreno'), description: t('propertySearch.typeTerrenoDesc') },
+    { value: 'casa', label: t('propertySearch.typeCasa'), description: t('propertySearch.typeCasaDesc') },
+  ] satisfies readonly SearchOption[]), [t]);
+
+  const locationOptions = useMemo(() => PROPERTY_LOCATION_FILTERS.map((location) => ({
+    ...location,
+    description: location.value ? t('propertySearch.zoneFilter') : t('propertySearch.allZones'),
+  })) satisfies SearchOption[], [t]);
 
   function handleTypeChange(nextType: string) {
     setType(nextType);
@@ -178,13 +178,13 @@ export default function PropertySearch({
       onSubmit={handleSearch}
       className="property-search-form"
       role="search"
-      aria-label="Buscar propiedades"
+      aria-label={t('propertySearch.searchAria')}
     >
       <div className="search-field-group">
         <SearchSelect
-          label="Que buscas?"
+          label={t('propertySearch.whatLabel')}
           value={type}
-          options={PROPERTY_TYPES}
+          options={propertyTypes}
           onChange={handleTypeChange}
           icon={(
             <svg
@@ -202,9 +202,9 @@ export default function PropertySearch({
         <div className="search-divider" aria-hidden="true" />
 
         <SearchSelect
-          label="Donde?"
+          label={t('propertySearch.whereLabel')}
           value={zone}
-          options={LOCATION_OPTIONS}
+          options={locationOptions}
           onChange={handleZoneChange}
           icon={(
             <svg
@@ -223,7 +223,7 @@ export default function PropertySearch({
           type="submit"
           className={`search-action-btn${isLoading ? ' loading' : ''}`}
           disabled={isLoading}
-          aria-label="Buscar propiedades"
+          aria-label={t('propertySearch.searchAria')}
         >
           {isLoading ? (
             <span className="search-spinner" aria-hidden="true" />
@@ -238,7 +238,7 @@ export default function PropertySearch({
               <path d="m21 21-4.35-4.35" />
             </svg>
           )}
-          <span>Buscar</span>
+          <span>{t('propertySearch.searchButton')}</span>
         </button>
       </div>
     </form>

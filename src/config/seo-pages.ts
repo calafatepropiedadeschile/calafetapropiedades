@@ -1,5 +1,7 @@
 import type { PropertyFilters } from '@/types/property';
 import { buildMailto, siteConfig } from '@/config/site';
+import type { Locale } from '@/lib/i18n/config';
+import { seoLandingPagesEn } from '@/config/seo-pages-en';
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL
@@ -196,6 +198,22 @@ export const seoLandingPages: Record<SeoLandingKey, SeoLandingPageConfig> = {
     ],
   },
 };
+
+export function getSeoLandingPage(key: SeoLandingKey, locale: Locale = 'es'): SeoLandingPageConfig {
+  const base = seoLandingPages[key];
+  if (locale !== 'en') {
+    return base;
+  }
+
+  const localized = seoLandingPagesEn[key];
+  return {
+    ...base,
+    ...localized,
+    path: base.path,
+    filters: base.filters,
+    showCatalog: base.showCatalog,
+  };
+}
 
 export const projectLandingSlugs = [
   'praderas-del-maule',

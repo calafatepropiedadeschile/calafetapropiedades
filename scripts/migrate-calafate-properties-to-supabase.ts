@@ -495,8 +495,11 @@ function parseDocxProperty(sourceDir: string): PropertyDraft {
   const price = parsePriceFromText(searchableText);
   const location = parseLocation(captureField(searchableText, 'Ubicacion'));
   const totalArea = parseTotalArea(searchableText);
-  const mapUrl = parseFirstUrl(text, /https?:\/\/(?:maps\.app\.goo\.gl|www\.google\.com\/maps|google\.com\/maps)[^\s)]+/i);
-  const virtualTourUrl = parseFirstUrl(text, /https?:\/\/vtour\.cl\/[^\s)]+/i);
+  const mapUrl = parseFirstUrl(
+    text,
+    /https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/|www\.google\.com\/maps|google\.com\/maps)[^\s)]+/i,
+  );
+  const virtualTourUrl = parseFirstUrl(text, /https?:\/\/(?:www\.)?vtour\.cl\/[^\s)]+/i);
   const infrastructure = parseInfrastructure(text);
   const type = captureField(searchableText, 'Tipo')?.toLowerCase().includes('terreno') ? 'terreno' : undefined;
   const operation = captureField(searchableText, 'Operacion')?.toLowerCase().includes('alquiler') ? 'alquiler' : 'venta';
@@ -746,7 +749,11 @@ async function main() {
       }
 
       if (dryRun) {
-        console.log(`[dry-run] ${slug}: ${property.titleEs} | ${property.price} ${property.currency ?? 'CLP'} | ${property.cityEs} | ${media.images.length} images, ${media.videos.length} videos ignored.`);
+        const mapInfo = property.mapUrl ? 'map=yes' : 'map=no';
+        const tourInfo = property.virtualTourUrl ? 'tour=yes' : 'tour=no';
+        console.log(`[dry-run] ${slug}: ${property.titleEs} | ${property.price} ${property.currency ?? 'CLP'} | ${property.cityEs} | ${media.images.length} images, ${media.videos.length} videos ignored. | ${mapInfo} | ${tourInfo}`);
+        if (property.mapUrl) console.log(`  mapUrl: ${property.mapUrl}`);
+        if (property.virtualTourUrl) console.log(`  virtualTourUrl: ${property.virtualTourUrl}`);
         continue;
       }
 

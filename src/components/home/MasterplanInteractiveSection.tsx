@@ -5,6 +5,8 @@ import Link from 'next/link';
 import VirtualTour from '../properties/VirtualTour';
 import PropertyCard from '../properties/PropertyCard';
 import type { PropertyCard as PropertyCardType } from '@/types/property';
+import { useI18n } from '@/lib/i18n/I18nProvider';
+import { formatTranslation } from '@/lib/i18n/dictionaries';
 
 interface ProyectoTour {
   id: string;
@@ -60,6 +62,7 @@ interface Props {
 }
 
 export default function MasterplanInteractiveSection({ allProperties }: Props) {
+  const { locale, t } = useI18n();
   const [activeProject, setActiveProject] = useState<ProyectoTour>(PROJECTS_DATA[0]);
   const [loadedTourIds, setLoadedTourIds] = useState<Set<string>>(() => new Set([PROJECTS_DATA[0].id]));
 
@@ -87,10 +90,10 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
     <section className="section container masterplan-section" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4xl)', position: 'relative', zIndex: 10 }}>
       <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
         <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', display: 'block', marginBottom: 'var(--space-xs)' }}>
-          Tours 360 disponibles
+          {t('masterplan.toursEyebrow')}
         </span>
         <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 800, color: 'var(--color-dark)', margin: '0 0 var(--space-xs)', lineHeight: '1.2' }}>
-          Explora proyectos reales antes de visitar
+          {t('masterplan.toursTitle')}
         </h2>
 
         <div className="masterplan-project-tabs">
@@ -118,9 +121,9 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
         <div className="masterplan-tour-chrome">
           <div className="masterplan-tour-bar">
             <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-dark)' }}>
-              Tour virtual: {activeProject.name}
+              {t('masterplan.tourBarLabel')}: {activeProject.name}
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700 }}>Disponible</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700 }}>{t('masterplan.tourAvailable')}</span>
           </div>
           <div className="masterplan-tour-frame">
             {PROJECTS_DATA.map((project) => (
@@ -142,10 +145,10 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
         <div className="masterplan-commercial-header">
           <div>
             <h3 className="masterplan-commercial-title">
-              Ficha comercial de {activeProject.name}
+              {formatTranslation(locale, 'masterplan.commercialTitle', { name: activeProject.name })}
             </h3>
             <p className="text-muted masterplan-commercial-subtitle">
-              Revisa ubicacion, precio desde, superficie y condiciones del proyecto.
+              {t('masterplan.commercialSubtitle')}
             </p>
           </div>
         </div>
@@ -160,28 +163,27 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
               </div>
             ) : (
               <div className="masterplan-commercial-placeholder">
-                <h4>Publicacion en curso</h4>
+                <h4>{t('masterplan.placeholderTitle')}</h4>
                 <p>
-                  Estamos actualizando las fichas de {activeProject.name}. Mientras tanto,
-                  revisa el tour 360 y contactanos para disponibilidad vigente.
+                  {formatTranslation(locale, 'masterplan.placeholderCopy', { name: activeProject.name })}
                 </p>
                 <Link href="/contacto" className="btn btn-primary btn-sm">
-                  Consultar proyecto
+                  {t('masterplan.placeholderCta')}
                 </Link>
               </div>
             )}
           </div>
 
           <aside className="masterplan-commercial-aside">
-            <p className="masterplan-aside-eyebrow">Resumen del proyecto</p>
-            <h4 className="masterplan-aside-title">Servicios y condiciones clave</h4>
+            <p className="masterplan-aside-eyebrow">{t('masterplan.asideEyebrow')}</p>
+            <h4 className="masterplan-aside-title">{t('masterplan.asideTitle')}</h4>
             <ul className="masterplan-amenities-list">
               {activeProject.amenities.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
             <Link href={activeProject.projectHref} className="btn btn-outline btn-sm masterplan-aside-cta">
-              Ver pagina del proyecto
+              {t('masterplan.asideCta')}
             </Link>
           </aside>
         </div>

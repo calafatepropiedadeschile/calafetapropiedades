@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
@@ -51,6 +52,7 @@ export function I18nProvider({
   initialLocale = DEFAULT_LOCALE,
   initialCurrency = DEFAULT_CURRENCY,
 }: I18nProviderProps) {
+  const router = useRouter();
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
   const [currency, setCurrencyState] = useState<SupportedCurrency>(initialCurrency);
 
@@ -89,17 +91,19 @@ export function I18nProvider({
       window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
       writePreferenceCookie('NEXT_LOCALE', nextLocale);
       persistPreferences({ locale: nextLocale });
+      router.refresh();
     },
     setCurrency(nextCurrency) {
       setCurrencyState(nextCurrency);
       window.localStorage.setItem(CURRENCY_STORAGE_KEY, nextCurrency);
       writePreferenceCookie('NEXT_CURRENCY', nextCurrency);
       persistPreferences({ currency: nextCurrency });
+      router.refresh();
     },
     t(key) {
       return translate(locale, key);
     },
-  }), [currency, locale]);
+  }), [currency, locale, router]);
 
   return (
     <I18nContext.Provider value={value}>

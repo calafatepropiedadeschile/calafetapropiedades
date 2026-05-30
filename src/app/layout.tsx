@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
-import {
-  DEFAULT_CURRENCY,
-  DEFAULT_LOCALE,
-} from '@/lib/i18n/config';
+import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
+import { isSupportedLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { RentalsNavProvider } from '@/components/layout/RentalsNavProvider';
 import WhatsAppWidget from '@/components/layout/WhatsAppWidget';
 import { hasPublishedRentals, shouldShowRentalsNavigation } from '@/features/properties/rental-availability';
@@ -15,10 +14,17 @@ import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSiteSeoSettings().catch(() => null);
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
+  const locale = isSupportedLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
   const siteName = seo?.siteName ?? 'Calafate Propiedades';
   const baseUrl = seo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
-  const defaultTitle = seo?.defaultTitleEs ?? 'Calafate Propiedades';
-  const defaultDescription = seo?.defaultDescriptionEs ?? '';
+  const defaultTitle = locale === 'en'
+    ? (seo?.defaultTitleEn ?? seo?.defaultTitleEs ?? 'Calafate Propiedades')
+    : (seo?.defaultTitleEs ?? 'Calafate Propiedades');
+  const defaultDescription = locale === 'en'
+    ? (seo?.defaultDescriptionEn ?? seo?.defaultDescriptionEs ?? '')
+    : (seo?.defaultDescriptionEs ?? '');
   const defaultOgImage = seo?.defaultOgImage ? [{ url: seo.defaultOgImage }] : [];
 
   return {
@@ -35,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
       : undefined,
     openGraph: {
       type: 'website',
-      locale: 'es_CL',
+      locale: locale === 'en' ? 'en_US' : 'es_CL',
       siteName,
       title: defaultTitle,
       description: defaultDescription,
@@ -56,16 +62,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [seo, showRentalsLink, rentalsPublished] = await Promise.all([
+  const [seo, showRentalsLink, rentalsPublished, locale, currency] = await Promise.all([
     getSiteSeoSettings().catch(() => null),
     shouldShowRentalsNavigation(),
     hasPublishedRentals(),
+    getServerLocale(),
+    getServerCurrency(),
   ]);
 
   return (
-    <html lang={DEFAULT_LOCALE}>
+    <html lang={locale}>
       <body>
-        <I18nProvider initialLocale={DEFAULT_LOCALE} initialCurrency={DEFAULT_CURRENCY}>
+        <I18nProvider initialLocale={locale} initialCurrency={currency}>
           <RentalsNavProvider showRentalsLink={showRentalsLink} hasPublishedRentals={rentalsPublished}>
             <AttributionCapture />
             <GoogleAnalytics measurementId={seo?.googleAnalyticsId} />

@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import TranslatedText from '@/components/i18n/TranslatedText';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyCatalog from '@/components/properties/PropertyCatalog';
 import { redirect } from 'next/navigation';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
 import { getCatalogPageData } from '@/features/properties/property.service';
-import { DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
 import { mergeCatalogSearchParams, readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
+import { getServerLocale } from '@/lib/i18n/server';
+import { translate } from '@/lib/i18n/dictionaries';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSeo = await getSiteSeoSettings().catch(() => null);
@@ -81,6 +81,7 @@ export default async function PropiedadesPage({ searchParams }: Props) {
     redirect(suffix ? `/arriendos?${suffix}` : '/arriendos');
   }
 
+  const locale = await getServerLocale();
   const cookieStore = await cookies();
   const catalogPreferences = readCatalogPreferences(cookieStore);
   const mergedParams = mergeCatalogSearchParams(catalogPreferences, {
@@ -97,7 +98,7 @@ export default async function PropiedadesPage({ searchParams }: Props) {
 
   const catalog = hasDatabaseUrl
     ? await getCatalogPageData(mergedParams, {
-        locale: DEFAULT_LOCALE,
+        locale,
         preset: { priceType: 'venta' },
       }).catch((error) => {
         console.warn('Skipping property catalog because the datasource is unavailable.', error);
@@ -114,10 +115,10 @@ export default async function PropiedadesPage({ searchParams }: Props) {
         <section className="section container">
           <div style={{ marginBottom: 'var(--space-2xl)' }}>
             <h1 className="heading-2 heading-display" style={{ marginBottom: 'var(--space-sm)' }}>
-              <TranslatedText id="catalog.pageTitle" />
+              {translate(locale, 'catalog.pageTitle')}
             </h1>
             <p className="text-muted">
-              <TranslatedText id="catalog.pageDescription" />
+              {translate(locale, 'catalog.pageDescription')}
             </p>
           </div>
 

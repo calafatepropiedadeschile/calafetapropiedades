@@ -152,7 +152,7 @@ export async function togglePropertyPublished(id: string, published: boolean) {
   await withDatabaseRole('admin', async (db) => {
     const property = await db.property.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, featured: true, featuredBeforeUnpublish: true },
     });
 
     if (!property) {
@@ -162,8 +162,16 @@ export async function togglePropertyPublished(id: string, published: boolean) {
     await db.property.update({
       where: { id },
       data: published
-        ? { published: true }
-        : { published: false, featured: false },
+        ? {
+            published: true,
+            featured: property.featuredBeforeUnpublish || property.featured,
+            featuredBeforeUnpublish: false,
+          }
+        : {
+            published: false,
+            featured: false,
+            featuredBeforeUnpublish: property.featured,
+          },
       select: { id: true },
     });
   });
@@ -197,11 +205,11 @@ export async function togglePropertyFeatured(id: string, featured: boolean) {
   revalidatePropertyViews();
 }
 
-export async function updatePropertyStatus(id: string, status: 'disponible' | 'vendido') {
+export async function updatePropertyStatus(id: string, status: 'disponible' | 'vendido' | 'alquilado') {
   await requireAdminSession();
   assertCuid(id, 'ID de propiedad');
 
-  if (status !== 'disponible' && status !== 'vendido') {
+  if (status !== 'disponible' && status !== 'vendido' && status !== 'alquilado') {
     throw new Error('Estado de propiedad invalido.');
   }
 
@@ -210,7 +218,7 @@ export async function updatePropertyStatus(id: string, status: 'disponible' | 'v
       where: { id },
       data: {
         status,
-        ...(status === 'vendido' ? { featured: false } : {}),
+        ...(status === 'vendido' || status === 'alquilado' ? { featured: false } : {}),
       },
       select: { id: true },
     });

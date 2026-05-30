@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { LANGUAGE_OPTIONS, type Locale } from '@/lib/i18n/config';
+import { CURRENCY_OPTIONS, LANGUAGE_OPTIONS, type Locale, type SupportedCurrency } from '@/lib/i18n/config';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { siteConfig } from '@/config/site';
 import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
@@ -13,7 +13,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { locale, setLocale, t } = useI18n();
+  const { locale, currency, setLocale, setCurrency, t } = useI18n();
   const popoverRef = useRef<HTMLDivElement>(null);
   type NavItem = {
     href: string;
@@ -42,8 +42,8 @@ export default function Navbar() {
       href: '/proyectos', 
       label: t('nav.projects'),
       subItems: [
-        { href: '/proyectos?type=terreno', label: 'Parcelas y Loteos' },
-        { href: '/proyectos?type=casa', label: 'Casas con Terreno' },
+        { href: '/proyectos?type=terreno', label: t('common.projectsLots') },
+        { href: '/proyectos?type=casa', label: t('common.projectsHouses') },
       ]
     },
     { href: '/vender', label: t('nav.sell') },
@@ -98,6 +98,11 @@ export default function Navbar() {
     setShowLangPopover(false);
   }
 
+  function selectCurrency(nextCurrency: SupportedCurrency) {
+    setCurrency(nextCurrency);
+    setShowLangPopover(false);
+  }
+
   return (
     <>
       <nav className={`nav ${scrolled ? 'scrolled' : ''} ${mobileMenuOpen ? 'menu-open' : ''}`}>
@@ -107,7 +112,7 @@ export default function Navbar() {
             <button
               className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={mobileMenuOpen ? t('common.menuClose') : t('common.menuOpen')}
               aria-expanded={mobileMenuOpen}
             >
               <span className="hamburger-line"></span>
@@ -189,6 +194,7 @@ export default function Navbar() {
 
               {showLangPopover && (
                 <div className="lang-popover animate-fade-in">
+                  <p className="lang-popover-section-label">{t('common.language')}</p>
                   {LANGUAGE_OPTIONS.map((option) => (
                     <button
                       type="button"
@@ -199,6 +205,21 @@ export default function Navbar() {
                       <span className="lang-label">{option.label}</span>
                       <label className="switch" aria-hidden="true">
                         <input type="checkbox" checked={locale === option.value} readOnly tabIndex={-1} />
+                        <span className="slider"></span>
+                      </label>
+                    </button>
+                  ))}
+                  <p className="lang-popover-section-label">{t('common.currency')}</p>
+                  {CURRENCY_OPTIONS.map((option) => (
+                    <button
+                      type="button"
+                      key={option.value}
+                      className="lang-row"
+                      onClick={() => selectCurrency(option.value)}
+                    >
+                      <span className="lang-label">{option.label}</span>
+                      <label className="switch" aria-hidden="true">
+                        <input type="checkbox" checked={currency === option.value} readOnly tabIndex={-1} />
                         <span className="slider"></span>
                       </label>
                     </button>

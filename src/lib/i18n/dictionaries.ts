@@ -8,6 +8,10 @@ export const dictionaries = {
       currency: 'Moneda',
       language: 'Idioma',
       sell: 'Vender',
+      menuOpen: 'Abrir menu',
+      menuClose: 'Cerrar menu',
+      projectsLots: 'Parcelas y Loteos',
+      projectsHouses: 'Casas con Terreno',
     },
     nav: {
       buy: 'Comprar',
@@ -71,6 +75,121 @@ export const dictionaries = {
       servicesCtaTitle: 'Quieres revisar un terreno o proyecto?',
       servicesCtaDescription: 'Cuentanos si quieres comprar, vender o evaluar un terreno y te indicamos el siguiente paso con una propuesta concreta.',
       servicesCtaButton: 'Hablar con un asesor',
+      featuredSectionTitle: 'Propiedades y Loteos Destacados',
+      featuredSectionSubtitle:
+        'Revisa la cartera actual de Calafate: parcelas de 5.000 m2, loteos con tours 360 y terrenos disponibles en zonas con alta demanda.',
+      catalogEmptyTitle: 'Estamos ordenando el catalogo',
+      catalogEmptyCopy: 'Las propiedades reales se cargaran aqui cuando la base de datos este disponible.',
+      featuredEmptyLots: 'No hay terrenos destacados por ahora',
+      featuredEmptyHouses: 'No hay casas destacadas por ahora',
+      featuredEmptyCopy:
+        'Cuando el equipo publique propiedades de esta categoria apareceran automaticamente en esta seccion.',
+      featuredTabsLabel: 'Filtro de categorias destacadas',
+      ctaAvailabilityEyebrow: 'Disponibilidad por lote',
+      ctaAvailabilityHeadline: 'Confirma valores, etapas y unidades antes de visitar.',
+      ctaAvailabilitySub:
+        'Cada proyecto tiene condiciones distintas: precio desde, forma de pago, factibilidades y disponibilidad. Te ayudamos a revisar lo importante.',
+      ctaAvailabilityPrimary: 'Ver proyectos',
+      ctaAvailabilitySecondary: 'Consultar disponibilidad',
+      ctaAdvisoryEyebrow: 'Asesoria para terrenos',
+      ctaAdvisoryHeadline: 'Compara proyectos por ubicacion, acceso y forma de pago.',
+      ctaAdvisorySub:
+        'Te ayudamos a ordenar opciones de loteos y parcelas segun presupuesto, etapa del proyecto y tipo de uso que tienes en mente.',
+      ctaAdvisoryPrimary: 'Hablar con un asesor',
+      ctaAdvisorySecondary: 'Ver terrenos',
+      discoverEyebrow: 'Criterio local',
+      discoverTitle: 'Proyectos claros para decisiones importantes',
+      discoverParagraph1:
+        'Calafate Propiedades presenta loteos, parcelas y terrenos con una lectura simple: donde esta, cuanto cuesta desde, que superficie tiene y que condiciones debes revisar antes de avanzar.',
+      discoverParagraph2:
+        'Te acompanamos desde la primera consulta hasta la visita o evaluacion final, con informacion ordenada, atencion directa y seguimiento comercial.',
+      discoverCta: 'Contactanos',
+      discoverImageAlt: 'Casa de madera con vista al entorno natural',
+      actionBuyTitle: 'Comprar parcelas',
+      actionBuyDescription:
+        'Compara loteos por ubicacion, superficie, precio desde, conectividad y condiciones comerciales.',
+      actionBuyCta: 'Ver proyectos',
+      actionSellTitle: 'Vender un terreno',
+      actionSellDescription:
+        'Preparamos la publicacion, ordenamos la informacion clave y activamos consultas calificadas.',
+      actionSellCta: 'Solicitar evaluacion',
+      actionTopoTitle: 'Trabajos de topografia',
+      actionTopoDescription:
+        'Apoyo tecnico para terrenos, loteos y proyectos que necesitan informacion clara antes de avanzar.',
+      actionTopoCta: 'Ver servicio',
+    },
+    trust: {
+      eyebrow: 'Criterio comercial',
+      title: 'Informacion util antes de coordinar una visita',
+      subtitle:
+        'En terrenos y loteos, la decision no depende de una vitrina enorme. Depende de revisar bien ubicacion, accesos, superficie, valor y disponibilidad real.',
+      primaryCta: 'Ver proyectos',
+      secondaryCta: 'Consultar disponibilidad',
+      gridLabel: 'Puntos de revision comercial',
+      step1Title: 'Ubicacion y accesos',
+      step1Description:
+        'Sector, comuna, conectividad y referencias cercanas para entender el entorno antes de visitar.',
+      step2Title: 'Valor y condiciones',
+      step2Description:
+        'Precio desde, moneda, forma de pago y datos comerciales que conviene revisar desde el primer contacto.',
+      step3Title: 'Disponibilidad vigente',
+      step3Description:
+        'Confirmacion de lotes o etapas disponibles antes de coordinar agenda con el comprador.',
+      step4Title: 'Siguiente paso',
+      step4Description:
+        'Ficha del proyecto, consulta directa o visita, segun el nivel de decision del interesado.',
+      asideKicker: 'Cartera actual',
+      asideText:
+        'Proyectos en Maule, Los Rios y Los Lagos, con foco en parcelas, loteos y terrenos. La disponibilidad se confirma antes de agendar una visita.',
+    },
+    masterplan: {
+      toursEyebrow: 'Tours 360 disponibles',
+      toursTitle: 'Explora proyectos reales antes de visitar',
+      tourBarLabel: 'Tour virtual',
+      tourAvailable: 'Disponible',
+      commercialTitle: 'Ficha comercial de {name}',
+      commercialSubtitle:
+        'Revisa ubicacion, precio desde, superficie y condiciones del proyecto.',
+      asideEyebrow: 'Resumen del proyecto',
+      asideTitle: 'Servicios y condiciones clave',
+      asideCta: 'Ver pagina del proyecto',
+      placeholderTitle: 'Publicacion en curso',
+      placeholderCopy:
+        'Estamos actualizando las fichas de {name}. Mientras tanto, revisa el tour 360 y contactanos para disponibilidad vigente.',
+      placeholderCta: 'Consultar proyecto',
+      loadingTour: 'Cargando tour virtual...',
+    },
+    footerNav: {
+      lotsForSale: 'Parcelas en venta',
+      housesForSale: 'Casas en venta',
+      lotProjects: 'Proyectos de loteo',
+      rentals: 'Arriendos',
+      fullCatalog: 'Ver todo el catalogo',
+      properties: 'Propiedades',
+      company: 'Empresa',
+      about: 'Quienes somos',
+      howWeWork: 'Como trabajamos',
+      contact: 'Contactanos',
+      social: 'Redes sociales',
+      brandDesc:
+        'Especialistas en parcelas y loteos en el sur de Chile. Te acompanamos desde la busqueda hasta la escrituracion.',
+      copyright:
+        'Gestion Inmobiliaria, Corredora de Propiedades en Puerto Montt.',
+      volcanoAlt: 'Volcan de fondo',
+      footerNavLabel: 'Links del footer',
+      homeAria: 'Ir al inicio',
+    },
+    propertySearch: {
+      whatLabel: 'Que buscas?',
+      whereLabel: 'Donde?',
+      searchAria: 'Buscar propiedades',
+      typeTerreno: 'Terreno',
+      typeTerrenoDesc: 'Parcelas, loteos y terrenos',
+      typeCasa: 'Casa',
+      typeCasaDesc: 'Casas o viviendas con terreno',
+      zoneFilter: 'Filtrar propiedades por zona',
+      allZones: 'Ver todas las ubicaciones',
+      searchButton: 'Buscar',
     },
     search: {
       placeholder: 'Busca por zona, ciudad o caracteristicas',
@@ -200,6 +319,10 @@ export const dictionaries = {
       connectivity: 'Conectividad y entorno',
       viewTour360: 'Ver tour 360',
       viewOnMap: 'Ver en Google Maps',
+      virtualTourSection: 'Tour virtual 360',
+      virtualTourSectionHint: 'Recorre el proyecto o la parcela antes de coordinar una visita presencial.',
+      mapSection: 'Ubicacion en mapa',
+      mapSectionHint: 'Referencia geografica del proyecto segun la ficha comercial.',
       lotSurface: 'Superficie por lote',
       totalLots: 'Total de lotes',
       availableLots: 'Lotes disponibles',
@@ -303,6 +426,10 @@ export const dictionaries = {
       currency: 'Currency',
       language: 'Language',
       sell: 'Sell',
+      menuOpen: 'Open menu',
+      menuClose: 'Close menu',
+      projectsLots: 'Lots and subdivisions',
+      projectsHouses: 'Houses with land',
     },
     nav: {
       buy: 'Buy',
@@ -366,6 +493,121 @@ export const dictionaries = {
       servicesCtaTitle: 'Want to review a land project?',
       servicesCtaDescription: 'Tell us if you want to buy, sell, or evaluate land and we will suggest the next concrete step.',
       servicesCtaButton: 'Speak with an advisor',
+      featuredSectionTitle: 'Featured properties and land projects',
+      featuredSectionSubtitle:
+        'Browse Calafate\'s current inventory: 5,000 sqm lots, subdivisions with 360 tours, and land in high-demand areas.',
+      catalogEmptyTitle: 'We are organizing the catalog',
+      catalogEmptyCopy: 'Live properties will appear here when the database is available.',
+      featuredEmptyLots: 'No featured land listings right now',
+      featuredEmptyHouses: 'No featured houses right now',
+      featuredEmptyCopy:
+        'When the team publishes properties in this category they will appear here automatically.',
+      featuredTabsLabel: 'Featured category filter',
+      ctaAvailabilityEyebrow: 'Lot availability',
+      ctaAvailabilityHeadline: 'Confirm values, stages, and units before visiting.',
+      ctaAvailabilitySub:
+        'Each project has different terms: starting price, payment plan, feasibility, and availability. We help you review what matters.',
+      ctaAvailabilityPrimary: 'View projects',
+      ctaAvailabilitySecondary: 'Ask about availability',
+      ctaAdvisoryEyebrow: 'Land advisory',
+      ctaAdvisoryHeadline: 'Compare projects by location, access, and payment terms.',
+      ctaAdvisorySub:
+        'We help you organize lot and land options by budget, project stage, and intended use.',
+      ctaAdvisoryPrimary: 'Speak with an advisor',
+      ctaAdvisorySecondary: 'View land',
+      discoverEyebrow: 'Local expertise',
+      discoverTitle: 'Clear projects for important decisions',
+      discoverParagraph1:
+        'Calafate Propiedades presents subdivisions, lots, and land with a simple read: where it is, starting price, surface area, and terms to review before moving forward.',
+      discoverParagraph2:
+        'We support you from the first inquiry through the visit or final evaluation with organized information and direct follow-up.',
+      discoverCta: 'Contact us',
+      discoverImageAlt: 'Wood house with natural surroundings view',
+      actionBuyTitle: 'Buy lots',
+      actionBuyDescription:
+        'Compare subdivisions by location, surface, starting price, connectivity, and commercial terms.',
+      actionBuyCta: 'View projects',
+      actionSellTitle: 'Sell land',
+      actionSellDescription:
+        'We prepare the listing, organize key information, and activate qualified inquiries.',
+      actionSellCta: 'Request valuation',
+      actionTopoTitle: 'Surveying services',
+      actionTopoDescription:
+        'Technical support for land and projects that need clear information before moving forward.',
+      actionTopoCta: 'View service',
+    },
+    trust: {
+      eyebrow: 'Commercial criteria',
+      title: 'Useful information before scheduling a visit',
+      subtitle:
+        'For land and lots, the decision is not about a huge showcase. It is about reviewing location, access, surface, value, and real availability.',
+      primaryCta: 'View projects',
+      secondaryCta: 'Ask about availability',
+      gridLabel: 'Commercial review points',
+      step1Title: 'Location and access',
+      step1Description:
+        'Area, town, connectivity, and nearby references to understand the surroundings before visiting.',
+      step2Title: 'Value and terms',
+      step2Description:
+        'Starting price, currency, payment plan, and commercial data worth reviewing from first contact.',
+      step3Title: 'Current availability',
+      step3Description:
+        'Confirmation of available lots or stages before scheduling with the buyer.',
+      step4Title: 'Next step',
+      step4Description:
+        'Project sheet, direct inquiry, or visit depending on how far along the buyer is.',
+      asideKicker: 'Current inventory',
+      asideText:
+        'Projects in Maule, Los Rios, and Los Lagos focused on lots and land. Availability is confirmed before booking a visit.',
+    },
+    masterplan: {
+      toursEyebrow: '360 tours available',
+      toursTitle: 'Explore real projects before visiting',
+      tourBarLabel: 'Virtual tour',
+      tourAvailable: 'Available',
+      commercialTitle: 'Commercial sheet for {name}',
+      commercialSubtitle:
+        'Review location, starting price, surface area, and project terms.',
+      asideEyebrow: 'Project summary',
+      asideTitle: 'Key services and conditions',
+      asideCta: 'View project page',
+      placeholderTitle: 'Listing in progress',
+      placeholderCopy:
+        'We are updating listings for {name}. Meanwhile, review the 360 tour and contact us for current availability.',
+      placeholderCta: 'Ask about project',
+      loadingTour: 'Loading virtual tour...',
+    },
+    footerNav: {
+      lotsForSale: 'Lots for sale',
+      housesForSale: 'Houses for sale',
+      lotProjects: 'Subdivision projects',
+      rentals: 'Rentals',
+      fullCatalog: 'View full catalog',
+      properties: 'Properties',
+      company: 'Company',
+      about: 'About us',
+      howWeWork: 'How we work',
+      contact: 'Contact us',
+      social: 'Social media',
+      brandDesc:
+        'Specialists in lots and subdivisions in southern Chile. We support you from search through closing.',
+      copyright:
+        'Real estate management and brokerage in Puerto Montt.',
+      volcanoAlt: 'Volcano background',
+      footerNavLabel: 'Footer links',
+      homeAria: 'Go to home',
+    },
+    propertySearch: {
+      whatLabel: 'What are you looking for?',
+      whereLabel: 'Where?',
+      searchAria: 'Search properties',
+      typeTerreno: 'Land',
+      typeTerrenoDesc: 'Lots, subdivisions, and land',
+      typeCasa: 'House',
+      typeCasaDesc: 'Houses or homes with land',
+      zoneFilter: 'Filter properties by area',
+      allZones: 'View all locations',
+      searchButton: 'Search',
     },
     search: {
       placeholder: 'Search by area, city, or features',
@@ -495,6 +737,10 @@ export const dictionaries = {
       connectivity: 'Connectivity and surroundings',
       viewTour360: 'View 360 tour',
       viewOnMap: 'View on Google Maps',
+      virtualTourSection: '360 virtual tour',
+      virtualTourSectionHint: 'Explore the project or lot before scheduling an on-site visit.',
+      mapSection: 'Map location',
+      mapSectionHint: 'Geographic reference for the project from the commercial listing.',
       lotSurface: 'Lot size',
       totalLots: 'Total lots',
       availableLots: 'Lots available',
@@ -608,4 +854,16 @@ export function translate(locale: Locale, key: TranslationKey): string {
   const fallbackSection = dictionaries.es[section] as Record<string, string>;
 
   return localizedSection[entry] ?? fallbackSection[entry] ?? key;
+}
+
+export function formatTranslation(
+  locale: Locale,
+  key: TranslationKey,
+  variables: Record<string, string>,
+): string {
+  let text = translate(locale, key);
+  for (const [name, value] of Object.entries(variables)) {
+    text = text.replaceAll(`{${name}}`, value);
+  }
+  return text;
 }

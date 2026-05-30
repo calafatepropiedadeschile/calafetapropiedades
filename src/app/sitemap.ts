@@ -23,6 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes = [
     '',
+    '/propiedades',
+    '/arriendos',
     '/nosotros',
     '/contacto',
     ...Object.values(seoLandingPages).map((page) => page.path),
@@ -128,21 +130,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       });
 
-      if (property.type === 'terreno' && property.priceType !== 'arriendo') {
-        sitemapEntries.push({
-          url: `${siteUrl}/proyectos/${property.slug}`,
-          lastModified: property.updatedAt,
-          changeFrequency: 'weekly',
-          priority: 0.75,
-          images,
-          alternates: {
-            languages: {
-              es: `${siteUrl}/proyectos/${property.slug}`,
-              en: `${siteUrl}/proyectos/${property.slug}?lang=en`,
-            },
-          },
-        });
-      }
     }
   } catch (error) {
     console.error('Error fetching properties for sitemap:', error);

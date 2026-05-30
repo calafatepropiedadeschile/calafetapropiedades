@@ -2,19 +2,21 @@
 
 import { useMemo, useState } from 'react';
 import PropertyCard from '@/components/properties/PropertyCard';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 import type { PropertyCard as PropertyCardType, PropertyType } from '@/types/property';
-
-const FEATURED_TABS: Array<{ value: PropertyType; label: string }> = [
-  { value: 'terreno', label: 'Terrenos' },
-  { value: 'casa', label: 'Casas' },
-];
 
 interface Props {
   properties: PropertyCardType[];
 }
 
 export default function HomeFeaturedProperties({ properties }: Props) {
+  const { t } = useI18n();
   const [selectedType, setSelectedType] = useState<PropertyType>('terreno');
+
+  const tabs = useMemo(() => ([
+    { value: 'terreno' as const, label: t('property.lot') },
+    { value: 'casa' as const, label: t('property.house') },
+  ]), [t]);
 
   const counts = useMemo(() => ({
     terreno: properties.filter((property) => property.type === 'terreno').length,
@@ -30,8 +32,8 @@ export default function HomeFeaturedProperties({ properties }: Props) {
 
   return (
     <>
-      <div className="home-featured-tabs" role="tablist" aria-label="Filtro de categorias destacadas">
-        {FEATURED_TABS.map((tab) => {
+      <div className="home-featured-tabs" role="tablist" aria-label={t('home.featuredTabsLabel')}>
+        {tabs.map((tab) => {
           const isActive = selectedType === tab.value;
           return (
             <button
@@ -57,8 +59,8 @@ export default function HomeFeaturedProperties({ properties }: Props) {
         </div>
       ) : (
         <div className="empty-state">
-          <h3>No hay {selectedType === 'terreno' ? 'terrenos' : 'casas'} destacados por ahora</h3>
-          <p>Cuando el equipo publique propiedades de esta categoria apareceran automaticamente en esta seccion.</p>
+          <h3>{selectedType === 'terreno' ? t('home.featuredEmptyLots') : t('home.featuredEmptyHouses')}</h3>
+          <p>{t('home.featuredEmptyCopy')}</p>
         </div>
       )}
     </>

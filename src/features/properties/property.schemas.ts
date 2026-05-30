@@ -80,7 +80,7 @@ export const PropertySchema = z.object({
   latitude: optionalCoordinate.refine((value) => value === null || (value >= -90 && value <= 90), 'Latitud invalida'),
   longitude: optionalCoordinate.refine((value) => value === null || (value >= -180 && value <= 180), 'Longitud invalida'),
   type: z.enum(['terreno', 'casa'], { error: 'Selecciona un tipo de inmueble' }),
-  status: z.enum(['disponible', 'vendido'], { error: 'Selecciona un estado' }).default('disponible'),
+  status: z.enum(['disponible', 'vendido', 'alquilado'], { error: 'Selecciona un estado' }).default('disponible'),
   published: z.boolean().default(false),
   featured: z.boolean().default(false),
   bedrooms: optionalInt,

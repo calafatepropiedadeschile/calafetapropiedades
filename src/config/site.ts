@@ -80,7 +80,11 @@ export const siteConfig = {
       phoneLabel: primaryContact.displayPhone,
       phoneHref: primaryContact.phoneHref,
       whatsappNumber: primaryContact.whatsappNumber,
-      addressLines: ['Chile'],
+      addressLines: [
+        'Antonio Varas Nro.140 A',
+        'Comuna de Los Muermos',
+        'Región de Los Lagos, Chile',
+      ],
       scope: {
         es: 'Parcelas, terrenos, loteos y apoyo comercial',
         en: 'Lots, land, development projects, and commercial support',

@@ -14,7 +14,7 @@ import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { getStaticPropertyBySlug } from '@/features/properties/property.service';
 import { isRentalPriceType } from '@/features/properties/price-type';
 import { shouldShowPriceFrom } from '@/features/properties/property-land-options';
-import { DEFAULT_LOCALE } from '@/lib/i18n/config';
+import { getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { projectLandingSlugs } from '@/config/seo-pages';
 import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
@@ -27,11 +27,11 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getSafeProject(slug: string) {
+async function getSafeProject(slug: string, locale: 'es' | 'en') {
   if (!hasDatabaseUrl) return null;
 
   try {
-    const property = await getStaticPropertyBySlug(slug, DEFAULT_LOCALE);
+    const property = await getStaticPropertyBySlug(slug, locale);
     if (property?.type !== 'terreno' || isRentalPriceType(property.priceType)) {
       return null;
     }
@@ -48,7 +48,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = await getSafeProject(slug);
+  const locale = await getServerLocale();
+  const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
   const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
 
@@ -87,13 +88,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectLandingPage({ params }: Props) {
   const { slug } = await params;
-  const project = await getSafeProject(slug);
+  const locale = await getServerLocale();
+  const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
   const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
 
   if (!project) notFound();
-
-  const locale = DEFAULT_LOCALE;
   const t = (key: TranslationKey) => translate(locale, key);
   const parsedDescription = parsePropertyDescription(project.description);
   const heroImage = project.coverImage || getSiteImageUrl(

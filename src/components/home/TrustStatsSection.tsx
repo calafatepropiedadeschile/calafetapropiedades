@@ -1,53 +1,39 @@
-import Link from 'next/link';
+'use client';
 
-const REVIEW_ITEMS = [
-  {
-    step: '01',
-    title: 'Ubicacion y accesos',
-    description: 'Sector, comuna, conectividad y referencias cercanas para entender el entorno antes de visitar.',
-  },
-  {
-    step: '02',
-    title: 'Valor y condiciones',
-    description: 'Precio desde, moneda, forma de pago y datos comerciales que conviene revisar desde el primer contacto.',
-  },
-  {
-    step: '03',
-    title: 'Disponibilidad vigente',
-    description: 'Confirmacion de lotes o etapas disponibles antes de coordinar agenda con el comprador.',
-  },
-  {
-    step: '04',
-    title: 'Siguiente paso',
-    description: 'Ficha del proyecto, consulta directa o visita, segun el nivel de decision del interesado.',
-  },
-];
+import Link from 'next/link';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function TrustStatsSection() {
+  const { t } = useI18n();
+
+  const reviewItems = [
+    { step: '01', title: t('trust.step1Title'), description: t('trust.step1Description') },
+    { step: '02', title: t('trust.step2Title'), description: t('trust.step2Description') },
+    { step: '03', title: t('trust.step3Title'), description: t('trust.step3Description') },
+    { step: '04', title: t('trust.step4Title'), description: t('trust.step4Description') },
+  ];
+
   return (
     <section className="trust-stats-section" aria-labelledby="trust-section-title">
       <div className="container trust-stats-inner">
         <div className="trust-stats-header scroll-reveal">
-          <span className="trust-stats-eyebrow">Criterio comercial</span>
+          <span className="trust-stats-eyebrow">{t('trust.eyebrow')}</span>
           <h2 id="trust-section-title" className="trust-stats-title">
-            Informacion util antes de coordinar una visita
+            {t('trust.title')}
           </h2>
-          <p className="trust-stats-subtitle">
-            En terrenos y loteos, la decision no depende de una vitrina enorme. Depende de revisar bien
-            ubicacion, accesos, superficie, valor y disponibilidad real.
-          </p>
+          <p className="trust-stats-subtitle">{t('trust.subtitle')}</p>
           <div className="trust-stats-cta-buttons">
             <Link href="/proyectos" className="btn btn-primary btn-lg">
-              Ver proyectos
+              {t('trust.primaryCta')}
             </Link>
             <Link href="/contacto" className="btn btn-outline btn-lg">
-              Consultar disponibilidad
+              {t('trust.secondaryCta')}
             </Link>
           </div>
         </div>
 
-        <div className="trust-stats-grid" aria-label="Puntos de revision comercial">
-          {REVIEW_ITEMS.map((item, index) => (
+        <div className="trust-stats-grid" aria-label={t('trust.gridLabel')}>
+          {reviewItems.map((item, index) => (
             <div
               key={item.step}
               className="trust-stat-card scroll-reveal"
@@ -62,12 +48,9 @@ export default function TrustStatsSection() {
           ))}
         </div>
 
-        <aside className="trust-stats-cta scroll-reveal" aria-label="Resumen de cartera">
-          <span className="trust-stats-cta-kicker">Cartera actual</span>
-          <p className="trust-stats-cta-text">
-            Proyectos en Maule, Los Rios y Los Lagos, con foco en parcelas, loteos y terrenos.
-            La disponibilidad se confirma antes de agendar una visita.
-          </p>
+        <aside className="trust-stats-cta scroll-reveal" aria-label={t('trust.asideKicker')}>
+          <span className="trust-stats-cta-kicker">{t('trust.asideKicker')}</span>
+          <p className="trust-stats-cta-text">{t('trust.asideText')}</p>
         </aside>
       </div>
     </section>

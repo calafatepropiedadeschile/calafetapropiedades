@@ -3,54 +3,49 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 import { siteConfig } from '@/config/site';
-
-function buildFooterColumns(showRentalsLink: boolean) {
-  const propertyLinks = [
-    { label: 'Parcelas en venta', href: '/propiedades?priceType=venta&type=terreno' },
-    { label: 'Casas en venta', href: '/propiedades?priceType=venta&type=casa' },
-    { label: 'Proyectos de loteo', href: '/propiedades?priceType=venta' },
-    ...(showRentalsLink ? [{ label: 'Arriendos', href: '/arriendos' }] : []),
-    { label: 'Ver todo el catálogo', href: '/propiedades' },
-  ];
-
-  return [
-  {
-    title: 'Propiedades',
-    links: propertyLinks,
-  },
-  {
-    title: 'Empresa',
-    links: [
-      { label: 'Quiénes somos', href: '/nosotros' },
-      { label: 'Cómo trabajamos', href: '/nosotros#modelo' },
-      { label: 'Contáctanos', href: '/contacto' },
-    ],
-  },
-  {
-    title: 'Redes sociales',
-    links: [
-      { label: 'Instagram', href: siteConfig.contact.social.instagram, external: true },
-      { label: 'Facebook', href: siteConfig.contact.social.facebook, external: true },
-      { label: 'LinkedIn', href: siteConfig.contact.social.linkedin, external: true },
-    ],
-  },
-  ];
-}
 
 export default function Footer() {
   const { showRentalsLink } = useRentalsNav();
-  const footerColumns = buildFooterColumns(showRentalsLink);
+  const { t } = useI18n();
   const currentYear = new Date().getFullYear();
+  const primaryOffice = siteConfig.offices[0];
+
+  const propertyLinks = [
+    { label: t('footerNav.lotsForSale'), href: '/propiedades?priceType=venta&type=terreno' },
+    { label: t('footerNav.housesForSale'), href: '/propiedades?priceType=venta&type=casa' },
+    { label: t('footerNav.lotProjects'), href: '/propiedades?priceType=venta' },
+    ...(showRentalsLink ? [{ label: t('footerNav.rentals'), href: '/arriendos' }] : []),
+    { label: t('footerNav.fullCatalog'), href: '/propiedades' },
+  ];
+
+  const footerColumns = [
+    { title: t('footerNav.properties'), links: propertyLinks },
+    {
+      title: t('footerNav.company'),
+      links: [
+        { label: t('footerNav.about'), href: '/nosotros' },
+        { label: t('footerNav.howWeWork'), href: '/nosotros#modelo' },
+        { label: t('footerNav.contact'), href: '/contacto' },
+      ],
+    },
+    {
+      title: t('footerNav.social'),
+      links: [
+        { label: 'Instagram', href: siteConfig.contact.social.instagram, external: true },
+        { label: 'Facebook', href: siteConfig.contact.social.facebook, external: true },
+        { label: 'LinkedIn', href: siteConfig.contact.social.linkedin, external: true },
+      ],
+    },
+  ];
 
   return (
     <footer className="site-footer" role="contentinfo">
-      
-      {/* ── Imagen de fondo (Volcán) con overlay ── */}
       <div className="footer-bg-image" aria-hidden="true">
         <Image
           src="/site/volcano-footer-wide.png"
-          alt="Volcán de fondo"
+          alt={t('footerNav.volcanoAlt')}
           fill
           priority
           style={{ objectFit: 'cover', objectPosition: 'center' }}
@@ -59,7 +54,6 @@ export default function Footer() {
         <div className="footer-bg-overlay" />
       </div>
 
-      {/* ── Partículas decorativas de fondo (CSS-only) ── */}
       <div className="footer-particles" aria-hidden="true">
         <span className="footer-particle" />
         <span className="footer-particle" />
@@ -69,10 +63,8 @@ export default function Footer() {
       </div>
 
       <div className="container footer-body">
-
-        {/* ── Columna izquierda: Logo + descripción + contacto ── */}
         <div className="footer-brand-col">
-          <Link href="/" className="footer-logo-link" aria-label="Ir al inicio">
+          <Link href="/" className="footer-logo-link" aria-label={t('footerNav.homeAria')}>
             <Image
               src="/brand/calafate-logo.png"
               alt={siteConfig.name}
@@ -83,29 +75,22 @@ export default function Footer() {
             />
           </Link>
 
-          <p className="footer-brand-desc">
-            Especialistas en parcelas y loteos en el sur de Chile.
-            Te acompañamos desde la búsqueda hasta la escrituración.
-          </p>
+          <p className="footer-brand-desc">{t('footerNav.brandDesc')}</p>
 
           <address className="footer-contact-info">
-            <a
-              href={`mailto:${siteConfig.contact.primaryEmail}`}
-              className="footer-contact-link"
-            >
+            <span className="footer-contact-address">
+              {primaryOffice.addressLines.join(', ')}
+            </span>
+            <a href={`mailto:${siteConfig.contact.primaryEmail}`} className="footer-contact-link">
               {siteConfig.contact.primaryEmail}
             </a>
-            <a
-              href={siteConfig.contact.primaryPhoneHref}
-              className="footer-contact-link"
-            >
+            <a href={siteConfig.contact.primaryPhoneHref} className="footer-contact-link">
               {siteConfig.contact.primaryPhoneLabel}
             </a>
           </address>
         </div>
 
-        {/* ── Columnas de navegación ── */}
-        <nav className="footer-nav-columns" aria-label="Links del footer">
+        <nav className="footer-nav-columns" aria-label={t('footerNav.footerNavLabel')}>
           {footerColumns.map((col) => (
             <div key={col.title} className="footer-nav-col">
               <h3 className="footer-nav-title">{col.title}</h3>
@@ -127,17 +112,15 @@ export default function Footer() {
             </div>
           ))}
         </nav>
-
       </div>
 
-      {/* ── Barra inferior de copyright ── */}
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
           <p className="footer-copyright">
-            © {currentYear} {siteConfig.name}. Todos los derechos reservados.
+            © {currentYear} {siteConfig.name}. {t('home.footerRights')} — {t('footerNav.copyright')}
           </p>
           <p className="footer-credit">
-            Desarrollado por{' '}
+            {t('home.footerDevelopedBy')}{' '}
             <a
               href="https://airconsulting-ten.vercel.app/"
               className="footer-credit-link"
@@ -149,7 +132,6 @@ export default function Footer() {
           </p>
         </div>
       </div>
-
     </footer>
   );
 }
