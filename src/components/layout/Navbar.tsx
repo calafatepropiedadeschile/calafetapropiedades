@@ -173,8 +173,8 @@ export default function Navbar() {
   );
 
   const navItemsMobile = useMemo(
-    () => [...navItems],
-    [navItems],
+    () => [...navItems, nosotrosItem, contactoItem],
+    [navItems, nosotrosItem, contactoItem],
   );
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
@@ -396,6 +396,17 @@ export default function Navbar() {
               <Link href={item.href} className="mobile-nav-link" onClick={closeMobileMenu}>
                 {item.label}
               </Link>
+              {item.subItems ? (
+                <ul className="mobile-nav-submenu" role="list">
+                  {item.subItems.map((subItem) => (
+                    <li key={subItem.href}>
+                      <Link href={subItem.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
+                        {subItem.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </li>
           ))}
           <li>

@@ -739,6 +739,30 @@ input, textarea, select {
   color: var(--color-primary);
 }
 
+.mobile-nav-submenu {
+  display: grid;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0.15rem 0 0.75rem;
+  padding: 0 0 0.45rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.mobile-nav-sub-link {
+  color: var(--color-text-muted);
+  display: inline-flex;
+  font-family: var(--font-admin);
+  font-size: 0.95rem;
+  font-weight: 700;
+  min-height: 34px;
+  align-items: center;
+  text-decoration: none;
+}
+
+.mobile-nav-sub-link:hover {
+  color: var(--color-primary);
+}
+
 .mobile-nav-footer {
   margin-top: auto;
   display: flex;
@@ -4380,6 +4404,174 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --nav-height: 96px;
+    --topbar-height: 32px;
+    --mainbar-height: 64px;
+    --secondary-header-height: 0px;
+  }
+
+  .nav {
+    height: var(--nav-height) !important;
+    overflow: visible;
+  }
+
+  .nav-topbar {
+    font-size: 0.78rem;
+  }
+
+  .nav-topbar-inner {
+    justify-content: center !important;
+    gap: 0;
+    min-width: 0;
+    padding-inline: var(--container-padding);
+  }
+
+  .nav-topbar-left,
+  .nav-topbar-right {
+    transform: none;
+  }
+
+  .nav-topbar-left {
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .nav-topbar-right {
+    display: none !important;
+  }
+
+  .nav-topbar-phone {
+    gap: 0.35rem;
+    margin: 0;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .nav-topbar-phone span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-mainbar {
+    height: var(--mainbar-height);
+  }
+
+  .nav-mainbar .nav-inner,
+  .nav-mainbar .nav-inner.container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    max-width: none !important;
+    min-width: 0;
+    padding-inline: var(--container-padding);
+    position: relative;
+    width: 100%;
+  }
+
+  .nav-logo-container {
+    align-items: center;
+    display: flex !important;
+    flex: 0 1 auto !important;
+    justify-content: center !important;
+    min-width: 0;
+    max-width: calc(100vw - 7.5rem);
+  }
+
+  .nav-logo-link {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 42px;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .nav-logo-image {
+    height: auto !important;
+    max-height: 42px;
+    max-width: min(52vw, 170px);
+    object-fit: contain;
+    width: auto !important;
+  }
+
+  .nav-menu-center {
+    display: none !important;
+  }
+
+  .nav-actions-right {
+    align-items: center !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    gap: 0 !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    position: absolute;
+    right: var(--container-padding);
+  }
+
+  .nav-lang-selector {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    align-items: center;
+    display: inline-flex !important;
+    height: 44px;
+    justify-content: center;
+    padding: 0;
+    width: 44px;
+  }
+
+  .mobile-menu-btn .hamburger-line {
+    position: absolute;
+    width: 22px;
+  }
+
+  .mobile-menu-btn .hamburger-line:nth-child(1) {
+    transform: translateY(-7px);
+  }
+
+  .mobile-menu-btn .hamburger-line:nth-child(2) {
+    transform: translateY(0);
+  }
+
+  .mobile-menu-btn .hamburger-line:nth-child(3) {
+    transform: translateY(7px);
+  }
+
+  .mobile-menu-btn.open .hamburger-line:nth-child(1) {
+    transform: rotate(45deg);
+  }
+
+  .mobile-menu-btn.open .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .mobile-menu-btn.open .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+
+  .mobile-nav-overlay {
+    top: var(--nav-height);
+    padding: var(--space-lg) var(--container-padding) max(var(--space-2xl), env(safe-area-inset-bottom));
+  }
+
+  .mobile-nav-links {
+    gap: 0.35rem;
+    margin-bottom: var(--space-xl);
+  }
+
+  .mobile-nav-link {
+    font-size: clamp(1.15rem, 6vw, 1.4rem);
+    line-height: 1.15;
+    min-height: 48px;
+    padding-block: 0.55rem;
+  }
+
   .section,
   .section-padding {
     padding-block: var(--space-3xl);
