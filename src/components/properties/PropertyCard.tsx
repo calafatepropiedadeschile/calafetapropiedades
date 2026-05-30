@@ -9,6 +9,7 @@ import { formatArea } from '@/lib/utils/formatters';
 import { shouldShowPriceFrom } from '@/features/properties/property-land-options';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import { localizedHref } from '@/lib/i18n/localized-href';
 
 interface Props {
   property: PropertyCardType;
@@ -45,7 +46,7 @@ export default function PropertyCard({ property }: Props) {
     'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800&auto=format&fit=crop'
   );
   
-  const propertyHref = locale === 'en' ? `/propiedades/${slug}?lang=en` : `/propiedades/${slug}`;
+  const propertyHref = localizedHref(`/propiedades/${slug}`, locale);
   const effectiveArea = lotSurfaceM2 ?? area;
   const statusLabel = status === 'disponible'
     ? t('property.available')
@@ -78,22 +79,14 @@ export default function PropertyCard({ property }: Props) {
 
       {/* Floating Content Card */}
       <div className="property-card-floating-content">
-        <div className="property-card-price">
-          {formatPropertyPriceForUser(price, currency, {
-            priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
-            priceType,
-          })}
-        </div>
-        
         <h3 className="property-card-title">
           <Link href={propertyHref}>{title}</Link>
         </h3>
-        
+
         <p className="property-card-location">
           {zone}, {city}
         </p>
 
-        {/* Specs Row */}
         <div className="property-card-specs-row">
           {bedrooms ? (
             <span className="spec-item">
@@ -115,8 +108,14 @@ export default function PropertyCard({ property }: Props) {
           ) : null}
         </div>
 
-        {/* Action Button */}
-        <Link href={propertyHref} className="btn-more-details" tabIndex={-1}>
+        <div className="property-card-price">
+          {formatPropertyPriceForUser(price, currency, {
+            priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
+            priceType,
+          })}
+        </div>
+
+        <Link href={propertyHref} className="btn btn-outline btn-sm property-card-cta" tabIndex={-1}>
           {t('property.viewDetails')}
         </Link>
       </div>

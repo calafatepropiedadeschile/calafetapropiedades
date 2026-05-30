@@ -44,10 +44,6 @@ function SearchSelect({ label, value, options, icon, onChange }: SearchSelectPro
 
   return (
     <div className="search-field search-field--custom" ref={wrapperRef}>
-      <span className="search-label">
-        {icon}
-        {label}
-      </span>
       <button
         type="button"
         className={`search-select-trigger${isOpen ? ' is-open' : ''}`}
@@ -60,8 +56,18 @@ function SearchSelect({ label, value, options, icon, onChange }: SearchSelectPro
             setIsOpen(false);
           }
         }}
+        style={{ paddingTop: '12px', paddingBottom: '12px' }}
       >
-        <span className="search-select-value">{selectedOption.label}</span>
+        <span className="search-select-value" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {icon}
+          <span>
+            <span style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{label}</span>
+            {/* Mostrar siempre la selección al lado de la pregunta */}
+            <span style={{ fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '6px' }}>
+              {selectedOption.value ? `· ${selectedOption.label}` : ''}
+            </span>
+          </span>
+        </span>
         <svg
           className="search-select-chevron"
           aria-hidden="true"
@@ -221,7 +227,7 @@ export default function PropertySearch({
 
         <button
           type="submit"
-          className={`search-action-btn${isLoading ? ' loading' : ''}`}
+          className={`btn btn-primary btn-sm search-action-btn${isLoading ? ' loading' : ''}`}
           disabled={isLoading}
           aria-label={t('propertySearch.searchAria')}
         >

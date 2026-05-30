@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import PropertySearch from '@/components/properties/PropertySearch';
 import HomeFeaturedProperties from '@/components/home/HomeFeaturedProperties';
 import MasterplanInteractiveSection from '@/components/home/MasterplanInteractiveSection';
@@ -9,6 +10,7 @@ import TrustStatsSection from '@/components/home/TrustStatsSection';
 import ServicesSection from '@/components/home/ServicesSection';
 import CtaBanner from '@/components/ui/CtaBanner';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import { localizedHref } from '@/lib/i18n/localized-href';
 import { siteConfig } from '@/config/site';
 import type { PropertyCard as PropertyCardType } from '@/types/property';
 
@@ -25,8 +27,7 @@ export default function HomePageContent({
   initialSearchType,
   initialSearchZone,
 }: Props) {
-  const { t } = useI18n();
-
+  const { locale, t } = useI18n();
 
   return (
     <>
@@ -35,14 +36,10 @@ export default function HomePageContent({
       </div>
 
       <section className="section container featured-properties-section">
-        <div style={{ textAlign: 'center', marginBottom: 'var(--space-3xl)' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 4.5vw, 2.75rem)', fontWeight: 800, color: 'var(--color-dark)', lineHeight: '1.2', margin: '0 0 var(--space-xs)' }}>
-            {t('home.featuredSectionTitle')}
-          </h2>
-          <p className="text-muted" style={{ maxWidth: '740px', margin: 'var(--space-xs) auto 0', fontSize: '1.05rem', lineHeight: '1.6' }}>
-            {t('home.featuredSectionSubtitle')}
-          </p>
-        </div>
+        <header className="home-section-header">
+          <h2 className="home-section-title">{t('home.featuredSectionTitle')}</h2>
+          <p className="home-section-subtitle text-muted">{t('home.featuredSectionSubtitle')}</p>
+        </header>
 
         {featured.length > 0 ? (
           <HomeFeaturedProperties properties={featured} />
@@ -60,23 +57,21 @@ export default function HomePageContent({
         headline={t('home.ctaAvailabilityHeadline')}
         sub={t('home.ctaAvailabilitySub')}
         ctas={[
-          { label: t('home.ctaAvailabilityPrimary'), href: '/proyectos', primary: true },
-          { label: t('home.ctaAvailabilitySecondary'), href: '/contacto' },
+          { label: t('home.ctaAvailabilityPrimary'), href: localizedHref('/proyectos', locale), primary: true },
+          { label: t('home.ctaAvailabilitySecondary'), href: localizedHref('/contacto', locale) },
         ]}
         id="cta-catalogo"
       />
 
       <MasterplanInteractiveSection allProperties={propertyCatalog} />
 
-      <TrustStatsSection />
-
+      <TrustStatsSection properties={propertyCatalog} />
 
       <ServicesSection />
 
-
-      <section className="section" style={{ backgroundColor: 'var(--color-surface-2)', borderTop: '1px solid var(--color-border-light)', borderBottom: '1px solid var(--color-border-light)', padding: 'var(--space-4xl) 0' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', gap: 'var(--space-3xl)', alignItems: 'center' }}>
-          <div style={{ position: 'relative', height: '480px', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }} className="discover-image-wrapper">
+      <section className="section home-discover-section">
+        <div className="container home-discover-grid">
+          <div className="discover-image-wrapper">
             <Image
               src={siteConfig.copy.discover.imageUrl}
               alt={`${t('home.discoverImageAlt')} — ${siteConfig.name}`}
@@ -86,45 +81,16 @@ export default function HomePageContent({
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
-            <div>
-              <span style={{
-                color: 'var(--color-primary)',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                textTransform: 'uppercase',
-                letterSpacing: '2px',
-                display: 'block',
-                marginBottom: 'var(--space-xs)',
-              }}>
-                {t('home.discoverEyebrow')}
-              </span>
-              <h2 style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '2.5rem',
-                color: 'var(--color-text)',
-                fontWeight: 800,
-                margin: 0,
-                lineHeight: '1.2',
-              }}>
-                {t('home.discoverTitle')}
-              </h2>
-              <div style={{ width: '60px', height: '3px', backgroundColor: 'var(--color-primary)', marginTop: 'var(--space-md)', borderRadius: '2px' }} />
-            </div>
-
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', lineHeight: '1.7', margin: 0 }}>
-              {t('home.discoverParagraph1')}
-            </p>
-
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.05rem', lineHeight: '1.7', margin: 0, fontWeight: 500 }}>
-              {t('home.discoverParagraph2')}
-            </p>
-
-            <div style={{ marginTop: 'var(--space-sm)' }}>
-              <Link href="/contacto" className="btn btn-primary btn-lg" style={{ width: 'fit-content' }}>
-                {t('home.discoverCta')}
-              </Link>
-            </div>
+          <div className="home-discover-copy">
+            <span className="home-discover-eyebrow">{t('home.discoverEyebrow')}</span>
+            <h2 className="home-discover-title">{t('home.discoverTitle')}</h2>
+            <div className="home-discover-accent" aria-hidden />
+            <p className="home-discover-text">{t('home.discoverParagraph1')}</p>
+            <p className="home-discover-text home-discover-text--emphasis">{t('home.discoverParagraph2')}</p>
+            <Link href={localizedHref('/contacto', locale)} className="btn btn-primary btn-lg">
+              {t('home.discoverCta')}
+              <ArrowRight size={18} aria-hidden />
+            </Link>
           </div>
         </div>
       </section>

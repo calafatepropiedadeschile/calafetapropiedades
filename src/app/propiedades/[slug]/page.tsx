@@ -314,10 +314,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                   )}
                 </div>
 
-                <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap', marginBottom: 'var(--space-md)' }} aria-label="Idioma de la publicacion">
-                  <Link href={spanishHref} className={`btn btn-sm ${locale === 'es' ? 'btn-primary' : 'btn-outline'}`}>Español</Link>
-                  <Link href={englishHref} className={`btn btn-sm ${locale === 'en' ? 'btn-primary' : 'btn-outline'}`}>English</Link>
-                </div>
+
               </div>
 
               <PropertyCommercialHighlights

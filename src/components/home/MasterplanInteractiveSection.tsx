@@ -7,6 +7,7 @@ import PropertyCard from '../properties/PropertyCard';
 import type { PropertyCard as PropertyCardType } from '@/types/property';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { formatTranslation } from '@/lib/i18n/dictionaries';
+import { localizedHref } from '@/lib/i18n/localized-href';
 
 interface ProyectoTour {
   id: string;
@@ -167,7 +168,7 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
                 <p>
                   {formatTranslation(locale, 'masterplan.placeholderCopy', { name: activeProject.name })}
                 </p>
-                <Link href="/contacto" className="btn btn-primary btn-sm">
+                <Link href={localizedHref('/contacto', locale)} className="btn btn-primary btn-sm">
                   {t('masterplan.placeholderCta')}
                 </Link>
               </div>
@@ -182,7 +183,7 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <Link href={activeProject.projectHref} className="btn btn-outline btn-sm masterplan-aside-cta">
+            <Link href={localizedHref(activeProject.projectHref, locale)} className="btn btn-outline btn-sm masterplan-aside-cta">
               {t('masterplan.asideCta')}
             </Link>
           </aside>

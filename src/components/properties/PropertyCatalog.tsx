@@ -238,6 +238,7 @@ export default function PropertyCatalog({
         </button>
       </div>
 
+      <div className={`property-filter-overlay ${isFilterOpen ? 'is-open' : ''}`} onClick={() => setIsFilterOpen(false)} aria-hidden="true" />
       <div className={`property-filter-panel ${isFilterOpen ? 'is-open' : ''}`}>
         <div className="catalog-filter-header">
           <div>
@@ -247,13 +248,23 @@ export default function PropertyCatalog({
           </div>
           <button
             type="button"
-            className="btn btn-ghost btn-sm catalog-clear-filters"
+            className="btn btn-ghost btn-sm catalog-clear-filters catalog-clear-filters-desktop"
             onClick={clearFilters}
             disabled={activeFilters === 0}
           >
             {t('catalog.clearFilters')}
           </button>
+          <button
+            type="button"
+            className="mobile-menu-close-btn catalog-filter-close"
+            onClick={() => setIsFilterOpen(false)}
+            aria-label="Cerrar filtros"
+          >
+            <X size={28} strokeWidth={1.5} />
+          </button>
         </div>
+
+        <div className="property-filter-scroll-area">
 
         {showPriceModeTabs && hasPublishedRentals && (
           <div className="search-tabs catalog-tabs">
@@ -359,6 +370,25 @@ export default function PropertyCatalog({
             />
             {t('catalog.availableLotsOnly')}
           </label>
+        </div>
+        </div>
+
+        <div className="property-filter-footer-mobile">
+          <button
+            type="button"
+            className="btn btn-ghost catalog-clear-filters"
+            onClick={clearFilters}
+            disabled={activeFilters === 0}
+          >
+            {t('catalog.clearFilters')}
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary catalog-apply-filters"
+            onClick={() => setIsFilterOpen(false)}
+          >
+            Ver {pagination.total} {pagination.total === 1 ? 'resultado' : 'resultados'}
+          </button>
         </div>
       </div>
 
