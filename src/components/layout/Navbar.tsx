@@ -177,9 +177,9 @@ export default function Navbar() {
   /** Siempre 3 ítems a la izquierda y 3 a la derecha del logo. */
   const navItems = useMemo<NavItem[]>(
     () => (showRentalsLink
-      ? [comprarItem, arriendosItem, proyectosItem, venderItem, topografiaItem]
-      : [comprarItem, proyectosItem, venderItem, topografiaItem]),
-    [showRentalsLink, comprarItem, arriendosItem, proyectosItem, venderItem, topografiaItem],
+      ? [proyectosItem, comprarItem, arriendosItem, venderItem, topografiaItem]
+      : [proyectosItem, comprarItem, venderItem, topografiaItem]),
+    [showRentalsLink, proyectosItem, comprarItem, arriendosItem, venderItem, topografiaItem],
   );
 
   const navItemsMobile = useMemo(
@@ -400,18 +400,36 @@ export default function Navbar() {
       </nav>
 
       <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="mobile-nav-header">
+        <div className="mobile-nav-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="mobile-nav-welcome" style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-dark)', letterSpacing: '-0.02em' }}>
             ¡Hola, bienvenido!
           </span>
-          <button
-            type="button"
-            className="mobile-menu-close-btn"
-            onClick={closeMobileMenu}
-            aria-label={t('common.menuClose')}
-          >
-            <X size={28} strokeWidth={1.5} />
-          </button>
+          <div className="mobile-locale-minimal" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="mobile-locale-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </span>
+            <div className="mobile-locale-options" style={{ display: 'flex', gap: '4px' }}>
+              {LANGUAGE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`mobile-locale-text-btn ${locale === option.value ? 'active' : ''}`}
+                  onClick={() => toggleLang(option.value)}
+                  style={{
+                    background: locale === option.value ? 'var(--color-primary)' : 'transparent',
+                    color: locale === option.value ? '#fff' : 'var(--color-text-muted)',
+                    border: 'none',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {option.value.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="mobile-nav-scroll-area">
@@ -475,45 +493,7 @@ export default function Navbar() {
           </ul>
 
           <div className="mobile-nav-footer" style={{ '--animation-order': navItemsMobile.length } as React.CSSProperties}>
-            <div className="mobile-nav-contact">
-              <span className="mobile-contact-label">Contacto Directo</span>
-              <a
-                href={siteConfig.contact.primaryPhoneHref}
-                className="mobile-nav-phone"
-                onClick={closeMobileMenu}
-              >
-                <Phone size={20} strokeWidth={1.5} aria-hidden />
-                <span>{siteConfig.contact.primaryPhoneLabel}</span>
-              </a>
-              <a
-                href={buildMailto(siteConfig.contact.salesEmail, siteConfig.contact.advisorySubject)}
-                className="mobile-nav-email"
-                onClick={closeMobileMenu}
-              >
-                <Mail size={20} strokeWidth={1.5} aria-hidden />
-                <span>{siteConfig.contact.salesEmail}</span>
-              </a>
-            </div>
 
-            <div className="mobile-nav-bottom">
-              <div className="mobile-locale-minimal">
-                <span className="mobile-locale-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                </span>
-                <div className="mobile-locale-options">
-                  {LANGUAGE_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`mobile-locale-text-btn ${locale === option.value ? 'active' : ''}`}
-                      onClick={() => toggleLang(option.value)}
-                    >
-                      {option.value.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
               <NavSocialLinks className="mobile-social-links" linkClassName="mobile-social-link" />
             </div>
           </div>

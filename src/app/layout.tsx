@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
 import { ExchangeRatesProvider } from '@/lib/currency/ExchangeRatesProvider';
@@ -14,6 +14,13 @@ import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
 import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSiteSeoSettings().catch(() => null);

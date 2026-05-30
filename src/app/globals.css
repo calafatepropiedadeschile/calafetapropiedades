@@ -88,6 +88,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Lenis: native smooth-scroll must be off to avoid fighting the RAF interpolator */
@@ -111,6 +112,7 @@ body {
   background-color: #FFFFFF;
   color: var(--color-text);
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
