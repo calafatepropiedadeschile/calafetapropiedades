@@ -14,7 +14,8 @@ import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { getStaticPropertyBySlug } from '@/features/properties/property.service';
 import { isRentalPriceType } from '@/features/properties/price-type';
 import { shouldShowPriceFrom } from '@/features/properties/property-land-options';
-import { getServerLocale } from '@/lib/i18n/server';
+import { getExchangeRates } from '@/lib/currency/exchange-rates';
+import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { projectLandingSlugs } from '@/config/seo-pages';
 import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
@@ -61,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = project.seoTitleEs || `${project.title} | Proyecto de parcelas`;
   const description = project.seoDescriptionEs
-    || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imagenes y consulta disponibilidad con Calafate Propiedades.`;
+    || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imágenes y consulta disponibilidad con Calafate Propiedades.`;
   const canonical = `${baseUrl}/proyectos/${project.slug}`;
   const image = project.ogImage || project.coverImage || siteSeo?.defaultOgImage || undefined;
 
@@ -88,7 +89,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectLandingPage({ params }: Props) {
   const { slug } = await params;
-  const locale = await getServerLocale();
+  const [locale, displayCurrency, exchangeRates] = await Promise.all([
+    getServerLocale(),
+    getServerCurrency(),
+    getExchangeRates(),
+  ]);
   const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
   const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
@@ -151,6 +156,8 @@ export default async function ProjectLandingPage({ params }: Props) {
               {formatPropertyPrice(project.price, project.currency, {
                 priceFrom: shouldShowPriceFrom(project),
                 locale,
+                displayCurrency,
+                rates: exchangeRates,
               })}
             </p>
             <p className="text-muted" style={{ fontSize: '1.06rem', lineHeight: 1.75 }}>
@@ -161,7 +168,7 @@ export default async function ProjectLandingPage({ params }: Props) {
                 Ver ficha completa
               </Link>
               <Link href="/proyectos" className="btn btn-outline">
-                Ver mas proyectos
+                Ver más proyectos
               </Link>
             </div>
           </div>
@@ -188,7 +195,13 @@ export default async function ProjectLandingPage({ params }: Props) {
         <section className="container" style={{ paddingBottom: 'var(--space-4xl)' }}>
           <div className="property-detail-layout">
             <div>
-              <PropertyCommercialHighlights property={project} locale={locale} title={t('property.commercialSnapshot')} />
+              <PropertyCommercialHighlights
+                property={project}
+                locale={locale}
+                displayCurrency={displayCurrency}
+                exchangeRates={exchangeRates}
+                title={t('property.commercialSnapshot')}
+              />
 
               <PropertyDescription
                 parsed={parsedDescription}

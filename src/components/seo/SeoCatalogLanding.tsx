@@ -74,7 +74,7 @@ export default function SeoCatalogLanding({
           paddingLeft: 'var(--space-lg)',
         }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: 'var(--space-md)' }}>
-            Informacion clave
+            Información clave
           </h2>
           <ul style={{ display: 'grid', gap: 'var(--space-sm)', margin: 0, paddingLeft: '1.1rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>
             {config.highlights.map((highlight) => (
@@ -97,7 +97,7 @@ export default function SeoCatalogLanding({
           <CtaBanner
             variant="inline"
             eyebrow="Encuentra tu propiedad"
-            headline={`${config.primaryCta.label} — revisa el catalogo actualizado.`}
+            headline={`${config.primaryCta.label} — revisa el catálogo actualizado.`}
             sub="Filtra por zona, precio y tipo. Si no encuentras lo que buscas, te asesoramos sin costo."
             ctas={[
               { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
@@ -120,8 +120,8 @@ export default function SeoCatalogLanding({
         <CtaBanner
           variant="inline"
           eyebrow="Consulta comercial"
-          headline="Coordinamos arriendos segun disponibilidad actual."
-          sub="El equipo comercial puede indicarte opciones vigentes, condiciones y zonas. Escríbenos para recibir asesoria."
+          headline="Coordinamos arriendos según disponibilidad actual."
+          sub="El equipo comercial puede indicarte opciones vigentes, condiciones y zonas. Escríbenos para recibir asesoría."
           ctas={[
             { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
             { label: config.secondaryCta.label, href: config.secondaryCta.href },

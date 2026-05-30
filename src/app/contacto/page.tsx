@@ -63,10 +63,10 @@ export default async function ContactPage({ searchParams }: Props) {
   const session = await auth();
   const cms = await getContactCms(locale, session?.user?.role === 'admin');
 
-  const heroTitle = cms?.title ?? 'Contactanos';
+  const heroTitle = cms?.title ?? 'Contáctanos';
   const heroSubtitle = cms
     ? null
-    : 'Estamos aqui para guiarte en cada paso. Escribenos y nuestro equipo te respondera con una propuesta concreta.';
+    : 'Estamos aquí para guiarte en cada paso. Escribenos y nuestro equipo te responderá con una propuesta concreta.';
 
   return (
     <>
@@ -136,7 +136,7 @@ export default async function ContactPage({ searchParams }: Props) {
                 Contacto directo
               </h2>
               <p className="text-muted" style={{ marginBottom: 'var(--space-md)' }}>
-                Recibe atencion personalizada para comprar, vender, alquilar o publicar una propiedad.
+                Recibe atención personalizada para comprar, vender, alquilar o publicar una propiedad.
               </p>
 
               {siteConfig.offices.map((office) => (

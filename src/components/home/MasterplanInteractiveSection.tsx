@@ -26,13 +26,13 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: '81 parcelas de 5.000 m2 en Los Muermos, con foco en naturacion, acceso y conectividad hacia Puerto Montt.',
     slugFilter: 'portal-los-muermos',
     projectHref: '/proyectos/portal-los-muermos',
-    amenities: ['Agua potable en proyecto', 'Electricidad en red', 'Acceso pavimentado', 'Topografia disponible', 'Parcelas desde 5.000 m2'],
+    amenities: ['Agua potable en proyecto', 'Electricidad en red', 'Acceso pavimentado', 'Topografía disponible', 'Parcelas desde 5.000 m2'],
   },
   {
     id: 'praderas-del-maule',
     name: 'Praderas del Maule',
     tourUrl: 'https://vtour.cl/360/praderasdelmaule/tour',
-    description: 'Parcelas con entorno rural y buena conexion en la Region del Maule, pensadas para segunda vivienda o inversion.',
+    description: 'Parcelas con entorno rural y buena conexion en la Region del Maule, pensadas para segunda vivienda o inversión.',
     slugFilter: 'praderas-del-maule',
     projectHref: '/proyectos/praderas-del-maule',
     amenities: ['Entorno rural y tranquilo', 'Conexion a ruta principal', 'Factibilidad de servicios', 'Ideal segunda vivienda', 'Etapas en desarrollo'],
@@ -41,10 +41,10 @@ const PROJECTS_DATA: ProyectoTour[] = [
     id: 'vive-puquila',
     name: 'Vive Puquila',
     tourUrl: 'https://vtour.cl/360/vivepuquila/tour',
-    description: 'Proyecto con etapas activas en el sector Puquila, ideal para revisar ubicacion y entorno antes de coordinar visita.',
+    description: 'Proyecto con etapas activas en el sector Puquila, ideal para revisar ubicación y entorno antes de coordinar visita.',
     slugFilter: 'vive-puquila',
     projectHref: '/proyectos/vive-puquila',
-    amenities: ['Sector Puquila', 'Etapas con disponibilidad', 'Recorrido 360 por lote', 'Cercania a servicios', 'Asesoria comercial directa'],
+    amenities: ['Sector Puquila', 'Etapas con disponibilidad', 'Recorrido 360 por lote', 'Cercania a servicios', 'Asesoría comercial directa'],
   },
   {
     id: 'altos-del-tepual',
@@ -88,7 +88,7 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
 
   return (
     <section className="section container masterplan-section" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4xl)', position: 'relative', zIndex: 10 }}>
-      <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
+      <div className="masterplan-section-header">
         <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', display: 'block', marginBottom: 'var(--space-xs)' }}>
           {t('masterplan.toursEyebrow')}
         </span>

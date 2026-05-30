@@ -65,7 +65,7 @@ export const PropertySchema = z.object({
   descriptionEn: z.string().optional().nullable(),
   price: requiredPositiveNumber,
   priceFrom: z.boolean().default(false),
-  priceType: z.enum(['venta', 'arriendo'], { error: 'Selecciona la operacion' }).default('venta'),
+  priceType: z.enum(['venta', 'arriendo'], { error: 'Selecciona la operación' }).default('venta'),
   currency: z.enum(['CLP', 'CLF', 'USD']).default('CLP'),
   zoneEs: z.string().min(2, 'La zona es requerida'),
   zoneEn: z.string().optional().nullable(),

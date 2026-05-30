@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
+import { ExchangeRatesProvider } from '@/lib/currency/ExchangeRatesProvider';
+import { getExchangeRates } from '@/lib/currency/exchange-rates';
 import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { isSupportedLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { RentalsNavProvider } from '@/components/layout/RentalsNavProvider';
 import WhatsAppWidget from '@/components/layout/WhatsAppWidget';
 import { hasPublishedRentals, shouldShowRentalsNavigation } from '@/features/properties/rental-availability';
+import LenisProvider from '@/components/providers/LenisProvider';
 import AttributionCapture from '@/components/marketing/AttributionCapture';
 import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
@@ -62,26 +65,31 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [seo, showRentalsLink, rentalsPublished, locale, currency] = await Promise.all([
+  const [seo, showRentalsLink, rentalsPublished, locale, currency, exchangeRates] = await Promise.all([
     getSiteSeoSettings().catch(() => null),
     shouldShowRentalsNavigation(),
     hasPublishedRentals(),
     getServerLocale(),
     getServerCurrency(),
+    getExchangeRates(),
   ]);
 
   return (
     <html lang={locale}>
       <body>
-        <I18nProvider initialLocale={locale} initialCurrency={currency}>
-          <RentalsNavProvider showRentalsLink={showRentalsLink} hasPublishedRentals={rentalsPublished}>
-            <AttributionCapture />
-            <GoogleAnalytics measurementId={seo?.googleAnalyticsId} />
-            <MetaPixel pixelId={seo?.metaPixelId} />
-            {children}
-            <WhatsAppWidget />
-          </RentalsNavProvider>
-        </I18nProvider>
+        <LenisProvider>
+          <I18nProvider initialLocale={locale} initialCurrency={currency}>
+            <ExchangeRatesProvider initialRates={exchangeRates}>
+              <RentalsNavProvider showRentalsLink={showRentalsLink} hasPublishedRentals={rentalsPublished}>
+                <AttributionCapture />
+                <GoogleAnalytics measurementId={seo?.googleAnalyticsId} />
+                <MetaPixel pixelId={seo?.metaPixelId} />
+                {children}
+                <WhatsAppWidget />
+              </RentalsNavProvider>
+            </ExchangeRatesProvider>
+          </I18nProvider>
+        </LenisProvider>
       </body>
     </html>
   );

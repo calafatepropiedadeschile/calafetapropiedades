@@ -62,9 +62,9 @@ function optionalUrl(value: unknown) {
 
 export const StaticPageSchema = z.object({
   slug: slugSchema,
-  titleEs: z.string().trim().min(1, 'El titulo en espanol es obligatorio.').max(200),
+  titleEs: z.string().trim().min(1, 'El titulo en español es obligatorio.').max(200),
   titleEn: z.string().trim().max(200).optional().nullable(),
-  contentEs: z.string().trim().min(1, 'El contenido en espanol es obligatorio.').max(50000),
+  contentEs: z.string().trim().min(1, 'El contenido en español es obligatorio.').max(50000),
   contentEn: z.string().trim().max(50000).optional().nullable(),
   published: z.boolean(),
   seoTitleEs: z.string().trim().max(70).optional().nullable(),
@@ -96,7 +96,7 @@ export function parseStaticPageFormData(formData: FormData): StaticPageInput {
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     const path = issue?.path.join('.');
-    const message = issue?.message ?? 'Datos de pagina invalidos';
+    const message = issue?.message ?? 'Datos de página invalidos';
     throw new Error(path ? `${path}: ${message}` : message);
   }
 

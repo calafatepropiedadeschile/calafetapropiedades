@@ -28,7 +28,7 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
         try {
           await action(formData);
         } catch (error) {
-          setFormError(error instanceof Error ? error.message : 'No se pudo guardar la pagina.');
+          setFormError(error instanceof Error ? error.message : 'No se pudo guardar la página.');
         }
       })();
     });
@@ -60,7 +60,7 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
                 color: activeLangTab === 'es' ? '#fff' : 'var(--color-text-muted)',
               }}
             >
-              Espanol
+              Español
             </button>
             <button
               type="button"
@@ -93,25 +93,25 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
               required
             />
             <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
-              La pagina se publicara en <strong>/{slug || 'tu-slug'}</strong>.
+              La página se publicara en <strong>/{slug || 'tu-slug'}</strong>.
               Slugs integrados: <code>contacto</code>, <code>nosotros</code>, <code>comprar</code>, <code>arriendos</code>, <code>proyectos</code>, <code>terrenos</code>, <code>vender</code>, <code>topografia</code> actualizan el SEO de esas rutas existentes.
             </p>
           </div>
 
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label" htmlFor="page-title-es">Titulo (Espanol) *</label>
+              <label className="input-label" htmlFor="page-title-es">Título (Español) *</label>
               <input id="page-title-es" name="titleEs" className="input" defaultValue={defaultValues.titleEs ?? ''} required />
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label" htmlFor="page-content-es">Contenido (Espanol) *</label>
+              <label className="input-label" htmlFor="page-content-es">Contenido (Español) *</label>
               <textarea
                 id="page-content-es"
                 name="contentEs"
                 className="textarea"
                 rows={14}
                 defaultValue={defaultValues.contentEs ?? ''}
-                placeholder="Escribe el contenido. Puedes usar HTML basico (p, h2, ul, li, strong, a) o texto con saltos de linea."
+                placeholder="Escribe el contenido. Puedes usar HTML básico (p, h2, ul, li, strong, a) o texto con saltos de linea."
                 required
               />
             </div>
@@ -119,7 +119,7 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
 
           <div style={{ display: activeLangTab === 'en' ? 'contents' : 'none' }}>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label" htmlFor="page-title-en">Titulo en ingles (opcional)</label>
+              <label className="input-label" htmlFor="page-title-en">Título en ingles (opcional)</label>
               <input id="page-title-en" name="titleEn" className="input" defaultValue={defaultValues.titleEn ?? ''} />
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
@@ -141,21 +141,21 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
         <div className="form-grid form-grid-2">
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group">
-              <label className="input-label">Titulo SEO (Espanol)</label>
+              <label className="input-label">Título SEO (Español)</label>
               <input name="seoTitleEs" className="input" maxLength={70} defaultValue={defaultValues.seoTitleEs ?? ''} />
             </div>
             <div className="input-group">
-              <label className="input-label">Descripcion SEO (Espanol)</label>
+              <label className="input-label">Descripción SEO (Español)</label>
               <textarea name="seoDescriptionEs" className="textarea" rows={3} maxLength={170} defaultValue={defaultValues.seoDescriptionEs ?? ''} />
             </div>
           </div>
           <div style={{ display: activeLangTab === 'en' ? 'contents' : 'none' }}>
             <div className="input-group">
-              <label className="input-label">Titulo SEO en ingles</label>
+              <label className="input-label">Título SEO en ingles</label>
               <input name="seoTitleEn" className="input" maxLength={70} defaultValue={defaultValues.seoTitleEn ?? ''} />
             </div>
             <div className="input-group">
-              <label className="input-label">Descripcion SEO en ingles</label>
+              <label className="input-label">Descripción SEO en ingles</label>
               <textarea name="seoDescriptionEn" className="textarea" rows={3} maxLength={170} defaultValue={defaultValues.seoDescriptionEn ?? ''} />
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
       </section>
 
       <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Publicacion</h2>
+        <h2 className="admin-form-section-title">Publicación</h2>
         <label className="form-check">
           <input type="checkbox" name="published" defaultChecked={defaultValues.published ?? false} />
           Publicar en el sitio
@@ -188,7 +188,7 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
           </Link>
         )}
         <button type="submit" className="btn btn-primary btn-lg" disabled={isPending}>
-          {isPending ? 'Guardando...' : 'Guardar pagina'}
+          {isPending ? 'Guardando...' : 'Guardar página'}
         </button>
       </div>
     </form>

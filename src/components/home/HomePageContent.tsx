@@ -27,26 +27,6 @@ export default function HomePageContent({
 }: Props) {
   const { t } = useI18n();
 
-  const guideActions = [
-    {
-      title: t('home.actionBuyTitle'),
-      description: t('home.actionBuyDescription'),
-      href: '/proyectos',
-      cta: t('home.actionBuyCta'),
-    },
-    {
-      title: t('home.actionSellTitle'),
-      description: t('home.actionSellDescription'),
-      href: '/vender',
-      cta: t('home.actionSellCta'),
-    },
-    {
-      title: t('home.actionTopoTitle'),
-      description: t('home.actionTopoDescription'),
-      href: '/topografia',
-      cta: t('home.actionTopoCta'),
-    },
-  ];
 
   return (
     <>
@@ -90,31 +70,9 @@ export default function HomePageContent({
 
       <TrustStatsSection />
 
-      <section className="section container guide-section">
-        <div className="guide-grid">
-          {guideActions.map((action) => (
-            <div key={action.href} className="guide-card">
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 'var(--space-sm)' }}>{action.title}</h3>
-              <p className="text-muted" style={{ marginBottom: 'var(--space-lg)', flex: 1 }}>{action.description}</p>
-              <Link href={action.href} className="btn btn-outline" style={{ width: 'fit-content' }}>{action.cta}</Link>
-            </div>
-          ))}
-        </div>
-      </section>
 
       <ServicesSection />
 
-      <CtaBanner
-        variant="dark"
-        eyebrow={t('home.ctaAdvisoryEyebrow')}
-        headline={t('home.ctaAdvisoryHeadline')}
-        sub={t('home.ctaAdvisorySub')}
-        ctas={[
-          { label: t('home.ctaAdvisoryPrimary'), href: '/contacto', primary: true },
-          { label: t('home.ctaAdvisorySecondary'), href: '/terrenos' },
-        ]}
-        id="cta-asesoria"
-      />
 
       <section className="section" style={{ backgroundColor: 'var(--color-surface-2)', borderTop: '1px solid var(--color-border-light)', borderBottom: '1px solid var(--color-border-light)', padding: 'var(--space-4xl) 0' }}>
         <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', gap: 'var(--space-3xl)', alignItems: 'center' }}>

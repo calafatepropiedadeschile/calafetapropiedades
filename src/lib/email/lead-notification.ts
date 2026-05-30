@@ -86,7 +86,7 @@ function buildLeadEmail({ lead, property }: LeadNotificationInput) {
     '',
     `Nombre: ${lead.name}`,
     `Email: ${lead.email}`,
-    `Telefono: ${lead.phone || '-'}`,
+    `Teléfono: ${lead.phone || '-'}`,
     property ? `Propiedad: ${property.title}` : 'Origen: Formulario de contacto',
     propertyUrl ? `URL: ${propertyUrl}` : null,
     campaignLine,
@@ -105,7 +105,7 @@ function buildLeadEmail({ lead, property }: LeadNotificationInput) {
         <tbody>
           <tr><td style="padding:8px 0;font-weight:700">Nombre</td><td>${escapeHtml(lead.name)}</td></tr>
           <tr><td style="padding:8px 0;font-weight:700">Email</td><td>${escapeHtml(lead.email)}</td></tr>
-          <tr><td style="padding:8px 0;font-weight:700">Telefono</td><td>${escapeHtml(lead.phone || '-')}</td></tr>
+          <tr><td style="padding:8px 0;font-weight:700">Teléfono</td><td>${escapeHtml(lead.phone || '-')}</td></tr>
           <tr><td style="padding:8px 0;font-weight:700">Origen</td><td>${property ? escapeHtml(property.title) : 'Formulario de contacto'}</td></tr>
           ${propertyUrl ? `<tr><td style="padding:8px 0;font-weight:700">URL</td><td><a href="${escapeHtml(propertyUrl)}">${escapeHtml(propertyUrl)}</a></td></tr>` : ''}
           ${lead.utmCampaign ? `<tr><td style="padding:8px 0;font-weight:700">Campaña</td><td>${escapeHtml(lead.utmCampaign)}</td></tr>` : ''}

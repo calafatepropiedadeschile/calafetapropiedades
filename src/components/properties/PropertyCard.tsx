@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Home, Ruler, Layers, CheckCircle2 } from 'lucide-react';
 import type { PropertyCard as PropertyCardType } from '@/types/property';
-import { formatArea, formatPropertyPrice } from '@/lib/utils/formatters';
+import { useExchangeRates } from '@/lib/currency/ExchangeRatesProvider';
+import { formatArea } from '@/lib/utils/formatters';
 import { shouldShowPriceFrom } from '@/features/properties/property-land-options';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { useI18n } from '@/lib/i18n/I18nProvider';
@@ -20,6 +21,7 @@ const PROPERTY_TYPE_KEYS = {
 
 export default function PropertyCard({ property }: Props) {
   const { locale, t } = useI18n();
+  const { formatPropertyPriceForUser } = useExchangeRates();
   const {
     slug,
     title,
@@ -77,9 +79,8 @@ export default function PropertyCard({ property }: Props) {
       {/* Floating Content Card */}
       <div className="property-card-floating-content">
         <div className="property-card-price">
-          {formatPropertyPrice(price, currency, {
+          {formatPropertyPriceForUser(price, currency, {
             priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
-            locale,
             priceType,
           })}
         </div>

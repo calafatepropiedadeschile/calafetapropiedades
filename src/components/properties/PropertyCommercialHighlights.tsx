@@ -1,15 +1,27 @@
-import type { Locale } from '@/lib/i18n/config';
+import type { Locale, SupportedCurrency } from '@/lib/i18n/config';
+import type { ExchangeRates } from '@/lib/currency/types';
 import { buildCommercialHighlights } from '@/features/properties/property-commercial-highlights';
 import type { Property } from '@/types/property';
 
 interface Props {
   property: Property;
   locale: Locale;
+  displayCurrency: SupportedCurrency;
+  exchangeRates: ExchangeRates;
   title?: string;
 }
 
-export default function PropertyCommercialHighlights({ property, locale, title }: Props) {
-  const highlights = buildCommercialHighlights(property, locale);
+export default function PropertyCommercialHighlights({
+  property,
+  locale,
+  displayCurrency,
+  exchangeRates,
+  title,
+}: Props) {
+  const highlights = buildCommercialHighlights(property, locale, {
+    displayCurrency,
+    rates: exchangeRates,
+  });
 
   if (highlights.length === 0) {
     return null;

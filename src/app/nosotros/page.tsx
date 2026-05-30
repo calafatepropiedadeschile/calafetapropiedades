@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   ]);
   const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
   const title = cms?.seoTitle || `Nosotros - ${siteConfig.name}`;
-  const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompana en cada operacion.`;
+  const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompaña en cada operación.`;
   const canonical = cms?.customCanonical || `${baseUrl}/nosotros`;
   const image = cms?.ogImage || siteSeo?.defaultOgImage || undefined;
 

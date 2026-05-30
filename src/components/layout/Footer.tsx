@@ -35,7 +35,6 @@ export default function Footer() {
       links: [
         { label: 'Instagram', href: siteConfig.contact.social.instagram, external: true },
         { label: 'Facebook', href: siteConfig.contact.social.facebook, external: true },
-        { label: 'LinkedIn', href: siteConfig.contact.social.linkedin, external: true },
       ],
     },
   ];

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import type { TranslationKey } from '@/lib/i18n/dictionaries';
 import { buildMailto, siteConfig } from '@/config/site';
+import CtaBanner from '@/components/ui/CtaBanner';
 
 const SERVICES = [
   {
@@ -241,15 +242,16 @@ export default function ServicesSection() {
           </div>
         </div>
 
-        {/* Bottom Call-To-Action remains identical to original for high conversion */}
-        <div className="services-cta">
-          <div>
-            <h3>{t('home.servicesCtaTitle')}</h3>
-            <p>{t('home.servicesCtaDescription')}</p>
-          </div>
-          <Link href={advisoryHref} className="btn btn-primary btn-lg">
-            {t('home.servicesCtaButton')}
-          </Link>
+        {/* Bottom Call-To-Action using CtaBanner to match the appearance of the main page CTA */}
+        <div style={{ marginTop: 'var(--space-3xl)' }}>
+          <CtaBanner
+            variant="subtle"
+            headline={t('home.servicesCtaTitle')}
+            sub={t('home.servicesCtaDescription')}
+            ctas={[
+              { label: t('home.servicesCtaButton'), href: advisoryHref, primary: true }
+            ]}
+          />
         </div>
       </div>
     </section>

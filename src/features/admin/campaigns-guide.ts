@@ -264,7 +264,7 @@ export async function getCampaignsGuideData(): Promise<CampaignsGuideData> {
       label: 'Arriendos publicados',
       description: publishedRentalLinks.length > 0
         ? `${publishedRentalLinks.length} arriendo(s) visibles en /arriendos y en fichas /propiedades/slug.`
-        : 'Crea una propiedad con operacion Arriendo y publicala para activar el catalogo de arriendos.',
+        : 'Crea una propiedad con operación Arriendo y publícala para activar el catálogo de arriendos.',
       status: publishedRentalLinks.length > 0 ? 'ok' : 'pending',
       href: '/admin/propiedades?published=publicadas&operation=arriendo',
     },

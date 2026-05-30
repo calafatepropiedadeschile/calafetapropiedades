@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteSeo = await getSiteSeoSettings().catch(() => null);
   const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
   const title = 'Terrenos y loteos en venta';
-  const description = 'Compara parcelas, terrenos y loteos en Chile por ubicacion, superficie, precio y disponibilidad.';
+  const description = 'Compara parcelas, terrenos y loteos en Chile por ubicación, superficie, precio y disponibilidad.';
 
   return {
     title,

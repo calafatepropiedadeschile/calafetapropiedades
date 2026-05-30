@@ -34,7 +34,7 @@ export const siteConfig = {
   metadata: {
     title: 'Calafate Propiedades | Parcelas, terrenos y proyectos en Chile',
     description:
-      'Compra parcelas, terrenos y loteos seleccionados con Calafate Propiedades. Proyectos con informacion clara, tours 360, precios desde y asesoria directa.',
+      'Compra parcelas, terrenos y loteos seleccionados con Calafate Propiedades. Proyectos con información clara, tours 360, precios desde y asesoría directa.',
     keywords: [
       'Calafate Propiedades',
       'parcelas',
@@ -43,9 +43,9 @@ export const siteConfig = {
       'proyectos inmobiliarios',
       'parcelas en venta',
       'Los Lagos',
-      'Los Rios',
+      'Los Ríos',
       'Maule',
-      'topografia',
+      'topografía',
     ],
   },
   contact: {
@@ -56,7 +56,7 @@ export const siteConfig = {
     whatsappNumber: primaryContact.whatsappNumber,
     whatsappDisplay: primaryContact.displayPhone,
     sellSubject: 'Quiero vender una propiedad',
-    advisorySubject: 'Quiero asesoria inmobiliaria',
+    advisorySubject: 'Quiero asesoría inmobiliaria',
     social: {
       instagram: 'https://www.instagram.com/calafatepropiedades/',
       linkedin: 'https://linkedin.com',
@@ -73,7 +73,7 @@ export const siteConfig = {
       brandName: 'Calafate Propiedades',
       contactName: 'Equipo comercial',
       role: {
-        es: 'Asesoria inmobiliaria',
+        es: 'Asesoría inmobiliaria',
         en: 'Real estate advisory',
       },
       email: primaryContact.email,
@@ -97,17 +97,17 @@ export const siteConfig = {
       en: 'Land projects',
     },
     aboutIntro: {
-      es: 'Inmobiliaria enfocada en parcelas, terrenos y loteos con informacion comercial clara para compradores e inversionistas.',
+      es: 'Inmobiliaria enfocada en parcelas, terrenos y loteos con información comercial clara para compradores e inversionistas.',
       en: 'Real estate agency focused on lots, land, and development projects with clear commercial information for buyers and investors.',
     },
     aboutModelTitle: {
-      es: 'Acompanamiento directo para decidir con informacion.',
+      es: 'Acompanamiento directo para decidir con información.',
       en: 'Direct guidance to decide with clear information.',
     },
     aboutModelParagraphs: {
       es: [
         'Calafate Propiedades trabaja con una cartera cuidada de proyectos, parcelas y terrenos en zonas con demanda real.',
-        'Ordenamos ubicacion, superficie, precios desde, disponibilidad y condiciones para que cada consulta avance con datos concretos.',
+        'Ordenamos ubicación, superficie, precios desde, disponibilidad y condiciones para que cada consulta avance con datos concretos.',
       ],
       en: [
         'Calafate Propiedades works with a curated portfolio of projects, lots, and land in high-demand areas.',
@@ -115,12 +115,12 @@ export const siteConfig = {
       ],
     },
     discover: {
-      imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
+      imageUrl: '/images/sur_chile_proyectos.png',
       eyebrow: 'Criterio local',
       title: 'Proyectos claros para decisiones importantes',
       paragraphs: [
-        'Calafate Propiedades presenta loteos, parcelas y terrenos con una lectura simple: donde esta, cuanto cuesta desde, que superficie tiene y que condiciones debes revisar antes de avanzar.',
-        'Te acompanamos desde la primera consulta hasta la visita o evaluacion final, con informacion ordenada, atencion directa y seguimiento comercial.',
+        'Calafate Propiedades presenta loteos, parcelas y terrenos con una lectura simple: dónde está, cuánto cuesta desde, qué superficie tiene y qué condiciones debes revisar antes de avanzar.',
+        'Te acompañamos desde la primera consulta hasta la visita o evaluación final, con información ordenada, atención directa y seguimiento comercial.',
       ],
     },
   },

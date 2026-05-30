@@ -8,7 +8,7 @@ import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
 import PropertyGallery from '@/components/properties/PropertyGallery';
 import { getPropertyBySlug } from '@/features/properties/property.service';
-import { formatArea, formatPrice, formatPropertyPrice } from '@/lib/utils/formatters';
+import { formatArea, formatPropertyPrice } from '@/lib/utils/formatters';
 import PropertyCommercialHighlights from '@/components/properties/PropertyCommercialHighlights';
 import PropertyDescription from '@/components/properties/PropertyDescription';
 import PropertyLandProjectSections from '@/components/properties/PropertyLandProjectSections';
@@ -17,7 +17,8 @@ import { parsePropertyDescription } from '@/features/properties/property-descrip
 import { isLandParcel, shouldShowPriceFrom } from '@/features/properties/property-land-options';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { isSupportedLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
-import { getServerLocale } from '@/lib/i18n/server';
+import { getExchangeRates } from '@/lib/currency/exchange-rates';
+import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { auth } from '@/lib/auth/auth';
 import StructuredData from '@/components/seo/StructuredData';
@@ -174,7 +175,11 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
 
   const { slug } = await params;
   const search = await searchParams;
-  const locale = await resolvePageLocale(search);
+  const [locale, displayCurrency, exchangeRates] = await Promise.all([
+    resolvePageLocale(search),
+    getServerCurrency(),
+    getExchangeRates(),
+  ]);
 
   // Authenticate session to preview draft properties
   const session = await auth();
@@ -222,7 +227,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
     detailSpec('property.mode', stageName),
     detailSpec('property.parking', parking != null ? `${parking}` : null),
     detailSpec('property.year', yearBuilt != null ? `${yearBuilt}` : null),
-    detailSpec('property.expenses', expenses != null ? formatPrice(expenses, currency) : null),
+    detailSpec('property.expenses', expenses != null ? formatPropertyPrice(expenses, currency, { locale, displayCurrency, rates: exchangeRates }) : null),
     detailSpec('property.mode', priceTypeKey ? t(priceTypeKey) : priceType),
     detailSpec('property.status', statusKey ? t(statusKey) : status),
     detailSpec('property.zone', zone),
@@ -254,6 +259,8 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                         priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
                         locale,
                         priceType,
+                        displayCurrency,
+                        rates: exchangeRates,
                       })}
                     </div>
                   </div>
@@ -313,7 +320,13 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                 </div>
               </div>
 
-              <PropertyCommercialHighlights property={property} locale={locale} title={t('property.commercialSnapshot')} />
+              <PropertyCommercialHighlights
+                property={property}
+                locale={locale}
+                displayCurrency={displayCurrency}
+                exchangeRates={exchangeRates}
+                title={t('property.commercialSnapshot')}
+              />
 
               <PropertyDescription
                 parsed={parsedDescription}

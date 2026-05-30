@@ -62,7 +62,7 @@ export default async function AdminCampaignsGuidePage() {
     return (
       <div className="admin-empty-state">
         <AlertCircle size={42} />
-        <p>No se pudo cargar la guia de campanas. Revisa la conexion con la base de datos.</p>
+        <p>No se pudo cargar la guia de campañas. Revisa la conexion con la base de datos.</p>
       </div>
     );
   }
@@ -84,7 +84,7 @@ export default async function AdminCampaignsGuidePage() {
             Campanas publicitarias
           </h1>
           <p className="text-muted text-sm" style={{ maxWidth: '720px', lineHeight: 1.6 }}>
-            Guia para publicar en Meta, Google u otros canales. Los datos de abajo se actualizan segun el estado actual
+            Guia para publicar en Meta, Google u otros canales. Los datos de abajo se actualizan según el estado actual
             del sitio, tus propiedades y las consultas recibidas.
           </p>
           <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
@@ -131,12 +131,12 @@ export default async function AdminCampaignsGuidePage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-xl)' }}>
         <section className="admin-table-shell" style={{ padding: 'var(--space-xl)' }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: 'var(--space-sm)' }}>
-            Como armar una campana
+            Como armar una campaña
           </h2>
           <ol className="text-sm text-muted" style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: 1.75 }}>
             <li>Busca la propiedad en las listas de abajo (proyecto o ficha individual).</li>
             <li>Copia la URL con UTMs y usala como destino del anuncio.</li>
-            <li>Usa un mensaje claro: ubicacion, precio desde, lotes disponibles.</li>
+            <li>Usa un mensaje claro: ubicación, precio desde, lotes disponibles.</li>
             <li>El visitante puede consultar por <strong>formulario</strong> o <strong>WhatsApp {data.whatsappDisplay}</strong>.</li>
             <li>Revisa en <Link href="/admin/leads" className="text-gold">Consultas</Link> la columna Campana para medir resultados.</li>
           </ol>
@@ -159,7 +159,7 @@ export default async function AdminCampaignsGuidePage() {
               <CopyTextButton value={data.utmTemplateProperty} label="Copiar ficha" />
             </div>
             <p className="text-xs text-muted" style={{ marginTop: 'var(--space-sm)' }}>
-              Cambia <code>utm_campaign</code> por el nombre de tu campana (sin espacios). Ej: <code>parcela_quillahua_mayo</code>
+              Cambia <code>utm_campaign</code> por el nombre de tu campaña (sin espacios). Ej: <code>parcela_quillahua_mayo</code>
             </p>
           </div>
 
@@ -188,12 +188,12 @@ export default async function AdminCampaignsGuidePage() {
             WhatsApp y formulario
           </h2>
           <p className="text-sm text-muted" style={{ lineHeight: 1.7 }}>
-            No envies el trafico solo a la pagina de inicio. Usa la landing del proyecto: incluye fotos, precio,
+            No envies el trafico solo a la página de inicio. Usa la landing del proyecto: incluye fotos, precio,
             formulario y boton de WhatsApp.
           </p>
           <ul className="text-sm text-muted" style={{ lineHeight: 1.7, paddingLeft: '1.1rem' }}>
             <li>WhatsApp del sitio: <strong>{data.whatsappDisplay}</strong></li>
-            <li>Widget flotante en todas las paginas</li>
+            <li>Widget flotante en todas las páginas</li>
             <li>Boton WhatsApp junto al formulario en cada proyecto</li>
             <li>Tras el formulario, redireccion a <code>/gracias</code> para medir conversion</li>
           </ul>
@@ -202,7 +202,7 @@ export default async function AdminCampaignsGuidePage() {
             <br />
             <strong>Terreno o casa suelta:</strong> <code>/propiedades/slug</code>.
             <br />
-            <strong>Evita</strong> paginas genericas como /comprar o /terrenos para anunciar una propiedad concreta.
+            <strong>Evita</strong> páginas genéricas como /comprar o /terrenos para anunciar una propiedad concreta.
           </p>
         </section>
       </div>
@@ -227,17 +227,17 @@ export default async function AdminCampaignsGuidePage() {
 
       <CampaignUrlsSection
         title={`Arriendos (${publishedRentals.length} publicados)`}
-        description="Propiedades con operacion Arriendo. Aparecen en /arriendos y en /propiedades/slug. Usa la misma URL de ficha para campanas de arriendo."
+        description="Propiedades con operación Arriendo. Aparecen en /arriendos y en /propiedades/slug. Usa la misma URL de ficha para campañas de arriendo."
         published={publishedRentals}
         drafts={draftRentals}
-        emptyMessage="No hay arriendos publicados. Crea una propiedad con operacion Arriendo y publícala."
+        emptyMessage="No hay arriendos publicados. Crea una propiedad con operación Arriendo y publícala."
         emptyHref="/admin/propiedades?operation=arriendo"
       />
 
       {data.recentCampaignLeads.length > 0 && (
         <section className="admin-table-shell" style={{ padding: 'var(--space-xl)', marginTop: 'var(--space-xl)' }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: 'var(--space-md)' }}>
-            Ultimas consultas con campana detectada
+            Últimas consultas con campaña detectada
           </h2>
           <table className="admin-table">
             <thead>

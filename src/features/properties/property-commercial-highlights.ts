@@ -1,6 +1,7 @@
-import type { Locale } from '@/lib/i18n/config';
+import type { Locale, SupportedCurrency } from '@/lib/i18n/config';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import type { Property } from '@/types/property';
+import type { ExchangeRates } from '@/lib/currency/types';
 import { formatArea, formatPropertyPrice } from '@/lib/utils/formatters';
 import { shouldShowPriceFrom } from './property-land-options';
 
@@ -11,7 +12,14 @@ export type CommercialHighlight = {
   emphasis?: boolean;
 };
 
-export function buildCommercialHighlights(property: Property, locale: Locale): CommercialHighlight[] {
+export function buildCommercialHighlights(
+  property: Property,
+  locale: Locale,
+  options?: {
+    displayCurrency?: SupportedCurrency;
+    rates?: ExchangeRates;
+  },
+): CommercialHighlight[] {
   const t = (key: TranslationKey) => translate(locale, key);
   const items: CommercialHighlight[] = [];
 
@@ -99,6 +107,8 @@ export function buildCommercialHighlights(property: Property, locale: Locale): C
         priceFrom: shouldShowPriceFrom(property),
         locale,
         priceType: property.priceType,
+        displayCurrency: options?.displayCurrency,
+        rates: options?.rates,
       }),
       emphasis: true,
     });

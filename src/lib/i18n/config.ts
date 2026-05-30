@@ -8,7 +8,7 @@ export const DEFAULT_LOCALE: Locale = 'es';
 export const DEFAULT_CURRENCY: SupportedCurrency = 'CLP';
 
 export const LANGUAGE_OPTIONS: Array<{ value: Locale; label: string; region: string }> = [
-  { value: 'es', label: 'Espanol', region: 'Chile' },
+  { value: 'es', label: 'Español', region: 'Chile' },
   { value: 'en', label: 'English', region: 'International' },
 ];
 

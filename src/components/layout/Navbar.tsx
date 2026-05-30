@@ -2,11 +2,111 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { Phone } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useExchangeRates } from '@/lib/currency/ExchangeRatesProvider';
+import { formatMoney } from '@/lib/currency/format-money';
+import { formatTranslation } from '@/lib/i18n/dictionaries';
 import { CURRENCY_OPTIONS, LANGUAGE_OPTIONS, type Locale, type SupportedCurrency } from '@/lib/i18n/config';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { siteConfig } from '@/config/site';
 import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
+
+type NavItem = {
+  href: string;
+  label: string;
+  subItems?: { href: string; label: string }[];
+};
+
+function NavSocialLinks({
+  className = '',
+  linkClassName = 'social-link',
+}: {
+  className?: string;
+  linkClassName?: string;
+}) {
+  const { social } = siteConfig.contact;
+
+  return (
+    <div className={`social-links ${className}`.trim()}>
+      <a
+        href={social.instagram}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={linkClassName}
+        aria-label="Instagram"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+        </svg>
+      </a>
+      <a
+        href={social.facebook}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={linkClassName}
+        aria-label="Facebook"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z" />
+        </svg>
+      </a>
+    </div>
+  );
+}
+
+function NavMenuLinks({
+  items,
+  className,
+  onItemClick,
+}: {
+  items: NavItem[];
+  className: string;
+  onItemClick?: () => void;
+}) {
+  return (
+    <ul className={className}>
+      {items.map((item) => (
+        <li key={item.href} className={item.subItems ? 'has-dropdown' : ''}>
+          <Link href={item.href} className="nav-link" onClick={onItemClick}>
+            {item.label}
+            {item.subItems ? (
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ marginLeft: 6, opacity: 0.7 }}
+                aria-hidden
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            ) : null}
+          </Link>
+          {item.subItems ? (
+            <div className="nav-dropdown">
+              <ul className="nav-dropdown-menu">
+                {item.subItems.map((sub) => (
+                  <li key={sub.href}>
+                    <Link href={sub.href} className="nav-dropdown-link" onClick={onItemClick}>
+                      {sub.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function Navbar() {
   const { showRentalsLink } = useRentalsNav();
@@ -14,41 +114,70 @@ export default function Navbar() {
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { locale, currency, setLocale, setCurrency, t } = useI18n();
+  const { rates } = useExchangeRates();
   const popoverRef = useRef<HTMLDivElement>(null);
-  type NavItem = {
-    href: string;
-    label: string;
-    subItems?: { href: string; label: string }[];
-  };
 
-  const navItems: NavItem[] = [
-    { 
-      href: '/comprar', 
-      label: t('nav.buy'),
-      subItems: [
-        { href: '/comprar?type=casa', label: t('property.house') },
-        { href: '/comprar?type=terreno', label: t('property.lot') },
-      ]
-    },
-    ...(showRentalsLink ? [{ 
-      href: '/arriendos', 
-      label: t('nav.rent'),
-      subItems: [
-        { href: '/arriendos?type=casa', label: t('property.house') },
-        { href: '/arriendos?type=terreno', label: t('property.lot') },
-      ]
-    }] : []),
-    { 
-      href: '/proyectos', 
-      label: t('nav.projects'),
-      subItems: [
-        { href: '/proyectos?type=terreno', label: t('common.projectsLots') },
-        { href: '/proyectos?type=casa', label: t('common.projectsHouses') },
-      ]
-    },
-    { href: '/vender', label: t('nav.sell') },
-    { href: '/topografia', label: t('nav.topography') },
-  ];
+  const comprarItem = useMemo<NavItem>(() => ({
+    href: '/comprar',
+    label: t('nav.buy'),
+    subItems: [
+      { href: '/comprar?type=casa', label: t('property.house') },
+      { href: '/comprar?type=terreno', label: t('property.lot') },
+    ],
+  }), [t]);
+
+  const arriendosItem = useMemo<NavItem>(() => ({
+    href: '/arriendos',
+    label: t('nav.rent'),
+    subItems: [
+      { href: '/arriendos?type=casa', label: t('property.house') },
+      { href: '/arriendos?type=terreno', label: t('property.lot') },
+    ],
+  }), [t]);
+
+  const proyectosItem = useMemo<NavItem>(() => ({
+    href: '/proyectos',
+    label: t('nav.projects'),
+    subItems: [
+      { href: '/proyectos?type=terreno', label: t('common.projectsLots') },
+      { href: '/proyectos?type=casa', label: t('common.projectsHouses') },
+    ],
+  }), [t]);
+
+  const venderItem = useMemo<NavItem>(() => ({
+    href: '/vender',
+    label: t('nav.sell'),
+  }), [t]);
+
+  const topografiaItem = useMemo<NavItem>(() => ({
+    href: '/topografia',
+    label: t('nav.topography'),
+  }), [t]);
+
+  const contactoItem = useMemo<NavItem>(() => ({
+    href: '/contacto',
+    label: t('nav.contact'),
+  }), [t]);
+
+  const nosotrosItem = useMemo<NavItem>(() => ({
+    href: '/nosotros',
+    label: t('nav.about'),
+  }), [t]);
+
+  /** Siempre 3 ítems a la izquierda y 3 a la derecha del logo. */
+  const navItems = useMemo<NavItem[]>(
+    () => (showRentalsLink
+      ? [comprarItem, arriendosItem, proyectosItem, venderItem, topografiaItem]
+      : [comprarItem, proyectosItem, venderItem, topografiaItem]),
+    [showRentalsLink, comprarItem, arriendosItem, proyectosItem, venderItem, topografiaItem],
+  );
+
+  const navItemsMobile = useMemo(
+    () => [...navItems],
+    [navItems],
+  );
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -106,154 +235,186 @@ export default function Navbar() {
   return (
     <>
       <nav className={`nav ${scrolled ? 'scrolled' : ''} ${mobileMenuOpen ? 'menu-open' : ''}`}>
-        <div className="nav-inner container">
-          {/* Left section: Hamburger (mobile) / Desktop Links */}
-          <div className="nav-left">
-            <button
-              className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? t('common.menuClose') : t('common.menuOpen')}
-              aria-expanded={mobileMenuOpen}
-            >
-              <span className="hamburger-line"></span>
-              <span className="hamburger-line"></span>
-              <span className="hamburger-line"></span>
-            </button>
-
-            <ul className="nav-links">
-              {navItems.map((item) => (
-                <li key={item.label} className={item.subItems ? 'has-dropdown' : ''}>
-                  <Link href={item.href} className="nav-link" onClick={() => setMobileMenuOpen(false)}>
-                    {item.label}
-                    {item.subItems && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6, opacity: 0.7 }}><path d="m6 9 6 6 6-6"/></svg>
-                    )}
-                  </Link>
-                  {item.subItems && (
-                    <div className="nav-dropdown">
-                      <ul className="nav-dropdown-menu">
-                        {item.subItems.map((sub) => (
-                          <li key={sub.label}>
-                            <Link href={sub.href} className="nav-dropdown-link" onClick={() => setMobileMenuOpen(false)}>
-                              {sub.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Center section: Logo */}
-          <div className="nav-center">
-            <Link 
-              href="/" 
-              className="nav-logo-link" 
-              aria-label={siteConfig.name}
-              onClick={(e) => {
-                if (window.location.pathname === '/') {
-                  e.preventDefault();
-                  const heroEl = document.getElementById('hero');
-                  if (heroEl) {
-                    heroEl.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                }
-              }}
-              style={{ display: 'inline-flex', alignItems: 'center', height: '100%' }}
-            >
-              <Image 
-                src="/brand/calafate-logo.png" 
-                alt={siteConfig.name} 
-                width={176}
-                height={39}
-                className="nav-logo-image"
-                priority
-              />
-            </Link>
-          </div>
-
-          {/* Right section: Contact, Language Popover, Sign In button */}
-          <div className="nav-right">
-            <Link href="/contacto" className="nav-link nav-contact-desktop">{t('nav.contact')}</Link>
-
-            <div style={{ position: 'relative' }} ref={popoverRef}>
-              <button
-                className="globe-btn"
-                onClick={() => setShowLangPopover(!showLangPopover)}
-                aria-expanded={showLangPopover}
-                aria-label={t('nav.localeDialog')}
-                title={t('nav.localeDialog')}
+        <div className="nav-topbar">
+          <div className="nav-topbar-inner container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="nav-topbar-left" style={{ display: 'flex', alignItems: 'center' }}>
+              <a
+                href={siteConfig.contact.primaryPhoneHref}
+                className="nav-topbar-link nav-topbar-phone"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                aria-label={formatTranslation(locale, 'nav.callAria', {
+                  phone: siteConfig.contact.primaryPhoneLabel,
+                })}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-              </button>
-
-              {showLangPopover && (
-                <div className="lang-popover animate-fade-in">
-                  <p className="lang-popover-section-label">{t('common.language')}</p>
-                  {LANGUAGE_OPTIONS.map((option) => (
-                    <button
-                      type="button"
-                      key={option.value}
-                      className="lang-row"
-                      onClick={() => toggleLang(option.value)}
-                    >
-                      <span className="lang-label">{option.label}</span>
-                      <label className="switch" aria-hidden="true">
-                        <input type="checkbox" checked={locale === option.value} readOnly tabIndex={-1} />
-                        <span className="slider"></span>
-                      </label>
-                    </button>
-                  ))}
-                  <p className="lang-popover-section-label">{t('common.currency')}</p>
-                  {CURRENCY_OPTIONS.map((option) => (
-                    <button
-                      type="button"
-                      key={option.value}
-                      className="lang-row"
-                      onClick={() => selectCurrency(option.value)}
-                    >
-                      <span className="lang-label">{option.label}</span>
-                      <label className="switch" aria-hidden="true">
-                        <input type="checkbox" checked={currency === option.value} readOnly tabIndex={-1} />
-                        <span className="slider"></span>
-                      </label>
-                    </button>
-                  ))}
-                </div>
-              )}
+                <Phone size={14} aria-hidden />
+                <span>{siteConfig.contact.primaryPhoneLabel}</span>
+              </a>
             </div>
 
-            <Link href="/admin" className="nav-signin-btn">
-              {t('nav.signIn')}
-            </Link>
+            <div className="nav-topbar-right" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+              <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', margin: 0 }}>
+                <NavSocialLinks linkClassName="nav-topbar-link" />
+              </div>
+
+              <Link href="/contacto" className="nav-topbar-link" style={{ marginLeft: 'var(--space-md)' }}>{t('nav.contact')}</Link>
+            </div>
+          </div>
+        </div>
+        <div className="nav-mainbar">
+          <div className="nav-inner container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            
+            {/* 1. LOGO (Izquierda) */}
+            <div className="nav-logo-container" style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+              <Link
+                href="/"
+                className="nav-logo-link"
+                aria-label={siteConfig.name}
+                onClick={(e) => {
+                  if (window.location.pathname === '/') {
+                    e.preventDefault();
+                    const heroEl = document.getElementById('hero');
+                    if (heroEl) {
+                      heroEl.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }
+                }}
+              >
+                <Image
+                  src="/brand/calafate-logo.png"
+                  alt={siteConfig.name}
+                  width={176}
+                  height={39}
+                  className="nav-logo-image"
+                  priority
+                />
+              </Link>
+            </div>
+
+            {/* 2. CATÁLOGO PRINCIPAL (Centro) */}
+            <div className="nav-menu-center" style={{ flex: 2, display: 'flex', justifyContent: 'center' }}>
+              <NavMenuLinks
+                items={navItems}
+                className="nav-links"
+                onItemClick={closeMobileMenu}
+              />
+            </div>
+
+            {/* 3. UTILIDADES Y MOBILE (Derecha) */}
+            <div className="nav-actions-right" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 'var(--space-md)' }}>
+              
+              {/* Separador visual sutil entre catálogo y utilidades en desktop */}
+              <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--color-surface-2)', display: 'none' }} className="desktop-only-divider" />
+
+              <div className="nav-lang-selector" ref={popoverRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowLangPopover(!showLangPopover)}
+                  aria-expanded={showLangPopover}
+                  aria-label={t('nav.localeDialog')}
+                  title={t('nav.localeDialog')}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', padding: '6px', color: '#2b2b2b' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+                </button>
+
+                {showLangPopover && (
+                  <div className="lang-popover animate-fade-in" style={{ top: '100%', right: 0, marginTop: '8px', color: 'var(--color-dark)', position: 'absolute', background: '#fff', borderRadius: '8px', padding: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 50, minWidth: '180px' }}>
+                    <p className="lang-popover-section-label" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '8px' }}>{t('common.language')}</p>
+                    {LANGUAGE_OPTIONS.map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className="lang-row"
+                        onClick={() => toggleLang(option.value)}
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer' }}
+                      >
+                        <span className="lang-label" style={{ fontWeight: 500 }}>{option.label}</span>
+                        <label className="switch" aria-hidden="true" style={{ pointerEvents: 'none' }}>
+                          <input type="checkbox" checked={locale === option.value} readOnly tabIndex={-1} />
+                          <span className="slider" />
+                        </label>
+                      </button>
+                    ))}
+                    <p className="lang-popover-section-label" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '8px', marginTop: '16px' }}>{t('common.currency')}</p>
+                    {CURRENCY_OPTIONS.map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className="lang-row"
+                        onClick={() => selectCurrency(option.value)}
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer' }}
+                      >
+                        <span className="lang-label" style={{ fontWeight: 500 }}>{option.label}</span>
+                        <label className="switch" aria-hidden="true" style={{ pointerEvents: 'none' }}>
+                          <input type="checkbox" checked={currency === option.value} readOnly tabIndex={-1} />
+                          <span className="slider" />
+                        </label>
+                      </button>
+                    ))}
+                    <p
+                      className="lang-popover-rates-hint"
+                      style={{
+                        fontSize: '0.7rem',
+                        lineHeight: 1.45,
+                        color: 'var(--color-text-muted)',
+                        marginTop: '12px',
+                        paddingTop: '12px',
+                        borderTop: '1px solid var(--color-border-light)',
+                      }}
+                    >
+                      {formatTranslation(locale, 'nav.exchangeRatesHint', {
+                        uf: formatMoney(rates.ufToClp, 'CLP', locale),
+                        usd: formatMoney(rates.usdToClp, 'CLP', locale),
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className={`mobile-menu-btn ${mobileMenuOpen ? 'open' : ''}`}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label={mobileMenuOpen ? t('common.menuClose') : t('common.menuOpen')}
+                aria-expanded={mobileMenuOpen}
+              >
+                <span className="hamburger-line" />
+                <span className="hamburger-line" />
+                <span className="hamburger-line" />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Nav Overlay */}
       <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}>
         <ul className="mobile-nav-links">
-          {navItems.map((item) => (
-            <li key={item.label}>
-              <Link href={item.href} className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
+          {navItemsMobile.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="mobile-nav-link" onClick={closeMobileMenu}>
                 {item.label}
               </Link>
             </li>
           ))}
           <li>
-            <Link href="/contacto" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              {t('nav.contact')}
-            </Link>
-          </li>
-          <li>
-            <Link href="/admin" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-              {t('nav.signIn')}
-            </Link>
+            <a
+              href={siteConfig.contact.primaryPhoneHref}
+              className="mobile-nav-link mobile-nav-call"
+              onClick={closeMobileMenu}
+              aria-label={formatTranslation(locale, 'nav.callAria', {
+                phone: siteConfig.contact.primaryPhoneLabel,
+              })}
+            >
+              <span className="mobile-nav-call-inner">
+                <Phone size={22} aria-hidden />
+                <span className="mobile-nav-call-text">
+                  <span>{t('nav.call')}</span>
+                  <span className="mobile-nav-call-number">{siteConfig.contact.primaryPhoneLabel}</span>
+                </span>
+              </span>
+            </a>
           </li>
         </ul>
         <div className="mobile-nav-footer">
@@ -273,17 +434,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="mobile-social-links">
-            <a href={siteConfig.contact.social.instagram} target="_blank" rel="noopener noreferrer" className="mobile-social-link" aria-label="Instagram">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </a>
-            <a href={siteConfig.contact.social.linkedin} target="_blank" rel="noopener noreferrer" className="mobile-social-link" aria-label="LinkedIn">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-            </a>
-            <a href={siteConfig.contact.social.facebook} target="_blank" rel="noopener noreferrer" className="mobile-social-link" aria-label="Facebook">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z"/></svg>
-            </a>
-          </div>
+          <NavSocialLinks className="mobile-social-links" linkClassName="mobile-social-link" />
         </div>
       </div>
     </>

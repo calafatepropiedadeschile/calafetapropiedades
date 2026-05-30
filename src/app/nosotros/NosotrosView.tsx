@@ -120,14 +120,14 @@ export default function NosotrosView({ cmsByLocale }: Props) {
                       index: '01',
                       title: isEs ? 'Cartera seleccionada' : 'Curated portfolio',
                       text: isEs
-                        ? 'Presentamos propiedades con informacion clara, fotos cuidadas y datos utiles para decidir.'
+                        ? 'Presentamos propiedades con información clara, fotos cuidadas y datos utiles para decidir.'
                         : 'We present properties with clear information, careful photos, and useful decision-making data.',
                     },
                     {
                       index: '02',
                       title: isEs ? 'Gestion transparente' : 'Transparent management',
                       text: isEs
-                        ? 'Ordenamos consultas, visitas y seguimiento comercial desde el panel de administracion.'
+                        ? 'Ordenamos consultas, visitas y seguimiento comercial desde el panel de administración.'
                         : 'We organize inquiries, visits, and commercial follow-up from the admin panel.',
                     },
                     {

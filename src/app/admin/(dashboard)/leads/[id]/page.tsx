@@ -100,7 +100,7 @@ export default async function AdminLeadDetailPage({ params }: Props) {
             <p style={{ color: 'var(--color-text)' }}>{lead.email}</p>
           </div>
           <div>
-            <p className="input-label">Telefono</p>
+            <p className="input-label">Teléfono</p>
             <p style={{ color: 'var(--color-text)' }}>{lead.phone ?? 'No indicado'}</p>
           </div>
           <div style={{ gridColumn: '1 / -1' }}>

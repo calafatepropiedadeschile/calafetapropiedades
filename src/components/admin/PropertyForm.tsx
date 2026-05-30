@@ -405,7 +405,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         setValue('coverImage', nextImages[0], { shouldDirty: true, shouldValidate: true });
       }
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : 'No se pudieron subir las imagenes.');
+      setUploadError(error instanceof Error ? error.message : 'No se pudieron subir las imágenes.');
     } finally {
       setIsUploading(false);
     }
@@ -475,7 +475,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       )}
       <section className="admin-form-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
-          <h2 className="admin-form-section-title" style={{ margin: 0 }}>Informacion basica</h2>
+          <h2 className="admin-form-section-title" style={{ margin: 0 }}>Información basica</h2>
           <div className="admin-lang-tabs" style={{ display: 'flex', gap: '4px', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '2px', backgroundColor: 'var(--color-surface-2)' }}>
             <button
               type="button"
@@ -491,7 +491,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
                 color: activeLangTab === 'es' ? '#fff' : 'var(--color-text-muted)',
               }}
             >
-              Espanol
+              Español
             </button>
             <button
               type="button"
@@ -516,15 +516,15 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
           {/* Spanish inputs wrapper */}
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="prop-title-es" className="input-label">Titulo (Espanol) *</label>
+              <label htmlFor="prop-title-es" className="input-label">Título (Español) *</label>
               <input id="prop-title-es" className="input" placeholder="Ej: Parcelas Portal Los Muermos" {...register('titleEs')} />
               {errors.titleEs && <p className="form-error">{errors.titleEs.message}</p>}
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="prop-desc-es" className="input-label">Descripcion comercial (Espanol) *</label>
+              <label htmlFor="prop-desc-es" className="input-label">Descripción comercial (Español) *</label>
               <p className="text-sm text-muted" style={{ margin: '0 0 var(--space-sm)', lineHeight: 1.55 }}>
-                Escribe 2–4 parrafos que vendan la propiedad (ubicacion, perfil de comprador, ventaja del proyecto).
-                Usa las secciones de terreno, condiciones y servicios para datos tecnicos; evita repetir listas largas aqui.
+                Escribe 2–4 párrafos que vendan la propiedad (ubicación, perfil de comprador, ventaja del proyecto).
+                Usa las secciones de terreno, condiciones y servicios para datos técnicos; evita repetir listas largas aquí.
               </p>
               <textarea
                 id="prop-desc-es"
@@ -537,16 +537,16 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             </div>
           </div>
 
-          {/* Campos de contenido en ingles con textos visibles en espanol. */}
+          {/* Campos de contenido en ingles con textos visibles en español. */}
           <div style={{ display: activeLangTab === 'en' ? 'contents' : 'none' }}>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="prop-title-en" className="input-label">Titulo en ingles (opcional)</label>
+              <label htmlFor="prop-title-en" className="input-label">Título en ingles (opcional)</label>
               <input id="prop-title-en" className="input" placeholder="Ej: Modern apartment with view" {...register('titleEn')} />
               {errors.titleEn && <p className="form-error">{errors.titleEn.message}</p>}
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label htmlFor="prop-desc-en" className="input-label">Descripcion en ingles (opcional)</label>
-              <textarea id="prop-desc-en" className="textarea" rows={4} placeholder="Escribe la descripcion de la propiedad en ingles." {...register('descriptionEn')} />
+              <label htmlFor="prop-desc-en" className="input-label">Descripción en ingles (opcional)</label>
+              <textarea id="prop-desc-en" className="textarea" rows={4} placeholder="Escribe la descripción de la propiedad en ingles." {...register('descriptionEn')} />
               {errors.descriptionEn && <p className="form-error">{errors.descriptionEn.message}</p>}
             </div>
           </div>
@@ -572,7 +572,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       </section>
 
       <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Precio y ubicacion</h2>
+        <h2 className="admin-form-section-title">Precio y ubicación</h2>
         <div className="form-grid form-grid-3">
           <fieldset className="input-group operation-fieldset">
             <legend className="input-label">Operacion *</legend>
@@ -611,25 +611,25 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       </section>
 
       <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Ubicacion del inmueble</h2>
+        <h2 className="admin-form-section-title">Ubicación del inmueble</h2>
         <input type="hidden" {...register('address')} />
         <div className="form-grid form-grid-2">
           {/* Spanish location inputs wrapper */}
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group">
-              <label className="input-label">Localidad (Espanol) *</label>
+              <label className="input-label">Localidad (Español) *</label>
               <input className="input" placeholder="Ej: Los Muermos" {...register('cityEs')} />
               {errors.cityEs && <p className="form-error">{errors.cityEs.message}</p>}
             </div>
 
             <div className="input-group">
-              <label className="input-label">Zona o barrio (Espanol) *</label>
+              <label className="input-label">Zona o barrio (Español) *</label>
               <input className="input" placeholder="Ej: Quillahua" {...register('zoneEs')} />
               {errors.zoneEs && <p className="form-error">{errors.zoneEs.message}</p>}
             </div>
           </div>
 
-          {/* Campos de ubicacion en ingles con textos visibles en espanol. */}
+          {/* Campos de ubicación en ingles con textos visibles en español. */}
           <div style={{ display: activeLangTab === 'en' ? 'contents' : 'none' }}>
             <div className="input-group">
               <label className="input-label">Localidad en ingles (opcional)</label>
@@ -749,7 +749,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
               <input type="number" className="input" min="0" step="1" placeholder="3" {...register('bedrooms', { valueAsNumber: true })} />
             </div>
             <div className="input-group">
-              <label className="input-label">Banos</label>
+              <label className="input-label">Baños</label>
               <input type="number" className="input" min="0" step="1" placeholder="2" {...register('bathrooms', { valueAsNumber: true })} />
             </div>
             <div className="input-group">
@@ -790,7 +790,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
               <input type="number" className="input" min="0" step="any" placeholder="30" {...register('depth', { valueAsNumber: true })} />
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label">Zonificacion / uso permitido</label>
+              <label className="input-label">Zonificación / uso permitido</label>
               <input className="input" placeholder="Ej: Residencial, comercial, rural" {...register('zoning')} />
             </div>
             <div className="input-group">
@@ -866,7 +866,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
           </div>
           <div className="input-group" style={{ gridColumn: '1 / -1' }}>
             <label className="input-label">Disponibilidad por lote</label>
-            <textarea className="textarea" rows={3} placeholder="Ej: Parcelas 24, 26 y 27 disponibles. Valores varian segun ubicacion." {...register('availabilityNotes')} />
+            <textarea className="textarea" rows={3} placeholder="Ej: Parcelas 24, 26 y 27 disponibles. Valores varían según ubicación." {...register('availabilityNotes')} />
           </div>
           <div className="input-group" style={{ gridColumn: '1 / -1' }}>
             <label className="input-label">Notas comerciales internas/publicables</label>
@@ -887,7 +887,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       </section>
 
       <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Gestion interna</h2>
+        <h2 className="admin-form-section-title">Gestión interna</h2>
         <div className="form-grid form-grid-4">
           <div className="input-group">
             <label className="input-label">Codigo interno</label>
@@ -898,7 +898,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             <input className="input" placeholder="Nombre del agente" {...register('agentName')} />
           </div>
           <div className="input-group">
-            <label className="input-label">Telefono del agente</label>
+            <label className="input-label">Teléfono del agente</label>
             <input className="input" placeholder="+54 11..." {...register('agentPhone')} />
           </div>
           <div className="input-group">
@@ -942,8 +942,8 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         <div className="image-upload-zone">
           <UploadCloud size={30} />
           <div>
-            <p style={{ fontWeight: 800 }}>Sube imagenes optimizadas a Supabase Storage</p>
-            <p className="text-muted text-sm">Se redimensionan a WebP antes de subir. Maximo {MAX_IMAGES} imagenes.</p>
+            <p style={{ fontWeight: 800 }}>Sube imágenes optimizadas a Supabase Storage</p>
+            <p className="text-muted text-sm">Se redimensionan a WebP antes de subir. Maximo {MAX_IMAGES} imágenes.</p>
           </div>
           <label className="btn btn-outline btn-sm" style={{ marginLeft: 'auto' }}>
             <ImagePlus size={16} />
@@ -965,7 +965,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         {isUploading && (
           <p className="text-muted text-sm" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', marginTop: 'var(--space-sm)' }}>
             <Loader2 size={16} className="spin" />
-            Optimizando y subiendo imagenes...
+            Optimizando y subiendo imágenes...
           </p>
         )}
 
@@ -1097,13 +1097,13 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         <div className="form-grid form-grid-2">
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group">
-              <label className="input-label">Titulo SEO (Espanol)</label>
-              <input className="input" maxLength={70} placeholder="Titulo para Google" {...register('seoTitleEs')} />
+              <label className="input-label">Título SEO (Español)</label>
+              <input className="input" maxLength={70} placeholder="Título para Google" {...register('seoTitleEs')} />
               {errors.seoTitleEs && <p className="form-error">{errors.seoTitleEs.message}</p>}
             </div>
 
             <div className="input-group">
-              <label className="input-label">Descripcion SEO (Espanol)</label>
+              <label className="input-label">Descripción SEO (Español)</label>
               <textarea className="textarea" rows={3} maxLength={170} placeholder="Resumen breve para buscadores." {...register('seoDescriptionEs')} />
               {errors.seoDescriptionEs && <p className="form-error">{errors.seoDescriptionEs.message}</p>}
             </div>
@@ -1111,13 +1111,13 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
 
           <div style={{ display: activeLangTab === 'en' ? 'contents' : 'none' }}>
             <div className="input-group">
-              <label className="input-label">Titulo SEO en ingles</label>
+              <label className="input-label">Título SEO en ingles</label>
               <input className="input" maxLength={70} placeholder="Search title" {...register('seoTitleEn')} />
               {errors.seoTitleEn && <p className="form-error">{errors.seoTitleEn.message}</p>}
             </div>
 
             <div className="input-group">
-              <label className="input-label">Descripcion SEO en ingles</label>
+              <label className="input-label">Descripción SEO en ingles</label>
               <textarea className="textarea" rows={3} maxLength={170} placeholder="Short search description." {...register('seoDescriptionEn')} />
               {errors.seoDescriptionEn && <p className="form-error">{errors.seoDescriptionEn.message}</p>}
             </div>
@@ -1138,7 +1138,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       </section>
 
       <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Publicacion</h2>
+        <h2 className="admin-form-section-title">Publicación</h2>
         <div className="form-toggle-row">
           <label className="form-check">
             <input type="checkbox" {...register('published')} />

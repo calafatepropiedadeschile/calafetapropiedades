@@ -56,7 +56,7 @@ export function leadsToCsv(
     'Estado',
     'Nombre',
     'Email',
-    'Telefono',
+    'Teléfono',
     'Propiedad',
     'Slug propiedad',
     'Campaña',

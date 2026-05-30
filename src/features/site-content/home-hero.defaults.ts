@@ -6,7 +6,7 @@ export const HOME_HERO_DEFAULTS = {
   titleLine1Es: 'Parcelas, loteos y terrenos',
   titleLine2Es: 'en el sur de Chile',
   subtitleEs:
-    'Proyectos seleccionados con ubicacion, precio desde, superficie y condiciones comerciales claras para decidir mejor.',
+    'Proyectos seleccionados con ubicación, precio desde, superficie y condiciones comerciales claras para decidir mejor.',
   titleLine1En: 'Lots and land projects',
   titleLine2En: 'in southern Chile',
   subtitleEn:

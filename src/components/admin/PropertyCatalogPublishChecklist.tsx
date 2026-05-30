@@ -18,9 +18,9 @@ export default function PropertyCatalogPublishChecklist({ values, showPublishWar
   const summary = useMemo(() => summarizeCatalogPublishChecklist(items), [items]);
 
   return (
-    <aside className="catalog-publish-checklist" aria-label="Checklist del catalogo publico">
+    <aside className="catalog-publish-checklist" aria-label="Checklist del catálogo público">
       <p className="catalog-publish-checklist-intro">
-        Revisa estos puntos para que la propiedad se vea bien en el catalogo y responda a los filtros del sitio.
+        Revisa estos puntos para que la propiedad se vea bien en el catálogo y responda a los filtros del sitio.
       </p>
 
       <p className="catalog-publish-checklist-summary">
@@ -56,7 +56,7 @@ export default function PropertyCatalogPublishChecklist({ values, showPublishWar
 
       {showPublishWarning && !summary.isReadyToPublish && (
         <p className="form-error catalog-publish-checklist-warning">
-          Faltan datos obligatorios para publicar con buena visibilidad en el catalogo.
+          Faltan datos obligatorios para publicar con buena visibilidad en el catálogo.
         </p>
       )}
 

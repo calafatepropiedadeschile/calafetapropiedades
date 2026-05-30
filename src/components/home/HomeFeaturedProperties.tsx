@@ -1,8 +1,14 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import PropertyCard from '@/components/properties/PropertyCard';
 import { useI18n } from '@/lib/i18n/I18nProvider';
+import {
+  SCROLL_REVEAL_VIEWPORT,
+  STAGGER_CARD_FADE_ONLY,
+  STAGGER_GRID_CONTAINER,
+} from '@/lib/motion/gpu-safe-variants';
 import type { PropertyCard as PropertyCardType, PropertyType } from '@/types/property';
 
 interface Props {
@@ -52,11 +58,25 @@ export default function HomeFeaturedProperties({ properties }: Props) {
       </div>
 
       {visibleProperties.length > 0 ? (
-        <div className="property-grid">
+        <motion.div
+          key={selectedType}
+          className="property-grid"
+          role="list"
+          variants={STAGGER_GRID_CONTAINER}
+          initial="hidden"
+          whileInView="visible"
+          viewport={SCROLL_REVEAL_VIEWPORT}
+        >
           {visibleProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
+            <motion.div
+              key={property.id}
+              role="listitem"
+              variants={STAGGER_CARD_FADE_ONLY}
+            >
+              <PropertyCard property={property} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       ) : (
         <div className="empty-state">
           <h3>{selectedType === 'terreno' ? t('home.featuredEmptyLots') : t('home.featuredEmptyHouses')}</h3>
