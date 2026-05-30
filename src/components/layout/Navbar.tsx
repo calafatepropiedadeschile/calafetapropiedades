@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone } from 'lucide-react';
+import { Phone, Mail, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useExchangeRates } from '@/lib/currency/ExchangeRatesProvider';
 import { formatMoney } from '@/lib/currency/format-money';
 import { formatTranslation } from '@/lib/i18n/dictionaries';
 import { CURRENCY_OPTIONS, LANGUAGE_OPTIONS, type Locale, type SupportedCurrency } from '@/lib/i18n/config';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { siteConfig } from '@/config/site';
+import { buildMailto, siteConfig } from '@/config/site';
 import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
 
 type NavItem = {
@@ -390,62 +390,90 @@ export default function Navbar() {
       </nav>
 
       <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}>
-        <ul className="mobile-nav-links">
-          {navItemsMobile.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className="mobile-nav-link" onClick={closeMobileMenu}>
-                {item.label}
-              </Link>
-              {item.subItems ? (
-                <ul className="mobile-nav-submenu" role="list">
-                  {item.subItems.map((subItem) => (
-                    <li key={subItem.href}>
-                      <Link href={subItem.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
-                        {subItem.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </li>
-          ))}
-          <li>
-            <a
-              href={siteConfig.contact.primaryPhoneHref}
-              className="mobile-nav-link mobile-nav-call"
-              onClick={closeMobileMenu}
-              aria-label={formatTranslation(locale, 'nav.callAria', {
-                phone: siteConfig.contact.primaryPhoneLabel,
-              })}
-            >
-              <span className="mobile-nav-call-inner">
-                <Phone size={22} aria-hidden />
-                <span className="mobile-nav-call-text">
-                  <span>{t('nav.call')}</span>
-                  <span className="mobile-nav-call-number">{siteConfig.contact.primaryPhoneLabel}</span>
+        <div className="mobile-nav-header">
+          <Link href="/" className="mobile-nav-logo" onClick={closeMobileMenu}>
+            <Image 
+              src="/brand/calafate-logo.png" 
+              alt={siteConfig.name} 
+              width={140} 
+              height={31} 
+            />
+          </Link>
+          <button
+            type="button"
+            className="mobile-menu-close-btn"
+            onClick={closeMobileMenu}
+            aria-label={t('common.menuClose')}
+          >
+            <X size={28} strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="mobile-nav-scroll-area">
+          <ul className="mobile-nav-links">
+            {navItemsMobile.map((item, i) => (
+              <li key={item.href} className="mobile-nav-item" style={{ '--animation-order': i } as React.CSSProperties}>
+                <Link href={item.href} className="mobile-nav-link" onClick={closeMobileMenu}>
+                  {item.label}
+                </Link>
+                {item.subItems ? (
+                  <ul className="mobile-nav-submenu" role="list">
+                    {item.subItems.map((subItem) => (
+                      <li key={subItem.href}>
+                        <Link href={subItem.href} className="mobile-nav-sub-link" onClick={closeMobileMenu}>
+                          {subItem.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mobile-nav-footer" style={{ '--animation-order': navItemsMobile.length } as React.CSSProperties}>
+            <div className="mobile-nav-contact">
+              <span className="mobile-contact-label">Contacto Directo</span>
+              <a
+                href={siteConfig.contact.primaryPhoneHref}
+                className="mobile-nav-phone"
+                onClick={closeMobileMenu}
+              >
+                <Phone size={20} strokeWidth={1.5} aria-hidden />
+                <span>{siteConfig.contact.primaryPhoneLabel}</span>
+              </a>
+              <a
+                href={buildMailto(siteConfig.contact.salesEmail, siteConfig.contact.advisorySubject)}
+                className="mobile-nav-email"
+                onClick={closeMobileMenu}
+              >
+                <Mail size={20} strokeWidth={1.5} aria-hidden />
+                <span>{siteConfig.contact.salesEmail}</span>
+              </a>
+            </div>
+
+            <div className="mobile-nav-bottom">
+              <div className="mobile-locale-minimal">
+                <span className="mobile-locale-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 </span>
-              </span>
-            </a>
-          </li>
-        </ul>
-        <div className="mobile-nav-footer">
-          <div className="mobile-locale-group" aria-label={t('nav.localeDialog')}>
-            <span className="mobile-locale-label">{t('nav.localeDialog')}</span>
-            <div className="mobile-locale-actions">
-              {LANGUAGE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`mobile-locale-btn ${locale === option.value ? 'active' : ''}`}
-                  onClick={() => toggleLang(option.value)}
-                >
-                  {option.label}
-                </button>
-              ))}
+                <div className="mobile-locale-options">
+                  {LANGUAGE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`mobile-locale-text-btn ${locale === option.value ? 'active' : ''}`}
+                      onClick={() => toggleLang(option.value)}
+                    >
+                      {option.value.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <NavSocialLinks className="mobile-social-links" linkClassName="mobile-social-link" />
             </div>
           </div>
-
-          <NavSocialLinks className="mobile-social-links" linkClassName="mobile-social-link" />
         </div>
       </div>
     </>
