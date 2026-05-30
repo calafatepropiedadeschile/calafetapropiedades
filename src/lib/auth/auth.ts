@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { withDatabaseRole } from '@/lib/db/rls';
+import { getPrismaClient } from '@/lib/db/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
@@ -64,7 +64,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const normalizedEmail = email.trim().toLowerCase();
 
         try {
-          const user = await withDatabaseRole('auth', (db) => db.user.findUnique({
+          // Login directo (sin SET ROLE): evita fallos si calafate_* aún no existen en Supabase.
+          const user = await getPrismaClient().user.findUnique({
             where: { email: normalizedEmail },
             select: {
               id: true,
@@ -73,7 +74,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               name: true,
               role: true,
             },
-          }));
+          });
 
           if (!user) {
             logAdminLoginEvent('user_not_found', { email: normalizedEmail });
