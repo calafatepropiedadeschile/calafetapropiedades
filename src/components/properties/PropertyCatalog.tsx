@@ -240,28 +240,36 @@ export default function PropertyCatalog({
 
       <div className={`property-filter-overlay ${isFilterOpen ? 'is-open' : ''}`} onClick={() => setIsFilterOpen(false)} aria-hidden="true" />
       <div className={`property-filter-panel ${isFilterOpen ? 'is-open' : ''}`}>
-        <div className="catalog-filter-header">
+        <div className="catalog-filter-header" style={{ alignItems: 'flex-start' }}>
           <div>
-            <span className="catalog-filter-eyebrow">{t('catalog.countryLocked')}</span>
-            <h2>{t('catalog.filtersTitle')}</h2>
-            <p>{t('catalog.filtersSubtitle')}</p>
+            <span className="catalog-filter-eyebrow">{t('catalog.resultsEyebrow')}</span>
+            <h2 style={{ fontSize: '1.4rem', margin: 0, marginTop: '4px' }}>
+              {pagination.total} {pagination.total === 1 ? t('catalog.oneResult') : t('catalog.manyResults')}
+            </h2>
+            {pagination.totalPages > 1 && (
+              <p className="text-muted" style={{ margin: 0, marginTop: '4px', fontSize: '0.9rem' }}>
+                {t('catalog.page')} {pagination.page} / {pagination.totalPages}
+              </p>
+            )}
           </div>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm catalog-clear-filters catalog-clear-filters-desktop"
-            onClick={clearFilters}
-            disabled={activeFilters === 0}
-          >
-            {t('catalog.clearFilters')}
-          </button>
-          <button
-            type="button"
-            className="mobile-menu-close-btn catalog-filter-close"
-            onClick={() => setIsFilterOpen(false)}
-            aria-label="Cerrar filtros"
-          >
-            <X size={28} strokeWidth={1.5} />
-          </button>
+          <div style={{ display: 'flex', gap: 'var(--space-md)' }}>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm catalog-clear-filters catalog-clear-filters-desktop"
+              onClick={clearFilters}
+              disabled={activeFilters === 0}
+            >
+              {t('catalog.clearFilters')}
+            </button>
+            <button
+              type="button"
+              className="mobile-menu-close-btn catalog-filter-close"
+              onClick={() => setIsFilterOpen(false)}
+              aria-label="Cerrar filtros"
+            >
+              <X size={28} strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
         <div className="property-filter-scroll-area">
@@ -408,17 +416,7 @@ export default function PropertyCatalog({
         </div>
       ) : (
         <>
-          <div className="catalog-results-summary">
-            <div>
-              <span>{t('catalog.resultsEyebrow')}</span>
-              <strong>{pagination.total} {pagination.total === 1 ? t('catalog.oneResult') : t('catalog.manyResults')}</strong>
-            </div>
-            {pagination.totalPages > 1 && (
-              <p>{t('catalog.page')} {pagination.page} / {pagination.totalPages}</p>
-            )}
-          </div>
-
-          <div className="properties-grid">
+          <div className="properties-grid" style={{ paddingTop: 'var(--space-sm)' }}>
             {properties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
