@@ -4,7 +4,16 @@ import { getLeadService, InvalidLeadPropertyError } from '@/features/leads/lead.
 import { apiCorsHeaders, isAllowedOriginRequest, readJsonBody } from '@/server/api/request';
 import { apiBadRequest, apiCreated, apiForbidden, apiServerError, firstZodError } from '@/server/api/responses';
 import { enforceRateLimit, RATE_LIMITS } from '@/server/security/rate-limit';
+import { verifyRecaptchaToken } from '@/lib/security/recaptcha';
 import type { ApiResponse } from '@/types/property';
+
+function getRequestIp(request: NextRequest) {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0]?.trim() ?? null;
+  }
+  return request.headers.get('x-real-ip');
+}
 
 export const runtime = 'nodejs';
 export const maxDuration = 5;
@@ -41,7 +50,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       return apiBadRequest(firstZodError(parsed.error), headers);
     }
 
-    await getLeadService().registerLead(parsed.data);
+    const { recaptchaToken, ...leadData } = parsed.data;
+    const recaptchaAction = leadData.propertyId ? 'property_lead' : 'contact_submit';
+
+    const captcha = await verifyRecaptchaToken(recaptchaToken, {
+      expectedAction: recaptchaAction,
+      remoteIp: getRequestIp(request),
+    });
+
+    if (!captcha.ok) {
+      return apiBadRequest(captcha.error, headers);
+    }
+
+    await getLeadService().registerLead(leadData);
     return apiCreated('Consulta recibida. Nos pondremos en contacto pronto.', headers);
   } catch (error) {
     if (error instanceof Error && error.message === 'CONTENT_TYPE_NOT_JSON') {

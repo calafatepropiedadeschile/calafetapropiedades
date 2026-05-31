@@ -128,14 +128,55 @@ export default function SiteSettingsForm({ initialValues }: Props) {
               onChange={(e) => updateField('primaryEmail', e.target.value)}
             />
           </div>
-          <div className="input-group">
-            <label className="input-label">Dirección de Oficina</label>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Dirección visible (footer)</label>
             <input
               className="input"
               type="text"
-              placeholder="Antonio Varas Nro.140 A, Los Muermos"
+              placeholder="Opcional. Si queda vacío, se arma con calle, comuna y región."
               value={values.officeAddress ?? ''}
               onChange={(e) => updateField('officeAddress', e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div
+          id="direccion-google"
+          className="form-grid form-grid-2"
+          style={{ marginTop: 'var(--space-lg)', paddingTop: 'var(--space-lg)', borderTop: '1px solid var(--color-border-light)' }}
+        >
+          <p className="text-muted" style={{ gridColumn: '1 / -1', margin: 0, fontSize: '0.9rem' }}>
+            Dirección estructurada para Google (JSON-LD). También editable en{' '}
+            <a href="/admin/seo#organizacion-google">SEO avanzado</a>.
+          </p>
+          <div className="input-group">
+            <label className="input-label">Calle y número</label>
+            <input
+              className="input"
+              type="text"
+              placeholder="Antonio Varas Nro.140 A"
+              value={values.officeStreetAddress ?? ''}
+              onChange={(e) => updateField('officeStreetAddress', e.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Comuna / ciudad</label>
+            <input
+              className="input"
+              type="text"
+              placeholder="Los Muermos"
+              value={values.officeLocality ?? ''}
+              onChange={(e) => updateField('officeLocality', e.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Región</label>
+            <input
+              className="input"
+              type="text"
+              placeholder="Los Lagos"
+              value={values.officeRegion ?? ''}
+              onChange={(e) => updateField('officeRegion', e.target.value)}
             />
           </div>
         </div>

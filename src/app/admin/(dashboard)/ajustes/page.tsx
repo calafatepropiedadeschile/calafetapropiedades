@@ -15,7 +15,7 @@ export default async function AdminSiteSettingsPage() {
         <div>
           <h1 className="admin-page-title">Ajustes Globales</h1>
           <p className="admin-page-subtitle text-muted">
-            Cambia los textos principales, información de contacto y enlaces a redes sociales. Los campos vacíos mantienen el contenido por defecto.
+            Contacto, redes, textos del inicio y dirección de oficina (footer y JSON-LD de Google). El resto del SEO técnico está en SEO avanzado.
           </p>
         </div>
       </header>

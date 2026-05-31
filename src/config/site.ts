@@ -48,6 +48,8 @@ export const siteConfig = {
       'topografía',
     ],
   },
+  /** Regiones para JSON-LD `areaServed` (RealEstateAgent). */
+  serviceAreas: ['Los Lagos', 'Los Ríos', 'Maule'],
   contact: {
     primaryPhoneLabel: primaryContact.displayPhone,
     primaryPhoneHref: primaryContact.phoneHref,

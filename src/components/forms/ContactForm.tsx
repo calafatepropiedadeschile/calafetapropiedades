@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { primaryContact } from '@/config/contact';
 import { submitLeadForm } from '@/features/leads/submit-lead.client';
+import RecaptchaNotice from '@/components/security/RecaptchaNotice';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 type FormState = 'idle' | 'loading' | 'error';
 
@@ -13,6 +15,7 @@ interface Props {
 export default function ContactForm({ locale }: Props) {
   const [state, setState] = useState<FormState>('idle');
   const [error, setError] = useState('');
+  const { execute: executeRecaptcha, isEnabled: recaptchaEnabled } = useRecaptcha();
 
   const isEs = locale === 'es';
 
@@ -24,6 +27,10 @@ export default function ContactForm({ locale }: Props) {
     const form = e.currentTarget;
 
     try {
+      const recaptchaToken = recaptchaEnabled
+        ? await executeRecaptcha('contact_submit')
+        : null;
+
       await submitLeadForm(
         {
           name: (form.elements.namedItem('name') as HTMLInputElement).value,
@@ -32,7 +39,7 @@ export default function ContactForm({ locale }: Props) {
           message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
           propertyId: null,
         },
-        { formType: 'contacto' }
+        { formType: 'contacto', recaptchaToken },
       );
     } catch (err) {
       setState('error');
@@ -135,6 +142,7 @@ export default function ContactForm({ locale }: Props) {
             ? 'Tu información es confidencial. También puedes escribirnos por WhatsApp desde el botón flotante.'
             : 'Your information is confidential. You can also reach us on WhatsApp using the floating button.'}
         </p>
+        <RecaptchaNotice locale={locale} />
       </form>
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import SeoCatalogLanding from '@/components/seo/SeoCatalogLanding';
-import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { getSeoLandingPage, seoLandingPages, type SeoLandingKey } from '@/config/seo-pages';
 import { getCatalogPageData, type CatalogPageParams } from '@/features/properties/property.service';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
@@ -18,16 +18,16 @@ export async function metadataForSeoLanding(key: SeoLandingKey): Promise<Metadat
   const locale = await getServerLocale();
   const config = getSeoLandingPage(key, locale);
   const baseUrl = await resolveCanonicalBaseUrl();
-  const canonical = buildCanonicalUrl(baseUrl, config.path);
+  const alternates = buildPageAlternates(config.path, { baseUrl, locale });
 
   return {
     title: config.metadataTitle,
     description: config.metadataDescription,
-    alternates: { canonical },
+    alternates,
     openGraph: {
       title: config.metadataTitle,
       description: config.metadataDescription,
-      url: canonical,
+      url: alternates.canonical,
       type: 'website',
     },
     twitter: {
@@ -46,8 +46,11 @@ export async function generateMetadataForSeoLanding(key: SeoLandingKey): Promise
     getPublishedStaticPageBySlug(key, locale).catch(() => null),
   ]);
   const canonicalBaseUrl = await resolveCanonicalBaseUrl();
-  const canonical = normalizeOptionalCanonicalUrl(cmsPage?.customCanonical, canonicalBaseUrl)
-    || buildCanonicalUrl(canonicalBaseUrl, config.path);
+  const alternates = buildPageAlternates(config.path, {
+    baseUrl: canonicalBaseUrl,
+    locale,
+    customCanonical: cmsPage?.customCanonical,
+  });
   const title = cmsPage?.seoTitle || config.metadataTitle;
   const description = cmsPage?.seoDescription || config.metadataDescription;
   const image = cmsPage?.ogImage || seo?.defaultOgImage || undefined;
@@ -55,12 +58,12 @@ export async function generateMetadataForSeoLanding(key: SeoLandingKey): Promise
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates,
     robots: seo?.allowIndexing === false ? { index: false, follow: false } : undefined,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: image ? [{ url: image }] : [],
       type: 'website',
     },

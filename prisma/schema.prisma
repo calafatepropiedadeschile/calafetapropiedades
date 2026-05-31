@@ -155,7 +155,10 @@ model SiteSettings {
   primaryPhone         String?
   primaryEmail         String?
   officeAddress        String?
-  
+  officeStreetAddress  String?
+  officeLocality       String?
+  officeRegion         String?
+
   // Social
   instagramUrl         String?
   facebookUrl          String?
@@ -184,6 +187,7 @@ model SiteSeoSettings {
   defaultTitleEn           String?
   defaultDescriptionEn     String?
   keywords                 String   @default("[]")
+  serviceAreas             String   @default("[\"Los Lagos\",\"Los Ríos\",\"Maule\"]")
   canonicalBaseUrl         String   @default("https://calafatepropiedades.vercel.app")
   defaultOgImage           String?
   googleSiteVerification   String?

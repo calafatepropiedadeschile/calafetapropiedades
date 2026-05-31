@@ -138,6 +138,9 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
 
       <section className="admin-form-section">
         <h2 className="admin-form-section-title">SEO</h2>
+        <p className="text-muted" style={{ marginBottom: 'var(--space-md)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+          En slugs integrados (<code>terrenos</code>, <code>comprar</code>, etc.) estos valores reemplazan el SEO por defecto de la landing. Ingles activa <code>?lang=en</code> indexable.
+        </p>
         <div className="form-grid form-grid-2">
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group">

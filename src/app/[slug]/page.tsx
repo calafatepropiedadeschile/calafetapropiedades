@@ -7,7 +7,7 @@ import { STATIC_PAGE_INTEGRATED_SLUGS, STATIC_PAGE_RESERVED_SLUGS } from '@/feat
 import { DEFAULT_LOCALE, isSupportedLocale, type Locale } from '@/lib/i18n/config';
 import { siteConfig } from '@/config/site';
 import { withDatabaseRole } from '@/lib/db/rls';
-import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 interface Props {
@@ -54,19 +54,22 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const title = page.seoTitle || page.title;
   const description = page.seoDescription || page.content.replace(/<[^>]+>/g, ' ').slice(0, 160);
-  const canonical = normalizeOptionalCanonicalUrl(page.customCanonical, baseUrl)
-    || buildCanonicalUrl(baseUrl, `/${slug}`, { locale });
+  const alternates = buildPageAlternates(`/${slug}`, {
+    baseUrl,
+    locale,
+    customCanonical: page.customCanonical,
+  });
   const image = page.ogImage || siteSeo?.defaultOgImage || undefined;
 
   return {
     title,
     description,
     robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
-    alternates: { canonical },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: image ? [{ url: image }] : [],
     },
     twitter: {

@@ -66,6 +66,9 @@ export default function SiteSeoSettingsForm({ initialValues }: Props) {
           <div className="input-group">
             <label className="input-label" htmlFor="seo-default-title-en">Titulo SEO por defecto en ingles</label>
             <input id="seo-default-title-en" name="defaultTitleEn" className="input" defaultValue={initialValues.defaultTitleEn ?? ''} maxLength={70} />
+            <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
+              Si completas titulo y descripcion en ingles, Google puede indexar <code>?lang=en</code> con alternates hreflang.
+            </p>
           </div>
 
           <div className="input-group">
@@ -88,6 +91,27 @@ export default function SiteSeoSettingsForm({ initialValues }: Props) {
               defaultValue={listToTextarea(initialValues.keywords)}
               placeholder="Una keyword por linea"
             />
+          </div>
+        </div>
+      </section>
+
+      <section className="admin-form-section">
+        <h2 className="admin-form-section-title">Datos estructurados (Google)</h2>
+        <div className="form-grid form-grid-2">
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label" htmlFor="seo-service-areas">Regiones atendidas (areaServed)</label>
+            <textarea
+              id="seo-service-areas"
+              name="serviceAreas"
+              className="textarea"
+              rows={4}
+              defaultValue={listToTextarea(initialValues.serviceAreas)}
+              placeholder="Los Lagos&#10;Los Ríos&#10;Maule"
+              required
+            />
+            <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
+              Una region por linea. Aparece en el JSON-LD de la empresa (RealEstateAgent).
+            </p>
           </div>
         </div>
       </section>

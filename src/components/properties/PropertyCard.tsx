@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Home, Ruler, Layers, CheckCircle2 } from 'lucide-react';
+import { Home, Ruler, Layers, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import type { PropertyCard as PropertyCardType } from '@/types/property';
 import { useExchangeRates } from '@/lib/currency/ExchangeRatesProvider';
 import { formatArea } from '@/lib/utils/formatters';
@@ -12,8 +12,7 @@ import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { localizedHref } from '@/lib/i18n/localized-href';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-
-const PROPERTY_CARD_INFO_REVEAL_MS = 4000;
+const PROPERTY_CARD_INFO_REVEAL_MS = 300;
 
 interface Props {
   property: PropertyCardType;
@@ -28,6 +27,7 @@ export default function PropertyCard({ property }: Props) {
   const cardRef = useRef<HTMLElement>(null);
   const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [infoRevealed, setInfoRevealed] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
   const { locale, t } = useI18n();
   const { formatPropertyPriceForUser } = useExchangeRates();
@@ -94,7 +94,7 @@ export default function PropertyCard({ property }: Props) {
   }, [prefersReducedMotion]);
 
   return (
-    <article ref={cardRef} className="property-card-modern">
+    <article ref={cardRef} className={`property-card-modern${isClosed ? ' is-closed' : ''}`}>
       {/* Background Image */}
       <div className="property-card-image-bg">
         <Image
@@ -111,9 +111,22 @@ export default function PropertyCard({ property }: Props) {
           <Home size={14} />
           {t(PROPERTY_TYPE_KEYS[type])}
         </span>
-        <span className={`property-card-state ${status === 'disponible' ? 'is-available' : 'is-sold'}`}>
-          {statusLabel}
-        </span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span className={`property-card-state ${status === 'disponible' ? 'is-available' : 'is-sold'}`}>
+            {statusLabel}
+          </span>
+          {/* Toggle Button */}
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              setIsClosed(!isClosed);
+            }}
+            className="property-card-toggle-btn"
+            aria-label={isClosed ? "Mostrar detalles" : "Ocultar detalles"}
+          >
+            {isClosed ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Floating Content Card */}

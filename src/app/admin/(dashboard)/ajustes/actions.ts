@@ -15,6 +15,9 @@ export async function updateSiteSettingsAction(formData: FormData) {
       primaryPhone: formData.get('primaryPhone')?.toString(),
       primaryEmail: formData.get('primaryEmail')?.toString(),
       officeAddress: formData.get('officeAddress')?.toString(),
+      officeStreetAddress: formData.get('officeStreetAddress')?.toString(),
+      officeLocality: formData.get('officeLocality')?.toString(),
+      officeRegion: formData.get('officeRegion')?.toString(),
       instagramUrl: formData.get('instagramUrl')?.toString(),
       facebookUrl: formData.get('facebookUrl')?.toString(),
       linkedinUrl: formData.get('linkedinUrl')?.toString(),
@@ -34,8 +37,11 @@ export async function updateSiteSettingsAction(formData: FormData) {
     await saveSiteSettings(validated);
 
     updateTag('site-settings');
+    updateTag('site-seo');
     updateTag('site-content');
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
+    revalidatePath('/robots.txt');
+    revalidatePath('/sitemap.xml');
     revalidatePath('/admin/ajustes');
 
     return { success: true };

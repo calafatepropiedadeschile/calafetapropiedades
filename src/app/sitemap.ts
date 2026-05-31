@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { getPrismaClient } from '@/lib/db/prisma';
-import { seoLandingPages } from '@/config/seo-pages';
+import { projectLandingSlugs, seoLandingPages } from '@/config/seo-pages';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
+import { buildSitemapLanguageAlternates } from '@/lib/seo/metadata-alternates';
 
 export const revalidate = 86400;
 
@@ -31,12 +32,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: route === '' ? 1.0 : 0.8,
-      alternates: {
-        languages: {
-          es: `${siteUrl}${route}`,
-          en: `${siteUrl}${route}${route.includes('?') ? '&' : '?'}lang=en`,
-        },
+      alternates: buildSitemapLanguageAlternates(siteUrl, route || '/'),
+    });
+  }
+
+  const projectUpdatedAt = new Map<string, Date>();
+  try {
+    const db = getPrismaClient();
+    const projectProperties = await db.property.findMany({
+      where: {
+        published: true,
+        slug: { in: [...projectLandingSlugs] },
       },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+    });
+
+    for (const property of projectProperties) {
+      projectUpdatedAt.set(property.slug, property.updatedAt);
+    }
+  } catch (error) {
+    console.error('Error fetching project landings for sitemap:', error);
+  }
+
+  for (const slug of projectLandingSlugs) {
+    const path = `/proyectos/${slug}`;
+    sitemapEntries.push({
+      url: `${siteUrl}${path}`,
+      lastModified: projectUpdatedAt.get(slug) ?? new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.75,
+      alternates: buildSitemapLanguageAlternates(siteUrl, path),
     });
   }
 
@@ -59,12 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: page.updatedAt,
         changeFrequency: 'weekly',
         priority: 0.6,
-        alternates: {
-          languages: {
-            es: `${siteUrl}${pageSlug}`,
-            en: `${siteUrl}${pageSlug}?lang=en`,
-          },
-        },
+        alternates: buildSitemapLanguageAlternates(siteUrl, pageSlug),
       });
     }
   } catch (error) {
@@ -116,12 +139,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.7,
         images,
-        alternates: {
-          languages: {
-            es: `${siteUrl}/propiedades/${property.slug}`,
-            en: `${siteUrl}/propiedades/${property.slug}?lang=en`,
-          },
-        },
+        alternates: buildSitemapLanguageAlternates(siteUrl, `/propiedades/${property.slug}`),
       });
 
     }

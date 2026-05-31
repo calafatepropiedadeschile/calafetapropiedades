@@ -23,7 +23,8 @@ import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { auth } from '@/lib/auth/auth';
 import StructuredData from '@/components/seo/StructuredData';
-import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData';
+import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { getResolvedGoogleMapsLink } from '@/lib/maps/google-maps-resolve';
 
@@ -120,21 +121,22 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     ? (property.seoDescriptionEn || property.seoDescriptionEs || property.description.slice(0, 160))
     : (property.seoDescriptionEs || property.description.slice(0, 160));
 
-  const canonicalUrl = normalizeOptionalCanonicalUrl(property.customCanonical, baseUrl)
-    || buildCanonicalUrl(baseUrl, `/propiedades/${slug}`, { locale });
+  const alternates = buildPageAlternates(`/propiedades/${slug}`, {
+    baseUrl,
+    locale,
+    customCanonical: property.customCanonical,
+  });
   const ogImageUrl = property.ogImage || property.coverImage || siteSeo?.defaultOgImage || '';
 
   return {
     title: seoTitle,
     description: seoDescription,
     robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates,
     openGraph: {
       title: seoTitle,
       description: seoDescription,
-      url: canonicalUrl,
+      url: alternates.canonical,
       images: ogImageUrl ? [{ url: ogImageUrl }] : [],
     },
     twitter: {
@@ -449,6 +451,14 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
         />
       </main>
       <StructuredData property={property} locale={locale} baseUrl={siteSeo?.canonicalBaseUrl} />
+      <BreadcrumbStructuredData
+        baseUrl={siteSeo?.canonicalBaseUrl}
+        items={[
+          { name: 'Inicio', path: '/' },
+          { name: 'Propiedades', path: '/propiedades' },
+          { name: title, path: `/propiedades/${slug}` },
+        ]}
+      />
       <Footer />
     </>
   );

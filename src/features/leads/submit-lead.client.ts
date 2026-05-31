@@ -14,6 +14,7 @@ export async function submitLeadForm(
     propertyTitle?: string;
     propertySlug?: string;
     formType?: 'lead' | 'contacto';
+    recaptchaToken?: string | null;
   }
 ) {
   const attribution = getAttributionPayload();
@@ -22,6 +23,7 @@ export async function submitLeadForm(
   const body = {
     ...payload,
     ...attribution,
+    recaptchaToken: options?.recaptchaToken ?? null,
   };
 
   const res = await fetch(API_ROUTES.leads, {

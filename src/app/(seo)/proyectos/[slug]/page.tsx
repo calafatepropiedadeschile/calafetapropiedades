@@ -8,6 +8,8 @@ import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
 import PropertyCommercialHighlights from '@/components/properties/PropertyCommercialHighlights';
 import PropertyDescription from '@/components/properties/PropertyDescription';
 import PropertyLandProjectSections from '@/components/properties/PropertyLandProjectSections';
+import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData';
+import JsonLdScript from '@/components/seo/JsonLdScript';
 import { parsePropertyDescription } from '@/features/properties/property-description-content';
 import { formatPropertyPrice } from '@/lib/utils/formatters';
 import { getSiteImageUrl } from '@/lib/storage/public-images';
@@ -19,6 +21,7 @@ import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { projectLandingSlugs } from '@/config/seo-pages';
 import { buildCanonicalUrl } from '@/config/seo-url';
+import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 export const revalidate = 3600;
@@ -61,21 +64,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = project.seoTitleEs || `${project.title} | Proyecto de parcelas`;
-  const description = project.seoDescriptionEs
-    || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imágenes y consulta disponibilidad con Calafate Propiedades.`;
-  const canonical = buildCanonicalUrl(baseUrl, `/proyectos/${project.slug}`);
+  const title = locale === 'en'
+    ? (project.seoTitleEn || project.seoTitleEs || `${project.title} | Land project`)
+    : (project.seoTitleEs || `${project.title} | Proyecto de parcelas`);
+  const description = locale === 'en'
+    ? (project.seoDescriptionEn || project.seoDescriptionEs
+      || `${project.title} in ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Review price, area, images and contact Calafate Propiedades.`)
+    : (project.seoDescriptionEs
+      || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imágenes y consulta disponibilidad con Calafate Propiedades.`);
+  const alternates = buildPageAlternates(`/proyectos/${project.slug}`, { baseUrl, locale });
   const image = project.ogImage || project.coverImage || siteSeo?.defaultOgImage || undefined;
 
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates,
     robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: image ? [{ url: image }] : [],
       type: 'website',
     },
@@ -110,6 +118,7 @@ export default async function ProjectLandingPage({ params }: Props) {
   const projectJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
+    '@id': `${canonical}#project`,
     name: project.title,
     description: project.description.slice(0, 260),
     url: canonical,
@@ -125,6 +134,12 @@ export default async function ProjectLandingPage({ params }: Props) {
       addressLocality: project.city,
       addressRegion: project.province ?? project.zone,
       addressCountry: project.country ?? 'Chile',
+    },
+    seller: {
+      '@type': 'RealEstateAgent',
+      '@id': `${baseUrl}/#organization`,
+      name: 'Calafate Propiedades',
+      url: baseUrl,
     },
   };
 
@@ -231,9 +246,18 @@ export default async function ProjectLandingPage({ params }: Props) {
           </div>
         </section>
       </main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd) }}
+      <JsonLdScript
+        id={`project-${project.slug}-json-ld`}
+        data={projectJsonLd}
+      />
+      <BreadcrumbStructuredData
+        baseUrl={baseUrl}
+        id={`project-${project.slug}-breadcrumb-json-ld`}
+        items={[
+          { name: 'Inicio', path: '/' },
+          { name: 'Proyectos', path: '/proyectos' },
+          { name: project.title, path: `/proyectos/${project.slug}` },
+        ]}
       />
       <Footer />
     </>

@@ -1,4 +1,5 @@
 import { buildCanonicalUrl, getDefaultCanonicalBaseUrl, normalizeCanonicalBaseUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import JsonLdScript from '@/components/seo/JsonLdScript';
 import type { Property } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
 
@@ -23,8 +24,13 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
     bathrooms,
     builtArea,
     area,
+    totalArea,
+    lotSurfaceM2,
+    latitude,
+    longitude,
     status,
     createdAt,
+    updatedAt,
   } = property;
 
   const canonicalBaseUrl = normalizeCanonicalBaseUrl(baseUrl || getDefaultCanonicalBaseUrl());
@@ -44,15 +50,25 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
   if (property.type === 'casa') accommodationType = 'House';
   else if (property.type === 'terreno') accommodationType = 'Landform';
 
+  const images = [
+    property.ogImage,
+    property.coverImage,
+    ...property.images,
+  ].filter((image): image is string => Boolean(image));
+  const surface = lotSurfaceM2 ?? totalArea ?? builtArea ?? area;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
+    '@id': `${canonicalUrl}#listing`,
     'name': title,
     'description': description.slice(0, 250),
     'url': canonicalUrl,
+    'image': images.length ? images.slice(0, 8) : undefined,
     'datePosted': new Date(createdAt).toISOString(),
+    'dateModified': new Date(updatedAt).toISOString(),
     'about': {
       '@type': accommodationType,
+      '@id': `${canonicalUrl}#property`,
       'name': title,
       'address': {
         '@type': 'PostalAddress',
@@ -61,11 +77,16 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
         'addressRegion': province || '',
         'addressCountry': country || 'CL',
       },
+      'geo': latitude != null && longitude != null ? {
+        '@type': 'GeoCoordinates',
+        latitude,
+        longitude,
+      } : undefined,
       'numberOfBedrooms': bedrooms ?? undefined,
       'numberOfBathroomsTotal': bathrooms ?? undefined,
-      'floorSize': (builtArea || area) ? {
+      'floorSize': surface ? {
         '@type': 'QuantitativeValue',
-        'value': builtArea ?? area,
+        'value': surface,
         'unitCode': 'MTK', // Square meters
       } : undefined,
     },
@@ -81,13 +102,16 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
         'valueAddedTaxIncluded': true,
       },
       'businessFunction': businessFunction,
+      'seller': {
+        '@type': 'RealEstateAgent',
+        '@id': `${canonicalBaseUrl}/#organization`,
+        'name': 'Calafate Propiedades',
+        'url': canonicalBaseUrl,
+      },
     },
   };
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
+    <JsonLdScript id={`property-${slug}-json-ld`} data={jsonLd} />
   );
 }

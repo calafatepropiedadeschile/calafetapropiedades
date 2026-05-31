@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import PropertyCatalog, { type CatalogPagination } from '@/components/properties/PropertyCatalog';
+import FaqStructuredData from '@/components/seo/FaqStructuredData';
 import RentalsEmptyLanding from '@/components/seo/RentalsEmptyLanding';
 import SeoServiceLandingSections from '@/components/seo/SeoServiceLandingSections';
 import StaticPageContent from '@/components/site/StaticPageContent';
@@ -78,6 +78,8 @@ export default function SeoCatalogLanding({
       ) : (
         <SeoServiceLandingSections config={config} />
       )}
+
+      <FaqStructuredData faqs={config.faqs} />
 
       <section style={{ marginTop: 'var(--space-4xl)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>
         <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: 'var(--space-lg)' }}>

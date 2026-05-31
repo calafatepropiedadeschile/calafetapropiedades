@@ -12,6 +12,7 @@ import LenisProvider from '@/components/providers/LenisProvider';
 import AttributionCapture from '@/components/marketing/AttributionCapture';
 import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
+import SiteStructuredDataGate from '@/components/seo/SiteStructuredDataGate';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { getSiteSettings } from '@/features/site-content/site-settings';
 import { SiteSettingsProvider } from '@/features/site-content/SiteSettingsProvider';
@@ -41,13 +42,25 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(baseUrl),
+    applicationName: siteName,
     title: {
       default: defaultTitle,
       template: seo?.titleTemplate ?? `%s | ${siteName}`,
     },
     description: defaultDescription,
     keywords: seo?.keywords ?? [],
+    authors: [{ name: siteName, url: baseUrl }],
+    creator: siteName,
+    publisher: siteName,
+    category: 'real estate',
     robots: seo?.allowIndexing === false ? { index: false, follow: false } : { index: true, follow: true },
+    alternates: {
+      canonical: baseUrl,
+      languages: {
+        'es-CL': baseUrl,
+        en: `${baseUrl}?lang=en`,
+      },
+    },
     verification: seo?.googleSiteVerification
       ? { google: seo.googleSiteVerification }
       : undefined,
@@ -108,7 +121,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [seo, siteSettings, showRentalsLink, rentalsPublished, locale, currency, exchangeRates] = await Promise.all([
+  const [seo, siteSettings, showRentalsLink, rentalsPublished, locale, currency, exchangeRates, baseUrl] = await Promise.all([
     getSiteSeoSettings().catch(() => null),
     getSiteSettings(),
     shouldShowRentalsNavigation(),
@@ -116,6 +129,7 @@ export default async function RootLayout({
     getServerLocale(),
     getServerCurrency(),
     getExchangeRates(),
+    resolveCanonicalBaseUrl(),
   ]);
 
   const providerProps = {
@@ -134,6 +148,7 @@ export default async function RootLayout({
         <LenisProvider>
           <SiteSettingsProvider settings={siteSettings}>
             <AppProviders {...providerProps}>
+              <SiteStructuredDataGate seo={seo} settings={siteSettings} baseUrl={baseUrl} />
               {children}
             </AppProviders>
           </SiteSettingsProvider>

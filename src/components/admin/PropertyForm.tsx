@@ -1120,6 +1120,9 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
 
       <section className="admin-form-section">
         <h2 className="admin-form-section-title">SEO</h2>
+        <p className="text-muted" style={{ marginBottom: 'var(--space-md)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+          Los campos en ingles alimentan la version <code>?lang=en</code> con hreflang. El canonical vacio usa la URL de la ficha; proyectos de terreno tambien existen en <code>/proyectos/[slug]</code>.
+        </p>
         <div className="form-grid form-grid-2">
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
             <div className="input-group">

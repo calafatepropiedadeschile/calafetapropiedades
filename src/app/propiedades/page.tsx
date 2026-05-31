@@ -6,7 +6,7 @@ import PropertyCatalog from '@/components/properties/PropertyCatalog';
 import { redirect } from 'next/navigation';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
 import { getCatalogPageData } from '@/features/properties/property.service';
-import { buildCanonicalUrl } from '@/config/seo-url';
+import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { mergeCatalogSearchParams, readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
 import { getServerLocale } from '@/lib/i18n/server';
@@ -17,17 +17,17 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = await resolveCanonicalBaseUrl();
   const title = 'Terrenos y loteos en venta';
   const description = 'Compara parcelas, terrenos y loteos en Chile por ubicación, superficie, precio y disponibilidad.';
-  const canonical = buildCanonicalUrl(baseUrl, '/propiedades');
+  const alternates = buildPageAlternates('/propiedades', { baseUrl });
 
   return {
     title,
     description,
     robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
-    alternates: { canonical },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: siteSeo?.defaultOgImage ? [{ url: siteSeo.defaultOgImage }] : [],
     },
     twitter: {

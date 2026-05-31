@@ -27,6 +27,8 @@ const DEFAULT_KEYWORDS = [
 
 const DEFAULT_ROBOTS_DISALLOW = ['/admin/', '/api/', '/gracias'];
 
+const DEFAULT_SERVICE_AREAS = [...siteConfig.serviceAreas];
+
 export type SiteSeoSettingsView = {
   siteName: string;
   titleTemplate: string;
@@ -35,6 +37,7 @@ export type SiteSeoSettingsView = {
   defaultTitleEn: string | null;
   defaultDescriptionEn: string | null;
   keywords: string[];
+  serviceAreas: string[];
   canonicalBaseUrl: string;
   defaultOgImage: string | null;
   googleSiteVerification: string | null;
@@ -82,6 +85,7 @@ export function getDefaultSiteSeoSettings(): SiteSeoSettingsView {
     defaultTitleEn: null,
     defaultDescriptionEn: null,
     keywords: [...siteConfig.metadata.keywords],
+    serviceAreas: [...DEFAULT_SERVICE_AREAS],
     canonicalBaseUrl: getDefaultCanonicalBaseUrlFromEnv(),
     defaultOgImage: null,
     googleSiteVerification: null,
@@ -105,6 +109,7 @@ export function mapSiteSeoSettings(row: SiteSeoSettings | null): SiteSeoSettings
     defaultTitleEn: trimOrNull(row.defaultTitleEn),
     defaultDescriptionEn: trimOrNull(row.defaultDescriptionEn),
     keywords: safeList(row.keywords, DEFAULT_KEYWORDS),
+    serviceAreas: safeList(row.serviceAreas, DEFAULT_SERVICE_AREAS),
     canonicalBaseUrl: normalizeCanonicalBaseUrl(
       row.canonicalBaseUrl.trim().replace(/\/$/, '') || fallback.canonicalBaseUrl,
     ),
@@ -153,7 +158,7 @@ export async function getSiteSeoSettings(): Promise<SiteSeoSettingsView> {
       const row = await db.siteSeoSettings.findUnique({ where: { id: SITE_SEO_SETTINGS_ID } });
       return mapSiteSeoSettings(row);
     },
-    ['site-seo-settings-v1'],
+    ['site-seo-settings-v2'],
     { revalidate: 300, tags: ['site-content', 'site-seo'] }
   )();
 }
@@ -176,6 +181,7 @@ export async function saveSiteSeoSettings(input: SiteSeoSettingsInput) {
         defaultTitleEn: input.defaultTitleEn,
         defaultDescriptionEn: input.defaultDescriptionEn,
         keywords: JSON.stringify(input.keywords),
+        serviceAreas: JSON.stringify(input.serviceAreas),
         canonicalBaseUrl: normalizeCanonicalBaseUrl(input.canonicalBaseUrl),
         defaultOgImage: input.defaultOgImage,
         googleSiteVerification: input.googleSiteVerification,
@@ -192,6 +198,7 @@ export async function saveSiteSeoSettings(input: SiteSeoSettingsInput) {
         defaultTitleEn: input.defaultTitleEn,
         defaultDescriptionEn: input.defaultDescriptionEn,
         keywords: JSON.stringify(input.keywords),
+        serviceAreas: JSON.stringify(input.serviceAreas),
         canonicalBaseUrl: normalizeCanonicalBaseUrl(input.canonicalBaseUrl),
         defaultOgImage: input.defaultOgImage,
         googleSiteVerification: input.googleSiteVerification,

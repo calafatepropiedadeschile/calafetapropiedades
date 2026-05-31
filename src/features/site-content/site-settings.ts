@@ -14,6 +14,9 @@ export type SiteSettingsPayload = {
   primaryPhoneHref: string;
   primaryEmail: string;
   officeAddress: string;
+  officeStreetAddress: string;
+  officeLocality: string;
+  officeRegion: string;
   instagramUrl: string;
   facebookUrl: string;
   linkedinUrl: string;
@@ -38,6 +41,19 @@ function emptyToNull(value: string | undefined) {
   return trimmed ? trimmed : null;
 }
 
+function resolveOfficeDisplayAddress(settings: SiteSettings | null): string {
+  const display = settings?.officeAddress?.trim();
+  if (display) return display;
+
+  const street = settings?.officeStreetAddress?.trim();
+  const locality = settings?.officeLocality?.trim();
+  const region = settings?.officeRegion?.trim();
+  const structured = [street, locality, region].filter(Boolean);
+  if (structured.length) return structured.join(', ');
+
+  return siteConfig.offices[0].addressLines.join(', ');
+}
+
 export function resolveSiteSettings(settings: SiteSettings | null): SiteSettingsPayload {
   const whatsappNumber = pickText(settings?.whatsappNumber, siteConfig.contact.whatsappNumber);
   const primaryPhone = pickText(settings?.primaryPhone, siteConfig.contact.primaryPhoneLabel);
@@ -48,7 +64,19 @@ export function resolveSiteSettings(settings: SiteSettings | null): SiteSettings
     primaryPhone,
     primaryPhoneHref: buildTelHref(primaryPhone, siteConfig.contact.primaryPhoneHref),
     primaryEmail: pickText(settings?.primaryEmail, siteConfig.contact.primaryEmail),
-    officeAddress: pickText(settings?.officeAddress, siteConfig.offices[0].addressLines.join(', ')),
+    officeAddress: resolveOfficeDisplayAddress(settings),
+    officeStreetAddress: pickText(
+      settings?.officeStreetAddress,
+      siteConfig.offices[0].addressLines[0] ?? '',
+    ),
+    officeLocality: pickText(
+      settings?.officeLocality,
+      siteConfig.offices[0].addressLines[1]?.replace(/^Comuna de\s+/i, '') ?? '',
+    ),
+    officeRegion: pickText(
+      settings?.officeRegion,
+      siteConfig.offices[0].addressLines[2]?.replace(/^Región de\s+/i, '').replace(/, Chile$/, '') ?? '',
+    ),
     instagramUrl: pickText(settings?.instagramUrl, siteConfig.contact.social.instagram),
     facebookUrl: pickText(settings?.facebookUrl, siteConfig.contact.social.facebook),
     linkedinUrl: pickText(settings?.linkedinUrl, siteConfig.contact.social.linkedin),
@@ -70,6 +98,9 @@ export function toSiteSettingsAdminValues(settings: SiteSettings | null): SiteSe
     primaryPhone: settings?.primaryPhone?.trim() ?? '',
     primaryEmail: settings?.primaryEmail?.trim() ?? '',
     officeAddress: settings?.officeAddress?.trim() ?? '',
+    officeStreetAddress: settings?.officeStreetAddress?.trim() ?? '',
+    officeLocality: settings?.officeLocality?.trim() ?? '',
+    officeRegion: settings?.officeRegion?.trim() ?? '',
     instagramUrl: settings?.instagramUrl?.trim() ?? '',
     facebookUrl: settings?.facebookUrl?.trim() ?? '',
     linkedinUrl: settings?.linkedinUrl?.trim() ?? '',
@@ -114,12 +145,40 @@ export async function getSiteSettingsAdminValues(): Promise<SiteSettingsInput> {
   return toSiteSettingsAdminValues(settings);
 }
 
+export async function saveSiteOrganizationSeoFields(input: {
+  officeAddress?: string | null;
+  officeStreetAddress?: string | null;
+  officeLocality?: string | null;
+  officeRegion?: string | null;
+}) {
+  const data = {
+    officeAddress: emptyToNull(input.officeAddress ?? undefined),
+    officeStreetAddress: emptyToNull(input.officeStreetAddress ?? undefined),
+    officeLocality: emptyToNull(input.officeLocality ?? undefined),
+    officeRegion: emptyToNull(input.officeRegion ?? undefined),
+  };
+
+  await withDatabaseRole('admin', async (db) => {
+    await db.siteSettings.upsert({
+      where: { id: SITE_SETTINGS_ID },
+      create: {
+        id: SITE_SETTINGS_ID,
+        ...data,
+      },
+      update: data,
+    });
+  });
+}
+
 export async function saveSiteSettings(input: SiteSettingsInput) {
   const data = {
     whatsappNumber: emptyToNull(input.whatsappNumber),
     primaryPhone: emptyToNull(input.primaryPhone),
     primaryEmail: emptyToNull(input.primaryEmail),
     officeAddress: emptyToNull(input.officeAddress),
+    officeStreetAddress: emptyToNull(input.officeStreetAddress),
+    officeLocality: emptyToNull(input.officeLocality),
+    officeRegion: emptyToNull(input.officeRegion),
     instagramUrl: emptyToNull(input.instagramUrl),
     facebookUrl: emptyToNull(input.facebookUrl),
     linkedinUrl: emptyToNull(input.linkedinUrl),

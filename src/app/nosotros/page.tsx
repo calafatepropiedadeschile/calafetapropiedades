@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth/auth';
 import NosotrosView from './NosotrosView';
 import { getPublishedStaticPageBySlug, getStaticPageBySlugForAdmin } from '@/features/site-content/static-page';
 import { siteConfig } from '@/config/site';
-import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 async function resolveNosotrosCms(locale: 'es' | 'en', isAdmin: boolean) {
@@ -21,19 +21,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = await resolveCanonicalBaseUrl();
   const title = cms?.seoTitle || `Nosotros - ${siteConfig.name}`;
   const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompaña en cada operación.`;
-  const canonical = normalizeOptionalCanonicalUrl(cms?.customCanonical, baseUrl)
-    || buildCanonicalUrl(baseUrl, '/nosotros');
+  const alternates = buildPageAlternates('/nosotros', {
+    baseUrl,
+    customCanonical: cms?.customCanonical,
+  });
   const image = cms?.ogImage || siteSeo?.defaultOgImage || undefined;
 
   return {
     title,
     description,
     robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
-    alternates: { canonical },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: image ? [{ url: image }] : [],
     },
     twitter: {

@@ -5,6 +5,8 @@ import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/dictionaries';
 import { primaryContact } from '@/config/contact';
 import { submitLeadForm } from '@/features/leads/submit-lead.client';
+import RecaptchaNotice from '@/components/security/RecaptchaNotice';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 interface Props {
   propertyId: string;
@@ -23,6 +25,7 @@ export default function LeadForm({
 }: Props) {
   const [state, setState] = useState<FormState>('idle');
   const [error, setError] = useState('');
+  const { execute: executeRecaptcha, isEnabled: recaptchaEnabled } = useRecaptcha();
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -33,6 +36,10 @@ export default function LeadForm({
     const form = e.currentTarget;
 
     try {
+      const recaptchaToken = recaptchaEnabled
+        ? await executeRecaptcha('property_lead')
+        : null;
+
       await submitLeadForm(
         {
           name: (form.elements.namedItem('name') as HTMLInputElement).value,
@@ -45,7 +52,8 @@ export default function LeadForm({
           propertyTitle,
           propertySlug,
           formType: 'lead',
-        }
+          recaptchaToken,
+        },
       );
     } catch (err) {
       setState('error');
@@ -111,6 +119,7 @@ export default function LeadForm({
         <p className="text-muted" style={{ fontSize: '0.7rem', textAlign: 'center' }}>
           {t('lead.privacy')}
         </p>
+        <RecaptchaNotice locale={locale} />
       </form>
     </div>
   );

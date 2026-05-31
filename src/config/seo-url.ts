@@ -51,7 +51,13 @@ export function normalizeOptionalCanonicalUrl(
 
   const fixed = fixCanonicalTypoInUrl(trimmed);
   if (/^https?:\/\//i.test(fixed)) {
-    return normalizeCanonicalBaseUrl(fixed);
+    try {
+      const parsed = new URL(fixed);
+      const normalizedBase = normalizeCanonicalBaseUrl(parsed.origin);
+      return `${normalizedBase}${parsed.pathname}${parsed.search}`.replace(/\/$/, '');
+    } catch {
+      return null;
+    }
   }
 
   const base = normalizeCanonicalBaseUrl(baseUrl ?? getDefaultCanonicalBaseUrl());
