@@ -1,5 +1,6 @@
 /**
- * Convierte URLs de Google Maps a src de iframe. No usa enlaces cortos (goo.gl / maps.app).
+ * Convierte URLs de Google Maps a src de iframe.
+ * Enlaces cortos (maps.app.goo.gl) requieren resolveGoogleMapsLink() en servidor.
  */
 
 const SHORT_MAP_REDIRECT_HOSTS = new Set([
@@ -7,6 +8,13 @@ const SHORT_MAP_REDIRECT_HOSTS = new Set([
   'maps.app.goo.gl',
   'g.co',
 ]);
+
+const COORDINATE_PATTERNS = [
+  /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+  /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+  /[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+  /center=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+];
 
 function parseMapUrl(mapUrl: string): URL | null {
   const trimmed = mapUrl.trim();
@@ -27,10 +35,36 @@ export function isShortGoogleMapsRedirectUrl(mapUrl: string): boolean {
   return SHORT_MAP_REDIRECT_HOSTS.has(host);
 }
 
+export function extractGoogleMapsCoordinates(
+  mapUrl: string,
+): { lat: number; lng: number } | null {
+  for (const pattern of COORDINATE_PATTERNS) {
+    const match = pattern.exec(mapUrl);
+    if (!match) continue;
+
+    const lat = Number(match[1]);
+    const lng = Number(match[2]);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      return { lat, lng };
+    }
+  }
+
+  return null;
+}
+
+export function buildGoogleMapsEmbedFromCoordinates(lat: number, lng: number, zoom = 15): string {
+  return `https://maps.google.com/maps?q=${lat},${lng}&hl=es&z=${zoom}&output=embed`;
+}
+
 /**
- * Devuelve URL embed o null si no es seguro embeber (p. ej. maps.app.goo.gl).
+ * Devuelve URL embed o null. Para goo.gl usar resolveGoogleMapsLink en servidor.
  */
 export function buildGoogleMapsEmbedUrl(mapUrl: string): string | null {
+  const coords = extractGoogleMapsCoordinates(mapUrl);
+  if (coords) {
+    return buildGoogleMapsEmbedFromCoordinates(coords.lat, coords.lng);
+  }
+
   if (isShortGoogleMapsRedirectUrl(mapUrl)) {
     return null;
   }

@@ -6,6 +6,7 @@ import type { Property } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import dynamic from 'next/dynamic';
+import type { ResolvedGoogleMapLink } from '@/lib/maps/google-maps-resolve';
 import { hasExternalMapUrl } from '@/lib/maps/google-maps-embed';
 
 const PropertyGoogleMapEmbed = dynamic(() => import('@/components/properties/PropertyGoogleMapEmbed'), {
@@ -24,6 +25,7 @@ const VirtualTour = dynamic(() => import('@/components/properties/VirtualTour'),
 interface Props {
   property: Property;
   locale: Locale;
+  resolvedMap?: ResolvedGoogleMapLink | null;
 }
 
 function SectionBlock({
@@ -46,16 +48,25 @@ function SectionBlock({
   );
 }
 
-export default function PropertyExperienceSections({ property, locale }: Props) {
+export default function PropertyExperienceSections({
+  property,
+  locale,
+  resolvedMap = null,
+}: Props) {
   const t = (key: TranslationKey) => translate(locale, key);
   const tourUrl = property.virtualTourUrl?.trim() ?? '';
   const mapUrl = property.mapUrl?.trim() ?? '';
   const hasTour = Boolean(tourUrl);
   const hasMapLink = hasExternalMapUrl(mapUrl);
-  const hasCoordinates = property.latitude != null && property.longitude != null;
+
+  const mapLatitude = property.latitude ?? resolvedMap?.latitude ?? null;
+  const mapLongitude = property.longitude ?? resolvedMap?.longitude ?? null;
+  const hasCoordinates = mapLatitude != null && mapLongitude != null;
+  const mapEmbedUrl = resolvedMap?.embedUrl ?? null;
+
   const mapFallbackHint = locale === 'en'
-    ? 'Short map links cannot be embedded. Open Google Maps for the exact location.'
-    : 'Los enlaces cortos de mapas no se pueden incrustar. Abre Google Maps para ver la ubicación exacta.';
+    ? 'We could not embed this map link. Open Google Maps for the exact location.'
+    : 'No pudimos incrustar este enlace de mapa. Abre Google Maps para ver la ubicación exacta.';
 
   if (!hasTour && !hasMapLink && !hasCoordinates) {
     return null;
@@ -92,11 +103,11 @@ export default function PropertyExperienceSections({ property, locale }: Props) 
           title={t('property.mapSection')}
           description={t('property.mapSectionHint')}
         >
-          {hasCoordinates && property.latitude != null && property.longitude != null && (
+          {hasCoordinates && (
             <div className={hasMapLink ? 'property-widget-map-stack' : undefined}>
               <PropertyMapClient
-                lat={property.latitude}
-                lng={property.longitude}
+                lat={mapLatitude}
+                lng={mapLongitude}
                 title={property.title}
               />
             </div>
@@ -104,6 +115,7 @@ export default function PropertyExperienceSections({ property, locale }: Props) 
           {hasMapLink && (
             <PropertyGoogleMapEmbed
               mapUrl={mapUrl}
+              embedSrc={mapEmbedUrl}
               openLabel={t('property.viewOnMap')}
               fallbackHint={mapFallbackHint}
             />

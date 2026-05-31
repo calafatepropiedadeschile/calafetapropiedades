@@ -5,16 +5,19 @@ import { buildGoogleMapsEmbedUrl } from '@/lib/maps/google-maps-embed';
 
 interface Props {
   mapUrl: string;
+  /** URL ya resuelta en servidor (p. ej. desde maps.app.goo.gl). */
+  embedSrc?: string | null;
   openLabel: string;
   fallbackHint?: string;
 }
 
 export default function PropertyGoogleMapEmbed({
   mapUrl,
+  embedSrc: embedSrcOverride,
   openLabel,
   fallbackHint = 'Abre el mapa en Google Maps para ver la ubicación exacta.',
 }: Props) {
-  const embedSrc = buildGoogleMapsEmbedUrl(mapUrl);
+  const embedSrc = embedSrcOverride ?? buildGoogleMapsEmbedUrl(mapUrl);
 
   return (
     <div className="property-widget-embed">

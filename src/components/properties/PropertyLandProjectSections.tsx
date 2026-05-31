@@ -11,12 +11,15 @@ import {
   getLandFeatureLabel,
   isLandProject,
 } from '@/features/properties/property-land-options';
+import type { ResolvedGoogleMapLink } from '@/lib/maps/google-maps-resolve';
+
 interface Props {
   property: Property;
   locale: Locale;
   showProjectBadge?: boolean;
   /** Oculta la grilla superior cuando la ficha ya muestra PropertyCommercialHighlights */
   showTopHighlights?: boolean;
+  resolvedMap?: ResolvedGoogleMapLink | null;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -32,6 +35,7 @@ export default function PropertyLandProjectSections({
   locale,
   showProjectBadge = true,
   showTopHighlights = true,
+  resolvedMap = null,
 }: Props) {
   const t = (key: TranslationKey) => translate(locale, key);
   const summary = getLandProjectSummary(property);
@@ -53,7 +57,11 @@ export default function PropertyLandProjectSections({
         </span>
       )}
 
-      <PropertyExperienceSections property={property} locale={locale} />
+      <PropertyExperienceSections
+        property={property}
+        locale={locale}
+        resolvedMap={resolvedMap}
+      />
 
       {showTopHighlights && highlights.length > 0 && (
         <section style={{ marginBottom: 'var(--space-3xl)' }}>

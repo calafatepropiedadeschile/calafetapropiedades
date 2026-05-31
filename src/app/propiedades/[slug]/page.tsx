@@ -25,6 +25,7 @@ import { auth } from '@/lib/auth/auth';
 import StructuredData from '@/components/seo/StructuredData';
 import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
+import { getResolvedGoogleMapsLink } from '@/lib/maps/google-maps-resolve';
 
 export const revalidate = 3600;
 
@@ -222,6 +223,9 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
   const t = (key: TranslationKey) => translate(locale, key);
   const parsedDescription = parsePropertyDescription(description);
   const showLandSections = isLandParcel(property);
+  const resolvedMap = property.mapUrl?.trim()
+    ? await getResolvedGoogleMapsLink(property.mapUrl)
+    : null;
 
   const specs = [
     detailSpec('property.type', typeKey ? t(typeKey) : type),
@@ -349,13 +353,22 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
               />
 
               {!showLandSections && (
-                <PropertyExperienceSections property={property} locale={locale} />
+                <PropertyExperienceSections
+                  property={property}
+                  locale={locale}
+                  resolvedMap={resolvedMap}
+                />
               )}
 
               {showLandSections ? (
                 <>
                   <h2 className="property-technical-heading">{t('property.technicalDetailsBelow')}</h2>
-                  <PropertyLandProjectSections property={property} locale={locale} showTopHighlights={false} />
+                  <PropertyLandProjectSections
+                    property={property}
+                    locale={locale}
+                    showTopHighlights={false}
+                    resolvedMap={resolvedMap}
+                  />
                 </>
               ) : (
                 <>
