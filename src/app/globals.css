@@ -3173,6 +3173,24 @@ input, textarea, select {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
 }
 
+.property-widget-embed__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-border-light);
+  background: #f8fafc;
+  text-align: center;
+}
+
+.property-widget-embed__fallback p {
+  margin: 0;
+  max-width: 28rem;
+  line-height: 1.6;
+}
+
 .property-widget-embed__footer {
   display: flex;
   justify-content: flex-start;
@@ -4145,12 +4163,24 @@ input, textarea, select {
   .masterplan-tour-chrome {
     /* Eliminamos el aspect-ratio en mobile para dar más altura real al visor 360 */
     aspect-ratio: unset;
-    height: clamp(300px, 72vw, 430px);
+    min-height: min(70svh, 520px);
+    height: min(70svh, 520px);
   }
 
   .property-widget-frame--tour {
     aspect-ratio: unset;
-    min-height: 320px;
+    min-height: min(70svh, 520px);
+    height: min(70svh, 520px);
+  }
+}
+
+/* WhatsApp: no tapar controles del tour 360 (esquina inferior derecha) */
+@media (max-width: 768px) {
+  body:has(.masterplan-tour-wrapper) .whatsapp-widget-container,
+  body:has(.property-widget-frame--tour) .whatsapp-widget-container {
+    right: auto;
+    left: 1rem;
+    bottom: 1rem;
   }
 }
 

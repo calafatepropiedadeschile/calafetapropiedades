@@ -24,42 +24,39 @@ export default function TrustStatsSection({ properties }: Props) {
   ];
 
   return (
-    <section className="trust-stats-section" aria-labelledby="trust-section-title">
-      <div className="container trust-stats-inner">
-        <div className="trust-stats-header scroll-reveal">
-          <span className="trust-stats-eyebrow">{t('trust.eyebrow')}</span>
-          <h2 id="trust-section-title" className="trust-stats-title">
-            {t('trust.title')}
-          </h2>
-          <p className="trust-stats-subtitle">{t('trust.subtitle')}</p>
-          <div className="trust-stats-cta-buttons">
-            <Link href={localizedHref('/proyectos', locale)} className="btn btn-primary btn-lg">
-              {t('trust.primaryCta')}
-            </Link>
-            <Link href={localizedHref('/contacto', locale)} className="btn btn-outline btn-lg">
-              {t('trust.secondaryCta')}
-            </Link>
+    <section className="section services-section" aria-labelledby="trust-section-title">
+      <div className="container">
+        <div className="services-header scroll-reveal">
+          <span className="section-eyebrow">{t('trust.eyebrow')}</span>
+          <div className="services-header-grid">
+            <h2 id="trust-section-title" className="heading-2 services-title">
+              {t('trust.title')}
+            </h2>
+            <p className="text-muted services-subtitle">{t('trust.subtitle')}</p>
           </div>
         </div>
 
-        <div className="trust-stats-grid" aria-label={t('trust.gridLabel')}>
+        <ul className="services-card-grid" role="list" aria-label={t('trust.gridLabel')}>
           {reviewItems.map((item, index) => {
             const Icon = STEP_ICONS[index] ?? MapPin;
             return (
-              <article
+              <li
                 key={item.title}
-                className="trust-stat-card scroll-reveal"
+                className="service-card scroll-reveal"
                 style={{ animationDelay: `${index * 80}ms` }}
+                role="listitem"
               >
-                <div className="trust-stat-icon" aria-hidden>
-                  <Icon size={24} strokeWidth={1.75} />
+                <div className="service-card-icon-badge" aria-hidden>
+                  <Icon size={24} strokeWidth={1.5} />
                 </div>
-                <h3 className="trust-stat-label">{item.title}</h3>
-                <p className="trust-stat-sublabel">{item.description}</p>
-              </article>
+                <h3 className="service-card-title">{item.title}</h3>
+                <p className="service-card-description">{item.description}</p>
+              </li>
             );
           })}
-        </div>
+        </ul>
+
+
 
       </div>
     </section>

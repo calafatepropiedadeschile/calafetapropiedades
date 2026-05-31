@@ -6,7 +6,7 @@ import { getExchangeRates } from '@/lib/currency/exchange-rates';
 import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { isSupportedLocale, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { RentalsNavProvider } from '@/components/layout/RentalsNavProvider';
-import WhatsAppWidget from '@/components/layout/WhatsAppWidget';
+import ConditionalWhatsAppWidget from '@/components/layout/ConditionalWhatsAppWidget';
 import { hasPublishedRentals, shouldShowRentalsNavigation } from '@/features/properties/rental-availability';
 import LenisProvider from '@/components/providers/LenisProvider';
 import AttributionCapture from '@/components/marketing/AttributionCapture';
@@ -96,7 +96,7 @@ function AppProviders({
           <GoogleAnalytics measurementId={googleAnalyticsId} />
           <MetaPixel pixelId={metaPixelId} />
           {children}
-          <WhatsAppWidget />
+          <ConditionalWhatsAppWidget />
         </RentalsNavProvider>
       </ExchangeRatesProvider>
     </I18nProvider>

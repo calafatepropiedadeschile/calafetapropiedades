@@ -1,27 +1,65 @@
 /**
- * Convierte URLs de Google Maps (incl. maps.app.goo.gl) a un src usable en iframe embed.
+ * Convierte URLs de Google Maps a src de iframe. No usa enlaces cortos (goo.gl / maps.app).
  */
-export function buildGoogleMapsEmbedUrl(mapUrl: string): string {
+
+const SHORT_MAP_REDIRECT_HOSTS = new Set([
+  'goo.gl',
+  'maps.app.goo.gl',
+  'g.co',
+]);
+
+function parseMapUrl(mapUrl: string): URL | null {
   const trimmed = mapUrl.trim();
-  if (!trimmed) return '';
+  if (!trimmed) return null;
 
   try {
-    const parsed = new URL(trimmed);
-    const isGoogleMaps = parsed.hostname.includes('google.')
-      && (parsed.pathname.includes('/maps') || parsed.hostname === 'maps.google.com');
-
-    if (isGoogleMaps) {
-      const embed = new URL(trimmed);
-      embed.searchParams.set('output', 'embed');
-      return embed.toString();
-    }
+    return new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
   } catch {
-    // URLs sin esquema u otros formatos caen al fallback.
+    return null;
+  }
+}
+
+export function isShortGoogleMapsRedirectUrl(mapUrl: string): boolean {
+  const parsed = parseMapUrl(mapUrl);
+  if (!parsed) return true;
+
+  const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+  return SHORT_MAP_REDIRECT_HOSTS.has(host);
+}
+
+/**
+ * Devuelve URL embed o null si no es seguro embeber (p. ej. maps.app.goo.gl).
+ */
+export function buildGoogleMapsEmbedUrl(mapUrl: string): string | null {
+  if (isShortGoogleMapsRedirectUrl(mapUrl)) {
+    return null;
   }
 
-  return `https://maps.google.com/maps?q=${encodeURIComponent(trimmed)}&hl=es&z=15&output=embed`;
+  const parsed = parseMapUrl(mapUrl);
+  if (!parsed) return null;
+
+  const host = parsed.hostname.toLowerCase();
+  const isGoogleMaps = host.includes('google.')
+    && (parsed.pathname.includes('/maps') || host.startsWith('maps.'));
+
+  if (!isGoogleMaps) {
+    return null;
+  }
+
+  if (parsed.pathname.includes('/embed')) {
+    return parsed.toString();
+  }
+
+  const embed = new URL(parsed.toString());
+  embed.searchParams.set('output', 'embed');
+  return embed.toString();
 }
 
 export function isEmbeddableMapUrl(mapUrl: string | null | undefined): mapUrl is string {
+  if (!mapUrl?.trim()) return false;
+  return buildGoogleMapsEmbedUrl(mapUrl) !== null;
+}
+
+export function hasExternalMapUrl(mapUrl: string | null | undefined): boolean {
   return Boolean(mapUrl?.trim());
 }

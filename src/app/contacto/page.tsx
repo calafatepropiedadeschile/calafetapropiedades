@@ -81,14 +81,33 @@ export default async function ContactPage({ searchParams }: Props) {
       }}
       >
         <div style={{
-          background: 'linear-gradient(135deg, #1A1A1A 0%, #2B2B2B 100%)',
+          position: 'relative',
           color: '#ffffff',
-          padding: 'var(--space-4xl) 0',
+          padding: 'calc(var(--space-4xl) * 1.5) 0 var(--space-4xl)',
           textAlign: 'center',
           marginBottom: 'var(--space-4xl)',
+          minHeight: '400px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          overflow: 'hidden',
         }}
         >
-          <div className="container">
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: 'url(/site/sur_chile_terrenos.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            zIndex: 0,
+          }} />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%)',
+            zIndex: 1,
+          }} />
+          <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <h1 className="heading-1 heading-display" style={{
               color: '#ffffff',
               fontFamily: 'var(--font-admin)',

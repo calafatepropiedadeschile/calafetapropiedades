@@ -6,19 +6,19 @@ import type { Property } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import dynamic from 'next/dynamic';
-import { isEmbeddableMapUrl } from '@/lib/maps/google-maps-embed';
+import { hasExternalMapUrl } from '@/lib/maps/google-maps-embed';
 
-const PropertyGoogleMapEmbed = dynamic(() => import('@/components/properties/PropertyGoogleMapEmbed'), { 
-  ssr: false, 
-  loading: () => <div style={{ height: 300, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" /> 
+const PropertyGoogleMapEmbed = dynamic(() => import('@/components/properties/PropertyGoogleMapEmbed'), {
+  ssr: false,
+  loading: () => <div style={{ height: 300, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" />,
 });
-const PropertyMapClient = dynamic(() => import('@/components/properties/PropertyMapClient'), { 
-  ssr: false, 
-  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" /> 
+const PropertyMapClient = dynamic(() => import('@/components/properties/PropertyMapClient'), {
+  ssr: false,
+  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" />,
 });
-const VirtualTour = dynamic(() => import('@/components/properties/VirtualTour'), { 
-  ssr: false, 
-  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" /> 
+const VirtualTour = dynamic(() => import('@/components/properties/VirtualTour'), {
+  ssr: false,
+  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" />,
 });
 
 interface Props {
@@ -48,9 +48,14 @@ function SectionBlock({
 
 export default function PropertyExperienceSections({ property, locale }: Props) {
   const t = (key: TranslationKey) => translate(locale, key);
-  const hasTour = Boolean(property.virtualTourUrl?.trim());
-  const hasMapLink = isEmbeddableMapUrl(property.mapUrl);
+  const tourUrl = property.virtualTourUrl?.trim() ?? '';
+  const mapUrl = property.mapUrl?.trim() ?? '';
+  const hasTour = Boolean(tourUrl);
+  const hasMapLink = hasExternalMapUrl(mapUrl);
   const hasCoordinates = property.latitude != null && property.longitude != null;
+  const mapFallbackHint = locale === 'en'
+    ? 'Short map links cannot be embedded. Open Google Maps for the exact location.'
+    : 'Los enlaces cortos de mapas no se pueden incrustar. Abre Google Maps para ver la ubicación exacta.';
 
   if (!hasTour && !hasMapLink && !hasCoordinates) {
     return null;
@@ -58,20 +63,20 @@ export default function PropertyExperienceSections({ property, locale }: Props) 
 
   return (
     <div className="property-experience-widgets">
-      {hasTour && property.virtualTourUrl && (
+      {hasTour && (
         <SectionBlock
           title={t('property.virtualTourSection')}
           description={t('property.virtualTourSectionHint')}
         >
           <div className="property-widget-frame property-widget-frame--tour">
             <VirtualTour
-              src={property.virtualTourUrl}
+              src={tourUrl}
               title={`${t('property.virtualTourSection')} — ${property.title}`}
             />
           </div>
           <div className="property-widget-embed__footer">
             <Link
-              href={property.virtualTourUrl}
+              href={tourUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-outline btn-sm"
@@ -82,7 +87,7 @@ export default function PropertyExperienceSections({ property, locale }: Props) 
         </SectionBlock>
       )}
 
-      {(hasMapLink || hasCoordinates) && (
+      {(hasCoordinates || hasMapLink) && (
         <SectionBlock
           title={t('property.mapSection')}
           description={t('property.mapSectionHint')}
@@ -96,10 +101,11 @@ export default function PropertyExperienceSections({ property, locale }: Props) 
               />
             </div>
           )}
-          {hasMapLink && property.mapUrl && (
+          {hasMapLink && (
             <PropertyGoogleMapEmbed
-              mapUrl={property.mapUrl}
+              mapUrl={mapUrl}
               openLabel={t('property.viewOnMap')}
+              fallbackHint={mapFallbackHint}
             />
           )}
         </SectionBlock>
