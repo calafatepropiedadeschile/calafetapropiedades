@@ -8,6 +8,7 @@ export type StoredAttribution = {
   utmCampaign: string | null;
   utmContent: string | null;
   utmTerm: string | null;
+  fbclid: string | null;
   capturedAt: string;
 };
 
@@ -55,9 +56,10 @@ export function captureAttributionFromLocation() {
 
   const searchParams = new URLSearchParams(window.location.search);
   const hasUtm = UTM_KEYS.some((key) => searchParams.has(key));
+  const fbclid = searchParams.get('fbclid')?.trim() || null;
   const existing = readStored();
 
-  if (!hasUtm && existing) {
+  if (!hasUtm && !fbclid && existing) {
     return;
   }
 
@@ -69,6 +71,7 @@ export function captureAttributionFromLocation() {
     utmCampaign: pickUtm(searchParams, 'utm_campaign') ?? existing?.utmCampaign ?? null,
     utmContent: pickUtm(searchParams, 'utm_content') ?? existing?.utmContent ?? null,
     utmTerm: pickUtm(searchParams, 'utm_term') ?? existing?.utmTerm ?? null,
+    fbclid: fbclid ?? existing?.fbclid ?? null,
     capturedAt: new Date().toISOString(),
   };
 
@@ -93,6 +96,7 @@ export function getAttributionPayload() {
         utmCampaign: null,
         utmContent: null,
         utmTerm: null,
+        fbclid: null,
       };
     }
 
@@ -105,6 +109,7 @@ export function getAttributionPayload() {
       utmCampaign: null,
       utmContent: null,
       utmTerm: null,
+      fbclid: null,
     };
   }
 
@@ -117,5 +122,6 @@ export function getAttributionPayload() {
     utmCampaign: stored.utmCampaign,
     utmContent: stored.utmContent,
     utmTerm: stored.utmTerm,
+    fbclid: stored.fbclid,
   };
 }

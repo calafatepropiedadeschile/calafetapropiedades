@@ -13,6 +13,8 @@ interface Props {
   className?: string;
   variant?: 'primary' | 'outline';
   fullWidth?: boolean;
+  message?: string;
+  label?: string;
 }
 
 export default function WhatsAppButton({
@@ -22,6 +24,8 @@ export default function WhatsAppButton({
   className = '',
   variant = 'outline',
   fullWidth = true,
+  message,
+  label,
 }: Props) {
   const isEs = locale === 'es';
 
@@ -32,7 +36,7 @@ export default function WhatsAppButton({
     });
 
     const url = buildWhatsAppUrl({
-      message: buildDefaultWhatsAppMessage({ propertyTitle, pageLabel, locale }),
+      message: message ?? buildDefaultWhatsAppMessage({ propertyTitle, pageLabel, locale }),
     });
 
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -52,7 +56,7 @@ export default function WhatsAppButton({
       }}
     >
       <MessageCircle size={18} />
-      {isEs ? `WhatsApp ${primaryContact.displayPhone}` : `WhatsApp ${primaryContact.displayPhone}`}
+      {label ?? (isEs ? `WhatsApp ${primaryContact.displayPhone}` : `WhatsApp ${primaryContact.displayPhone}`)}
     </button>
   );
 }

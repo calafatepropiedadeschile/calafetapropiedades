@@ -104,7 +104,7 @@ export default async function SeoLandingPage({
     hasAvailableLots: config.filters.hasAvailableLots ?? false,
   };
 
-  const catalog = config.showCatalog !== false && hasDatabaseUrl
+  const catalog = config.layout !== 'sell' && config.showCatalog !== false && hasDatabaseUrl
     ? await getCatalogPageData(params, { preset: presetFilters, locale }).catch((error) => {
         console.warn('Skipping SEO landing catalog because the datasource is unavailable.', error);
         return {
@@ -124,7 +124,12 @@ export default async function SeoLandingPage({
   return (
     <>
       <Navbar />
-      <main style={{ paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))' }}>
+      <main
+        style={{
+          paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))',
+          ...(config.layout === 'sell' ? { backgroundColor: 'var(--color-surface)' } : {}),
+        }}
+      >
         <SeoCatalogLanding
           config={config}
           properties={catalog.properties}
@@ -132,6 +137,7 @@ export default async function SeoLandingPage({
           initialFilters={catalog.filters}
           pagination={catalog.pagination}
           cmsPage={cmsPage}
+          locale={locale}
         />
       </main>
       <Footer />

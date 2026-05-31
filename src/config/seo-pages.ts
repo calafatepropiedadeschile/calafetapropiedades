@@ -14,6 +14,35 @@ export interface SeoLandingServiceSection {
   items: string[];
 }
 
+export type SeoInfoGridIcon =
+  | 'map'
+  | 'clipboard'
+  | 'compass'
+  | 'message'
+  | 'camera'
+  | 'file'
+  | 'megaphone'
+  | 'chart';
+
+export interface SeoInfoGridStep {
+  title: string;
+  description: string;
+  icon: SeoInfoGridIcon;
+}
+
+export interface SeoInfoGridConfig {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  gridLabel: string;
+  steps: SeoInfoGridStep[];
+}
+
+export interface SeoLandingAsideNote {
+  kicker: string;
+  text: string;
+}
+
 export interface SeoLandingPageConfig {
   path: `/${SeoLandingKey}`;
   title: string;
@@ -21,6 +50,8 @@ export interface SeoLandingPageConfig {
   description: string;
   metadataTitle: string;
   metadataDescription: string;
+  /** catalog = listado; service = topografía; sell = captación de propietarios. */
+  layout?: 'catalog' | 'service' | 'sell';
   /** Si es false, la landing no muestra catálogo filtrable. */
   showCatalog?: boolean;
   filters: Partial<PropertyFilters>;
@@ -34,6 +65,16 @@ export interface SeoLandingPageConfig {
   };
   highlights: string[];
   highlightsTitle?: string;
+  /** Grillas estilo home (Información útil antes de coordinar una visita). */
+  infoGrids?: SeoInfoGridConfig[];
+  asideNote?: SeoLandingAsideNote;
+  contactSection?: {
+    title: string;
+    description: string;
+    defaultMessage: string;
+    formTitle: string;
+    formDescription: string;
+  };
   /** Bloques de servicio cuando showCatalog es false. */
   serviceSections?: SeoLandingServiceSection[];
   ctaBanner?: {
@@ -164,27 +205,145 @@ export const seoLandingPages: Record<SeoLandingKey, SeoLandingPageConfig> = {
   },
   vender: {
     path: '/vender',
+    layout: 'sell',
+    showCatalog: false,
     eyebrow: 'Venta de propiedades',
     title: 'Vender una propiedad con Calafate Propiedades',
-    description: 'Recibe apoyo para presentar tu propiedad, ordenar su información, definir una estrategia comercial y conectarla con compradores calificados.',
-    metadataTitle: 'Vender propiedad | Calafate Propiedades',
-    metadataDescription: 'Servicio para vender propiedades, terrenos o parcelas con gestión comercial, publicación y seguimiento de consultas.',
-    filters: { priceType: 'venta' },
-    primaryCta: { label: 'Solicitar evaluación', href: buildMailto(siteConfig.contact.salesEmail, siteConfig.contact.sellSubject) },
-    secondaryCta: { label: 'Ver propiedades publicadas', href: '/comprar' },
+    description:
+      'Publicamos terrenos, parcelas, casas y loteos en el sur de Chile. Te ayudamos a ordenar la información, definir el mensaje comercial y recibir consultas calificadas desde la web.',
+    metadataTitle: 'Vender propiedad, terreno o parcela | Calafate Propiedades',
+    metadataDescription:
+      'Servicio para vender terrenos, parcelas y propiedades en Los Lagos, Los Ríos y Maule. Publicación profesional, gestión de consultas y acompañamiento comercial.',
+    filters: {},
+    primaryCta: { label: 'Solicitar evaluación', href: '#vender-solicitud' },
+    secondaryCta: { label: 'Escribir por WhatsApp', href: '#vender-solicitud' },
+    highlightsTitle: 'Qué incluye el servicio',
     highlights: [
-      'Revisión de información comercial antes de publicar.',
-      'Publicación con fotos, descripción y datos útiles para compradores.',
-      'Gestión de consultas desde la web y canales comerciales.',
+      'Revisión de ubicación, superficie, accesos y condiciones comerciales.',
+      'Ficha web con fotos, descripción y datos que el comprador necesita revisar.',
+      'Gestión de consultas desde formulario, WhatsApp y campañas digitales.',
+      'Cobertura en Los Lagos, Los Ríos y Región del Maule.',
     ],
-    faqs: [
+    infoGrids: [
       {
-        question: '¿Qué necesito para vender mi propiedad?',
-        answer: 'Lo ideal es contar con ubicación, antecedentes básicos, fotografías y condiciones comerciales. El equipo puede ayudarte a ordenar la publicación.',
+        eyebrow: 'Proceso comercial',
+        title: 'Cómo llevamos tu propiedad al mercado',
+        subtitle:
+          'No se trata solo de subir fotos: ordenamos la información que un comprador revisa antes de coordinar una visita o hacer una oferta.',
+        gridLabel: 'Etapas del servicio de venta',
+        steps: [
+          {
+            icon: 'message',
+            title: 'Consulta inicial',
+            description:
+              'Nos cuentas qué quieres vender, ubicación, superficie aproximada y expectativa de precio. Revisamos si encaja con la cartera y zonas que trabajamos.',
+          },
+          {
+            icon: 'clipboard',
+            title: 'Orden de antecedentes',
+            description:
+              'Definimos rol, accesos, servicios, fotografías y condiciones de venta. Si faltan datos, te indicamos qué conviene completar antes de publicar.',
+          },
+          {
+            icon: 'camera',
+            title: 'Publicación en la web',
+            description:
+              'Creamos la ficha con mensaje claro, precio, moneda, superficie y material útil para campañas en Meta, Google y consultas directas.',
+          },
+          {
+            icon: 'megaphone',
+            title: 'Gestión de interesados',
+            description:
+              'Recibes las consultas del sitio con origen de campaña cuando aplica. Te ayudamos a responder con foco comercial y seguimiento oportuno.',
+          },
+        ],
       },
       {
-        question: 'Puedo publicar un terreno o parcela?',
-        answer: 'Sí. La web está preparada para propiedades urbanas, terrenos, parcelas y proyectos inmobiliarios.',
+        eyebrow: 'Antes de publicar',
+        title: 'Información útil para evaluar tu propiedad',
+        subtitle:
+          'Mientras más clara esté la información desde el inicio, más rápido podemos orientar precio, público objetivo y siguiente paso comercial.',
+        gridLabel: 'Puntos de revisión para propietarios',
+        steps: [
+          {
+            icon: 'map',
+            title: 'Ubicación y accesos',
+            description:
+              'Comuna, sector, camino de acceso, referencias y enlace de mapa si lo tienes. En terrenos y loteos esto es decisivo para el comprador.',
+          },
+          {
+            icon: 'file',
+            title: 'Antecedentes disponibles',
+            description:
+              'Rol, deslindes, planos previos, fotos actuales o antecedentes de subdivisión. No necesitas tener todo, pero ayuda a cotizar y publicar mejor.',
+          },
+          {
+            icon: 'chart',
+            title: 'Valor y condiciones',
+            description:
+              'Precio esperado, moneda, forma de pago, plazos o condiciones especiales. Podemos orientarte según proyectos similares publicados.',
+          },
+          {
+            icon: 'compass',
+            title: 'Disponibilidad y siguiente paso',
+            description:
+              'Si la propiedad está lista para visita, si requiere coordinación o si buscas vender un loteo completo o una unidad dentro de un proyecto.',
+          },
+        ],
+      },
+    ],
+    asideNote: {
+      kicker: 'Zonas de trabajo',
+      text:
+        'Gestionamos venta de terrenos, parcelas y proyectos en Los Lagos, Los Ríos y Región del Maule. Si tu propiedad está en otra zona, consúltanos: evaluamos caso a caso antes de comprometer una publicación.',
+    },
+    contactSection: {
+      title: 'Solicita evaluación comercial',
+      description:
+        'Cuéntanos qué quieres vender y un asesor te responderá con el siguiente paso: revisión de antecedentes, propuesta de publicación o indicaciones si aún falta información.',
+      defaultMessage:
+        'Hola, quiero vender una propiedad con Calafate Propiedades. Ubicación: [comuna/sector]. Tipo: [terreno / parcela / casa / loteo]. Superficie aproximada: [m²]. Precio esperado: [opcional].',
+      formTitle: 'Envíanos los antecedentes',
+      formDescription:
+        'Completa el formulario y te contactamos por email o teléfono. También puedes escribir por WhatsApp con el mismo mensaje base.',
+    },
+    ctaBanner: {
+      eyebrow: '¿Listo para publicar?',
+      headline: 'Conversemos sobre tu terreno, parcela o proyecto',
+      sub: 'Revisamos la información disponible y te proponemos el mejor camino para salir al mercado con una ficha clara y consultas calificadas.',
+    },
+    relatedCatalog: {
+      title: 'Conoce cómo publicamos nuestras propiedades',
+      description:
+        'Revisa fichas activas de terrenos, parcelas y proyectos para ver el nivel de detalle que entregamos a los compradores.',
+      href: '/comprar',
+      linkLabel: 'Ver propiedades en venta',
+    },
+    faqs: [
+      {
+        question: '¿Qué tipos de propiedad pueden publicar con ustedes?',
+        answer:
+          'Terrenos, parcelas, casas y proyectos de loteo en venta. Nos especializamos en el sur de Chile, con foco en información clara para compradores de terreno.',
+      },
+      {
+        question: '¿Qué necesito para iniciar la evaluación?',
+        answer:
+          'Ubicación, tipo de propiedad, superficie aproximada y, si la tienes, expectativa de precio. Fotos y antecedentes técnicos ayudan, pero no son obligatorios en el primer contacto.',
+      },
+      {
+        question: '¿Publican en todas las regiones de Chile?',
+        answer:
+          'Trabajamos principalmente en Los Lagos, Los Ríos y Región del Maule. Si tu propiedad está fuera de esas zonas, escríbenos y evaluamos si podemos gestionarla.',
+      },
+      {
+        question: '¿Cobran por publicar o por vender?',
+        answer:
+          'Las condiciones comerciales se definen en la consulta inicial según tipo de propiedad, alcance del servicio y estrategia de venta acordada.',
+      },
+      {
+        question: '¿Puedo vender un loteo completo o solo algunas parcelas?',
+        answer:
+          'Sí. Gestionamos tanto proyectos completos como unidades individuales, según la etapa del loteo y la información disponible.',
       },
     ],
   },
@@ -298,6 +457,10 @@ export function getSeoLandingPage(key: SeoLandingKey, locale: Locale = 'es'): Se
     path: base.path,
     filters: base.filters,
     showCatalog: base.showCatalog,
+    layout: base.layout,
+    infoGrids: localized.infoGrids ?? base.infoGrids,
+    asideNote: localized.asideNote ?? base.asideNote,
+    contactSection: localized.contactSection ?? base.contactSection,
   };
 }
 

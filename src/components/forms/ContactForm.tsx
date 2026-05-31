@@ -10,9 +10,19 @@ type FormState = 'idle' | 'loading' | 'error';
 
 interface Props {
   locale: string;
+  title?: string;
+  description?: string;
+  defaultMessage?: string;
+  leadSource?: string;
 }
 
-export default function ContactForm({ locale }: Props) {
+export default function ContactForm({
+  locale,
+  title,
+  description,
+  defaultMessage,
+  leadSource,
+}: Props) {
   const [state, setState] = useState<FormState>('idle');
   const [error, setError] = useState('');
   const { execute: executeRecaptcha, isEnabled: recaptchaEnabled } = useRecaptcha();
@@ -39,7 +49,7 @@ export default function ContactForm({ locale }: Props) {
           message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
           propertyId: null,
         },
-        { formType: 'contacto', recaptchaToken },
+        { formType: 'contacto', recaptchaToken, leadSource },
       );
     } catch (err) {
       setState('error');
@@ -56,12 +66,12 @@ export default function ContactForm({ locale }: Props) {
         marginBottom: 'var(--space-xs)',
       }}
       >
-        {isEs ? 'Envíanos un mensaje' : 'Send us a message'}
+        {title ?? (isEs ? 'Envíanos un mensaje' : 'Send us a message')}
       </h3>
       <p className="text-muted text-sm" style={{ marginBottom: 'var(--space-xl)' }}>
-        {isEs
+        {description ?? (isEs
           ? 'Completa el formulario y un asesor te responderá por email o WhatsApp en menos de 24 horas.'
-          : 'Complete the form and an advisor will reply by email or WhatsApp within 24 hours.'}
+          : 'Complete the form and an advisor will reply by email or WhatsApp within 24 hours.')}
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
@@ -115,8 +125,9 @@ export default function ContactForm({ locale }: Props) {
             name="message"
             className="textarea"
             required
+            defaultValue={defaultMessage}
             placeholder={isEs ? '¿En qué podemos ayudarte?' : 'How can we help you?'}
-            rows={4}
+            rows={defaultMessage ? 6 : 4}
           />
         </div>
 

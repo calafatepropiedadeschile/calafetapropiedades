@@ -31,6 +31,10 @@ export const LeadSchema = z.object({
   utmCampaign: optionalShortText(160),
   utmContent: optionalShortText(160),
   utmTerm: optionalShortText(160),
+  fbclid: optionalShortText(200),
+  metaEventId: optionalShortText(80),
+  metaFbp: optionalShortText(200),
+  metaFbc: optionalShortText(200),
   recaptchaToken: z.preprocess(emptyStringToNull, z.string().max(4096).optional().nullable()),
 });
 

@@ -58,6 +58,7 @@ export interface CampaignsGuideData {
   integrations: {
     googleAnalytics: boolean;
     metaPixel: boolean;
+    metaConversionsApi: boolean;
     smtpNotifications: boolean;
   };
   utmTemplateProject: string;
@@ -216,6 +217,7 @@ export async function getCampaignsGuideData(): Promise<CampaignsGuideData> {
   const integrations = {
     googleAnalytics: Boolean(seoSettings?.googleAnalyticsId || process.env.NEXT_PUBLIC_GA_ID?.trim()),
     metaPixel: Boolean(seoSettings?.metaPixelId || process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim()),
+    metaConversionsApi: Boolean(process.env.META_CAPI_ACCESS_TOKEN?.trim()),
     smtpNotifications: getSmtpConfigured(),
   };
 
@@ -299,9 +301,18 @@ export async function getCampaignsGuideData(): Promise<CampaignsGuideData> {
       id: 'meta',
       label: 'Meta Pixel (Facebook / Instagram)',
       description: integrations.metaPixel
-        ? 'Variable NEXT_PUBLIC_META_PIXEL_ID configurada.'
-        : 'Opcional pero recomendado para campanas en Meta. Agrega NEXT_PUBLIC_META_PIXEL_ID.',
+        ? 'Pixel activo (panel SEO o NEXT_PUBLIC_META_PIXEL_ID). Eventos: PageView, ViewContent, Lead/Contact en /gracias.'
+        : 'Recomendado para campanas en Meta. Configura el Pixel en SEO avanzado o NEXT_PUBLIC_META_PIXEL_ID en Vercel.',
       status: integrations.metaPixel ? 'ok' : 'pending',
+      href: '/admin/seo',
+    },
+    {
+      id: 'meta-capi',
+      label: 'Meta Conversions API (servidor)',
+      description: integrations.metaConversionsApi
+        ? 'META_CAPI_ACCESS_TOKEN configurado: cada consulta envia Lead/Contact duplicado con deduplicacion (event_id).'
+        : 'Opcional pero recomendado. Agrega META_CAPI_ACCESS_TOKEN en Vercel (Events Manager > Conversions API).',
+      status: integrations.metaConversionsApi ? 'ok' : integrations.metaPixel ? 'warning' : 'pending',
     },
     {
       id: 'smtp',

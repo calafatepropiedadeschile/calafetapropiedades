@@ -6,6 +6,7 @@ import { Bed, Bath, Ruler, CheckCircle2, Heart } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
+import PropertyViewContentTracker from '@/components/marketing/PropertyViewContentTracker';
 import PropertyGallery from '@/components/properties/PropertyGallery';
 import SimilarPropertiesSection from '@/components/properties/SimilarPropertiesSection';
 import { getPropertyBySlug, getSimilarProperties } from '@/features/properties/property.service';
@@ -253,6 +254,13 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
 
   return (
     <>
+      <PropertyViewContentTracker
+        contentId={slug}
+        contentName={title}
+        value={price}
+        currency={currency}
+        contentCategory={isProjectLandingSlug(slug) ? 'project' : 'property'}
+      />
       <Navbar />
       <main lang={locale} className="pdp-main" style={{ paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))', backgroundColor: 'var(--color-surface-2)', minHeight: '100vh' }}>
         <section className="container section-padding" style={{ paddingBottom: 'var(--space-4xl)', paddingTop: 'var(--space-2xl)' }}>

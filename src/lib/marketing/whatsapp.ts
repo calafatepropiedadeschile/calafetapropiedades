@@ -41,3 +41,24 @@ export function buildDefaultWhatsAppMessage(context?: {
 
   return lines.join('\n');
 }
+
+export function buildSellWhatsAppMessage(locale: 'es' | 'en' = 'es') {
+  const isEs = locale !== 'en';
+  const attribution = getStoredAttribution();
+
+  const lines = [
+    isEs
+      ? 'Hola, quiero vender una propiedad con Calafate Propiedades.'
+      : 'Hello, I want to sell a property with Calafate Propiedades.',
+    isEs ? 'Página: /vender' : 'Page: /vender',
+    isEs
+      ? 'Ubicación: [comuna/sector] · Tipo: [terreno/parcela/casa/loteo] · Superficie: [m²]'
+      : 'Location: [area] · Type: [land/lot/house/subdivision] · Area: [m²]',
+  ];
+
+  if (attribution?.utmCampaign) {
+    lines.push(`Campaña: ${attribution.utmCampaign}`);
+  }
+
+  return lines.join('\n');
+}

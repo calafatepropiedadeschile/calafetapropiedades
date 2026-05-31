@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
+import PropertyViewContentTracker from '@/components/marketing/PropertyViewContentTracker';
 import PropertyCommercialHighlights from '@/components/properties/PropertyCommercialHighlights';
 import PropertyDescription from '@/components/properties/PropertyDescription';
 import PropertyLandProjectSections from '@/components/properties/PropertyLandProjectSections';
@@ -147,6 +148,13 @@ export default async function ProjectLandingPage({ params }: Props) {
 
   return (
     <>
+      <PropertyViewContentTracker
+        contentId={project.slug}
+        contentName={project.title}
+        value={project.price}
+        currency={project.currency}
+        contentCategory="project"
+      />
       <Navbar />
       <main style={{ paddingTop: 'calc(var(--nav-height) + var(--secondary-header-height))', background: 'var(--color-surface-2)' }}>
         <section className="container section" style={{

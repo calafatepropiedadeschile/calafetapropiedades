@@ -1,6 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest, after } from 'next/server';
 import { LeadSchema } from '@/features/leads/lead.schemas';
 import { getLeadService, InvalidLeadPropertyError } from '@/features/leads/lead.service';
+import { resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
+import { sendMetaConversionEvent } from '@/lib/marketing/meta-conversions-api';
+import { randomUUID } from 'node:crypto';
 import { apiCorsHeaders, isAllowedOriginRequest, readJsonBody } from '@/server/api/request';
 import { apiBadRequest, apiCreated, apiForbidden, apiServerError, firstZodError } from '@/server/api/responses';
 import { enforceRateLimit, RATE_LIMITS } from '@/server/security/rate-limit';
@@ -50,7 +53,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       return apiBadRequest(firstZodError(parsed.error), headers);
     }
 
-    const { recaptchaToken, ...leadData } = parsed.data;
+    const {
+      recaptchaToken,
+      metaEventId,
+      metaFbp,
+      metaFbc,
+      fbclid,
+      ...leadData
+    } = parsed.data;
     const recaptchaAction = leadData.propertyId ? 'property_lead' : 'contact_submit';
 
     const captcha = await verifyRecaptchaToken(recaptchaToken, {
@@ -63,6 +73,39 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     }
 
     await getLeadService().registerLead(leadData);
+
+    const conversionEventId = metaEventId?.trim() || randomUUID();
+    const clientIp = getRequestIp(request);
+    const userAgent = request.headers.get('user-agent');
+
+    after(async () => {
+      try {
+        const baseUrl = await resolveCanonicalBaseUrl();
+        const landing = leadData.landingPath?.trim() || '/';
+        const eventSourceUrl = landing.startsWith('http')
+          ? landing
+          : `${baseUrl}${landing.startsWith('/') ? landing : `/${landing}`}`;
+
+        await sendMetaConversionEvent({
+          eventName: leadData.propertyId ? 'Lead' : 'Contact',
+          eventId: conversionEventId,
+          eventSourceUrl,
+          email: leadData.email,
+          phone: leadData.phone,
+          clientIpAddress: clientIp,
+          clientUserAgent: userAgent,
+          fbp: metaFbp,
+          fbc: metaFbc,
+          fbclid,
+          customData: leadData.propertyId
+            ? { content_type: 'product', lead_source: leadData.leadSource ?? 'web_form' }
+            : { lead_source: leadData.leadSource ?? 'web_form' },
+        });
+      } catch (error) {
+        console.warn('[Meta CAPI] lead conversion skipped', error);
+      }
+    });
+
     return apiCreated('Consulta recibida. Nos pondremos en contacto pronto.', headers);
   } catch (error) {
     if (error instanceof Error && error.message === 'CONTENT_TYPE_NOT_JSON') {

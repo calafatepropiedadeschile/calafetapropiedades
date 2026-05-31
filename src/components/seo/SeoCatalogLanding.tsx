@@ -1,12 +1,14 @@
 import PropertyCatalog, { type CatalogPagination } from '@/components/properties/PropertyCatalog';
 import FaqStructuredData from '@/components/seo/FaqStructuredData';
 import RentalsEmptyLanding from '@/components/seo/RentalsEmptyLanding';
+import SeoSellLanding from '@/components/seo/SeoSellLanding';
 import SeoServiceLandingSections from '@/components/seo/SeoServiceLandingSections';
 import StaticPageContent from '@/components/site/StaticPageContent';
 import type { SeoLandingPageConfig } from '@/config/seo-pages';
 import type { StaticPageView } from '@/features/site-content/static-page';
 import type { CatalogFilterState } from '@/features/properties/property-filtering';
 import type { PropertyCard } from '@/types/property';
+import type { Locale } from '@/lib/i18n/config';
 
 interface Props {
   config: SeoLandingPageConfig;
@@ -15,6 +17,7 @@ interface Props {
   initialFilters: CatalogFilterState;
   pagination: CatalogPagination;
   cmsPage?: StaticPageView | null;
+  locale?: Locale;
 }
 
 export default function SeoCatalogLanding({
@@ -24,7 +27,12 @@ export default function SeoCatalogLanding({
   initialFilters,
   pagination,
   cmsPage,
+  locale = 'es',
 }: Props) {
+  if (config.layout === 'sell') {
+    return <SeoSellLanding config={config} cmsPage={cmsPage} locale={locale} />;
+  }
+
   const showCatalog = config.showCatalog !== false;
   const isRentalsPage = config.filters.priceType === 'arriendo';
   const hasRentalInventory = pagination.total > 0;

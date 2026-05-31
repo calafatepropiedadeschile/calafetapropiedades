@@ -119,25 +119,139 @@ export const seoLandingPagesEn: Record<
     eyebrow: 'Sell your property',
     title: 'Sell a property with Calafate Propiedades',
     description:
-      'Get support to present your property, organize key information, define a commercial strategy, and connect with qualified buyers.',
-    metadataTitle: 'Sell property | Calafate Propiedades',
+      'We publish land, lots, houses, and subdivisions in southern Chile. We help you organize information, define the commercial message, and receive qualified inquiries from the website.',
+    metadataTitle: 'Sell land, lot, or property | Calafate Propiedades',
     metadataDescription:
-      'Service to sell properties, land, or lots with commercial management, publishing, and inquiry follow-up.',
-    primaryCta: { label: 'Request valuation', href: buildMailto(siteConfig.contact.salesEmail, siteConfig.contact.sellSubject) },
-    secondaryCta: { label: 'View published listings', href: '/comprar' },
+      'Service to sell land, lots, and properties in Los Lagos, Los Ríos, and Maule. Professional publishing, inquiry management, and commercial support.',
+    primaryCta: { label: 'Request valuation', href: '#vender-solicitud' },
+    secondaryCta: { label: 'Message on WhatsApp', href: '#vender-solicitud' },
+    highlightsTitle: 'What the service includes',
     highlights: [
-      'Commercial information review before publishing.',
-      'Listings with photos, description, and useful buyer data.',
-      'Inquiry management from the website and sales channels.',
+      'Review of location, area, access, and commercial conditions.',
+      'Web listing with photos, description, and buyer-ready data.',
+      'Inquiry management from forms, WhatsApp, and digital campaigns.',
+      'Coverage in Los Lagos, Los Ríos, and Maule Region.',
     ],
-    faqs: [
+    infoGrids: [
       {
-        question: 'What do I need to sell my property?',
-        answer: 'Ideally location, basic records, photos, and commercial terms. The team can help organize the listing.',
+        eyebrow: 'Commercial process',
+        title: 'How we bring your property to market',
+        subtitle:
+          'It is not only about uploading photos: we organize the information a buyer reviews before scheduling a visit or making an offer.',
+        gridLabel: 'Selling service stages',
+        steps: [
+          {
+            icon: 'message',
+            title: 'Initial inquiry',
+            description:
+              'Tell us what you want to sell, location, approximate area, and price expectation. We check fit with our portfolio and regions.',
+          },
+          {
+            icon: 'clipboard',
+            title: 'Information review',
+            description:
+              'We define tax ID, access, utilities, photos, and sale terms. If data is missing, we tell you what to complete before publishing.',
+          },
+          {
+            icon: 'camera',
+            title: 'Website publishing',
+            description:
+              'We create the listing with clear messaging, price, currency, area, and assets useful for Meta, Google, and direct inquiries.',
+          },
+          {
+            icon: 'megaphone',
+            title: 'Buyer follow-up',
+            description:
+              'You receive site inquiries with campaign source when applicable. We help you respond with a commercial focus and timely follow-up.',
+          },
+        ],
       },
       {
-        question: 'Can I list land or a lot?',
-        answer: 'Yes. The site supports urban properties, land, lots, and real estate projects.',
+        eyebrow: 'Before publishing',
+        title: 'Useful information to evaluate your property',
+        subtitle:
+          'The clearer the information from the start, the faster we can guide price, target audience, and next commercial steps.',
+        gridLabel: 'Review points for owners',
+        steps: [
+          {
+            icon: 'map',
+            title: 'Location and access',
+            description:
+              'Municipality, area, road access, references, and map link if available. For land and lots this is decisive for buyers.',
+          },
+          {
+            icon: 'file',
+            title: 'Available records',
+            description:
+              'Tax ID, boundaries, prior plans, current photos, or subdivision records. Not everything is required, but it improves quoting and publishing.',
+          },
+          {
+            icon: 'chart',
+            title: 'Value and terms',
+            description:
+              'Expected price, currency, payment method, timelines, or special terms. We can guide you based on similar published projects.',
+          },
+          {
+            icon: 'compass',
+            title: 'Availability and next step',
+            description:
+              'Whether the property is ready for visits, needs coordination, or you want to sell a full subdivision or individual lots.',
+          },
+        ],
+      },
+    ],
+    asideNote: {
+      kicker: 'Service areas',
+      text:
+        'We manage sales of land, lots, and projects in Los Lagos, Los Ríos, and Maule Region. If your property is elsewhere, contact us: we evaluate case by case before committing to a listing.',
+    },
+    contactSection: {
+      title: 'Request a commercial valuation',
+      description:
+        'Tell us what you want to sell and an advisor will reply with the next step: record review, publishing proposal, or guidance if information is still missing.',
+      defaultMessage:
+        'Hello, I want to sell a property with Calafate Propiedades. Location: [municipality/area]. Type: [land / lot / house / subdivision]. Approx. area: [m²]. Expected price: [optional].',
+      formTitle: 'Send us the details',
+      formDescription:
+        'Complete the form and we will contact you by email or phone. You can also write on WhatsApp using the same base message.',
+    },
+    ctaBanner: {
+      eyebrow: 'Ready to publish?',
+      headline: 'Let us talk about your land, lot, or project',
+      sub: 'We review available information and propose the best path to market with a clear listing and qualified inquiries.',
+    },
+    relatedCatalog: {
+      title: 'See how we publish properties',
+      description:
+        'Browse active land, lot, and project listings to see the level of detail we provide to buyers.',
+      href: '/comprar',
+      linkLabel: 'View properties for sale',
+    },
+    faqs: [
+      {
+        question: 'What property types can you list?',
+        answer:
+          'Land, lots, houses, and subdivision projects for sale. We specialize in southern Chile with clear information for land buyers.',
+      },
+      {
+        question: 'What do I need to start the valuation?',
+        answer:
+          'Location, property type, approximate area, and expected price if you have it. Photos and technical records help but are not required on first contact.',
+      },
+      {
+        question: 'Do you publish in all regions of Chile?',
+        answer:
+          'We mainly work in Los Lagos, Los Ríos, and Maule Region. If your property is outside those areas, write to us and we will evaluate it.',
+      },
+      {
+        question: 'Do you charge to publish or to sell?',
+        answer:
+          'Commercial terms are defined in the initial consultation based on property type, service scope, and agreed sales strategy.',
+      },
+      {
+        question: 'Can I sell a full subdivision or only some lots?',
+        answer:
+          'Yes. We manage full projects and individual units depending on subdivision stage and available information.',
       },
     ],
   },

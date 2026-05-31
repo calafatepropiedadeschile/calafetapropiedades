@@ -14,6 +14,7 @@ export default function GraciasView() {
   const tipo = searchParams.get('tipo') === 'contacto' ? 'contacto' : 'lead';
   const proyecto = searchParams.get('proyecto')?.trim() ?? '';
   const slug = searchParams.get('slug')?.trim() ?? '';
+  const eventId = searchParams.get('eid')?.trim() ?? undefined;
 
   const title = useMemo(() => (
     tipo === 'contacto'
@@ -22,12 +23,15 @@ export default function GraciasView() {
   ), [tipo]);
 
   useEffect(() => {
-    trackConversionThankYou({
-      conversion_type: tipo,
-      property_slug: slug || undefined,
-      property_title: proyecto || undefined,
-    });
-  }, [tipo, slug, proyecto]);
+    trackConversionThankYou(
+      {
+        conversion_type: tipo,
+        property_slug: slug || undefined,
+        property_title: proyecto || undefined,
+      },
+      { eventID: eventId, conversionType: tipo },
+    );
+  }, [tipo, slug, proyecto, eventId]);
 
   return (
     <>
