@@ -6203,19 +6203,19 @@ input:checked + .slider:before {
   justify-content: center;
   box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35), 0 8px 32px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: none;
   position: relative;
+  isolation: isolate;
+  contain: layout;
 }
 
 .whatsapp-trigger-btn:hover {
   transform: scale(1.08) rotate(5deg);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5), 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
 .whatsapp-trigger-btn.active {
   background-color: var(--color-dark);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 8px 32px rgba(0, 0, 0, 0.15);
   transform: rotate(90deg);
 }
 
@@ -6236,33 +6236,48 @@ input:checked + .slider:before {
   to { transform: rotate(0); opacity: 1; }
 }
 
-/* Pulse Glow Effect on Button */
+/* Anillo de pulso (solo transform + opacity — compositable) */
 .whatsapp-trigger-btn::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   border-radius: var(--radius-full);
-  box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
-  animation: whatsapp-pulse 2s infinite;
+  border: 2px solid rgba(37, 211, 102, 0.55);
+  opacity: 0.7;
+  animation: whatsapp-pulse-ring 2s infinite;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 
 .whatsapp-trigger-btn.active::after {
   animation: none;
+  opacity: 0;
 }
 
-@keyframes whatsapp-pulse {
+@keyframes whatsapp-pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+    transform: scale(1);
+    opacity: 0.7;
   }
   70% {
-    box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+    transform: scale(1.45);
+    opacity: 0;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-trigger-btn::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .whatsapp-status-pulse::after {
+    animation: none;
+    opacity: 0;
   }
 }
 
