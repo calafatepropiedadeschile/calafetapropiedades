@@ -5733,7 +5733,7 @@ input:checked + .slider:before {
 
 .footer-credit {
   font-size: 0.80rem;
-  color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
   margin: 0;
   letter-spacing: 0.2px;
 }
