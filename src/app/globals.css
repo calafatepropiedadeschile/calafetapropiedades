@@ -1843,9 +1843,9 @@ input, textarea, select {
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 16px;
-  padding: 18px;
+  gap: 4px;
+  margin: 12px;
+  padding: 14px;
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.70);
   backdrop-filter: blur(12px) saturate(1.15);
@@ -1893,9 +1893,9 @@ input, textarea, select {
 
 .property-card-price {
   order: 4;
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--color-primary);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -1907,9 +1907,9 @@ input, textarea, select {
   margin: 0;
   overflow: hidden;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.25;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -1941,9 +1941,9 @@ input, textarea, select {
   order: 3;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 12px;
+  gap: 8px 10px;
   align-items: center;
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--color-text);
   font-weight: 600;
   font-size: 0.8rem;
