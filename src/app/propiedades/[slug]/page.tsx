@@ -241,7 +241,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
           <div className="property-detail-layout">
             <div>
               {/* Modern Gallery is now INSIDE the left column */}
-              <PropertyGallery images={galleryImages} title={title} locale={locale} />
+              <PropertyGallery images={galleryImages} title={title} locale={locale} youtubeUrl={property.youtubeUrl} />
 
               <div style={{ marginBottom: 'var(--space-2xl)' }}>
                 <div className="pdp-hero-header">

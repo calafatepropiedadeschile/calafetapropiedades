@@ -228,7 +228,7 @@ export function createPropertyRepository(db: PropertyDbClient) {
         db.property.findMany({
           where,
           select: propertyCardSelect,
-          orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+          orderBy: [{ sortOrder: 'desc' }, { featured: 'desc' }, { createdAt: 'desc' }],
           skip: (page - 1) * limit,
           take: limit,
         }),
@@ -247,7 +247,7 @@ export function createPropertyRepository(db: PropertyDbClient) {
       const properties = await db.property.findMany({
         where: buildPublishedPropertyWhere({ priceType: 'venta', country: 'Chile' }),
         select: propertyCardSelect,
-        orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+        orderBy: [{ sortOrder: 'desc' }, { featured: 'desc' }, { createdAt: 'desc' }],
         take: limit,
       });
 
@@ -272,8 +272,8 @@ export function createPropertyRepository(db: PropertyDbClient) {
           ],
         },
         select: propertyCardSelect,
-        orderBy: { createdAt: 'desc' },
-        take: 6,
+        orderBy: [{ sortOrder: 'desc' }, { createdAt: 'desc' }],
+        take: 3,
       });
 
       return properties.map((p) => mapPropertyCard(p, locale));

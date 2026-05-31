@@ -10,9 +10,16 @@ interface Props {
   images: string[];
   title: string;
   locale?: Locale;
+  youtubeUrl?: string | null;
 }
 
-export default function PropertyGallery({ images, title, locale = DEFAULT_LOCALE }: Props) {
+function getYoutubeEmbedUrl(url?: string | null) {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
+  return match ? `https://www.youtube.com/embed/${match[1]}?rel=0` : null;
+}
+
+export default function PropertyGallery({ images, title, locale = DEFAULT_LOCALE, youtubeUrl }: Props) {
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
   const galleryImages = useMemo(() => images.filter(Boolean), [images]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -89,6 +96,18 @@ export default function PropertyGallery({ images, title, locale = DEFAULT_LOCALE
           {galleryImages.length > 1 ? `${galleryImages.length} Fotos` : t('gallery.viewPhoto')}
         </button>
       </div>
+
+      {youtubeUrl && getYoutubeEmbedUrl(youtubeUrl) && (
+        <div style={{ marginTop: 'var(--space-md)', position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
+          <iframe 
+            src={getYoutubeEmbedUrl(youtubeUrl) || ''} 
+            title="YouTube video player" 
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }} 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowFullScreen
+          />
+        </div>
+      )}
 
       {isOpen && activeImage && (
         <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={`${t('gallery.dialogLabel')} ${title}`}>

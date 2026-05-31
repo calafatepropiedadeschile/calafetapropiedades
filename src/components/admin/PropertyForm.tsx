@@ -74,6 +74,7 @@ interface DefaultValues {
   expenses?: number | null;
   parking?: number | null;
   internalCode?: string | null;
+  agentId?: string | null;
   agentName?: string | null;
   agentPhone?: string | null;
   agentEmail?: string | null;
@@ -82,6 +83,7 @@ interface DefaultValues {
   zoning?: string | null;
   mapUrl?: string | null;
   virtualTourUrl?: string | null;
+  youtubeUrl?: string | null;
   lotSurfaceM2?: number | null;
   totalLots?: number | null;
   availableLots?: number | null;
@@ -102,6 +104,7 @@ interface DefaultValues {
   amenities?: string[];
   images?: string[];
   coverImage?: string | null;
+  sortOrder?: number | null;
   seoTitleEs?: string | null;
   seoTitleEn?: string | null;
   seoDescriptionEs?: string | null;
@@ -115,6 +118,7 @@ interface Props {
   defaultValues?: DefaultValues;
   propertyId?: string;
   slug?: string;
+  agents?: { id: string; name: string }[];
 }
 
 const AMENITY_OPTIONS = [
@@ -244,7 +248,7 @@ function resolveDefaultMarketRegion(country: string | null | undefined, marketRe
   return isPropertyMarketRegion(marketRegion) ? marketRegion : getMarketRegionForCountry(country ?? 'Chile');
 }
 
-export default function PropertyForm({ action, defaultValues = {}, propertyId, slug: initialSlug = '' }: Props) {
+export default function PropertyForm({ action, defaultValues = {}, propertyId, slug: initialSlug = '', agents = [] }: Props) {
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -301,6 +305,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       expenses: defaultValues.expenses ?? null,
       parking: defaultValues.parking ?? null,
       internalCode: defaultValues.internalCode ?? '',
+      agentId: defaultValues.agentId ?? '',
       agentName: defaultValues.agentName ?? '',
       agentPhone: defaultValues.agentPhone ?? '',
       agentEmail: defaultValues.agentEmail ?? '',
@@ -309,6 +314,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       zoning: defaultValues.zoning ?? '',
       mapUrl: defaultValues.mapUrl ?? '',
       virtualTourUrl: defaultValues.virtualTourUrl ?? '',
+      youtubeUrl: defaultValues.youtubeUrl ?? '',
       lotSurfaceM2: defaultValues.lotSurfaceM2 ?? defaultValues.totalArea ?? null,
       totalLots: defaultValues.totalLots ?? null,
       availableLots: defaultValues.availableLots ?? null,
@@ -328,7 +334,8 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       services: defaultValues.services ?? [],
       amenities: defaultValues.amenities ?? [],
       images: defaultValues.images ?? [],
-      coverImage: defaultValues.coverImage ?? null,
+      coverImage: defaultValues.coverImage ?? '',
+      sortOrder: defaultValues.sortOrder ?? 0,
       seoTitleEs: defaultValues.seoTitleEs ?? '',
       seoTitleEn: defaultValues.seoTitleEn ?? '',
       seoDescriptionEs: defaultValues.seoDescriptionEs ?? '',
@@ -751,6 +758,12 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             {errors.virtualTourUrl && <p className="form-error">{errors.virtualTourUrl.message}</p>}
           </div>
 
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label">Video YouTube</label>
+            <input className="input" type="url" placeholder="https://youtube.com/watch?v=..." {...register('youtubeUrl')} />
+            {errors.youtubeUrl && <p className="form-error">{errors.youtubeUrl.message}</p>}
+          </div>
+
           <div className="input-group">
             <label className="input-label">Latitud (mapa embebido)</label>
             <input
@@ -931,15 +944,33 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             <input className="input" placeholder="Ej: DH-001" {...register('internalCode')} />
           </div>
           <div className="input-group">
-            <label className="input-label">Agente responsable</label>
+            <label className="input-label">Orden en catálogo</label>
+            <input type="number" className="input" placeholder="0" {...register('sortOrder', { valueAsNumber: true })} />
+          </div>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="input-label" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              Directorio de Agentes
+              <span className="text-xs text-muted" style={{ fontWeight: 'normal' }}>
+                (Si seleccionas uno, sobreescribe los campos manuales)
+              </span>
+            </label>
+            <select className="select" {...register('agentId')}>
+              <option value="">Ingreso manual (Ninguno)</option>
+              {agents.map((agent) => (
+                <option key={agent.id} value={agent.id}>{agent.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group">
+            <label className="input-label">Nombre agente manual</label>
             <input className="input" placeholder="Nombre del agente" {...register('agentName')} />
           </div>
           <div className="input-group">
-            <label className="input-label">Teléfono del agente</label>
+            <label className="input-label">Teléfono manual</label>
             <input className="input" placeholder="+54 11..." {...register('agentPhone')} />
           </div>
           <div className="input-group">
-            <label className="input-label">Email del agente</label>
+            <label className="input-label">Email manual</label>
             <input type="email" className="input" placeholder="agente@empresa.com" autoComplete="off" {...register('agentEmail')} />
             {errors.agentEmail && <p className="form-error">{errors.agentEmail.message}</p>}
           </div>

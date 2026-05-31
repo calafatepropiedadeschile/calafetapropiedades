@@ -72,6 +72,10 @@ model Property {
   amenities   String   @default("[]")
   images      String   @default("[]")
   coverImage  String?
+  youtubeUrl  String?
+  sortOrder   Int      @default(0)
+  agentId     String?
+  agent       Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   leads       Lead[]
@@ -94,6 +98,7 @@ model Property {
   @@index([published, bedrooms])
   @@index([published, availableLots])
   @@index([published, lotSurfaceM2])
+  @@index([published, sortOrder, createdAt])
 }
 
 model Lead {
@@ -181,4 +186,15 @@ model StaticPage {
   ogImage          String?
 
   @@index([published, createdAt])
+}
+
+model Agent {
+  id        String     @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  photoUrl  String?
+  properties Property[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }

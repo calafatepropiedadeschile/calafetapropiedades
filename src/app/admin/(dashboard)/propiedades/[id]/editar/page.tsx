@@ -71,6 +71,7 @@ export default async function EditarPropiedadPage({ params }: Props) {
         zoning: true,
         mapUrl: true,
         virtualTourUrl: true,
+        youtubeUrl: true,
         lotSurfaceM2: true,
         totalLots: true,
         availableLots: true,
@@ -97,6 +98,8 @@ export default async function EditarPropiedadPage({ params }: Props) {
         seoDescriptionEn: true,
         customCanonical: true,
         ogImage: true,
+        agentId: true,
+        sortOrder: true,
       },
     })
   ));
@@ -112,6 +115,10 @@ export default async function EditarPropiedadPage({ params }: Props) {
     images: parseJsonList(property.images),
   };
 
+  const agents = await withDatabaseRole('admin', async (db) =>
+    db.agent.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+  ).catch(() => []);
+
   return (
     <div>
       <div className="admin-page-header">
@@ -125,6 +132,7 @@ export default async function EditarPropiedadPage({ params }: Props) {
         defaultValues={formProperty}
         propertyId={property.id}
         slug={property.slug}
+        agents={agents}
       />
     </div>
   );

@@ -1,9 +1,14 @@
 import { createProperty } from '../actions';
 import PropertyForm from '@/components/admin/PropertyForm';
 import { requireAdminSession } from '@/lib/auth/require-admin';
+import { withDatabaseRole } from '@/lib/db/rls';
 
 export default async function NuevaPropiedadPage() {
   await requireAdminSession();
+
+  const agents = await withDatabaseRole('admin', async (db) =>
+    db.agent.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+  ).catch(() => []);
 
   return (
     <div>
@@ -13,7 +18,7 @@ export default async function NuevaPropiedadPage() {
           <p className="text-muted text-sm">Completa todos los campos requeridos</p>
         </div>
       </div>
-      <PropertyForm action={createProperty} />
+      <PropertyForm action={createProperty} agents={agents} />
     </div>
   );
 }
