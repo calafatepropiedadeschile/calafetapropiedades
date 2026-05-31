@@ -23,6 +23,22 @@ import {
   LAND_AMENITY_OPTIONS,
   LAND_SERVICE_OPTIONS,
 } from '@/features/properties/property-land-options';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableImageCard } from './SortableImageCard';
 
 interface DefaultValues {
   titleEs?: string;
@@ -434,6 +450,27 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
 
     if (coverImage === url) {
       setValue('coverImage', nextImages[0] ?? null, { shouldDirty: true, shouldValidate: true });
+    }
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = images.indexOf(active.id as string);
+      const newIndex = images.indexOf(over.id as string);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const nextImages = arrayMove(images, oldIndex, newIndex);
+        setValue('images', nextImages, { shouldDirty: true, shouldValidate: true });
+      }
     }
   }
 
@@ -972,66 +1009,24 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         {uploadError && <p className="form-error" style={{ marginTop: 'var(--space-sm)' }}>{uploadError}</p>}
 
         {images.length > 0 && (
-          <div className="image-preview-grid">
-            {images.map((url, index) => (
-              <div key={url} className={`image-preview-card ${coverImage === url ? 'is-primary' : ''}`}>
-                <Image src={url} alt="Imagen de propiedad" fill sizes="160px" style={{ objectFit: 'cover' }} />
-                <div className="image-position-badges">
-                  {coverImage === url && (
-                    <span className="image-position-badge is-primary">
-                      <Star size={13} fill="currentColor" />
-                      Principal
-                    </span>
-                  )}
-                  {coverImage !== url && index === 1 && (
-                    <span className="image-position-badge">Secundaria</span>
-                  )}
-                  {coverImage !== url && index === 2 && (
-                    <span className="image-position-badge">Tercera</span>
-                  )}
-                </div>
-                <div className="image-position-actions">
-                  {coverImage !== url && (
-                    <button
-                      type="button"
-                      className="image-position-btn"
-                      onClick={() => selectPrimaryImage(url)}
-                      aria-label="Usar esta imagen como principal"
-                      title="Usar como principal"
-                    >
-                      <Star size={13} />
-                      Principal
-                    </button>
-                  )}
-                  {coverImage !== url && index !== 1 && images.length > 1 && (
-                    <button
-                      type="button"
-                      className="image-position-btn"
-                      onClick={() => moveImageToGalleryPosition(url, 1)}
-                      aria-label="Usar esta imagen como secundaria"
-                      title="Usar como secundaria"
-                    >
-                      2da
-                    </button>
-                  )}
-                  {coverImage !== url && index !== 2 && images.length > 2 && (
-                    <button
-                      type="button"
-                      className="image-position-btn"
-                      onClick={() => moveImageToGalleryPosition(url, 2)}
-                      aria-label="Usar esta imagen como tercera"
-                      title="Usar como tercera"
-                    >
-                      3ra
-                    </button>
-                  )}
-                </div>
-                <button type="button" className="image-remove-btn" onClick={() => removeImage(url)} aria-label="Eliminar imagen">
-                  <Trash2 size={16} />
-                </button>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={images} strategy={rectSortingStrategy}>
+              <div className="image-preview-grid">
+                {images.map((url, index) => (
+                  <SortableImageCard
+                    key={url}
+                    url={url}
+                    index={index}
+                    coverImage={coverImage}
+                    totalImages={images.length}
+                    onSelectPrimary={selectPrimaryImage}
+                    onMoveToPosition={moveImageToGalleryPosition}
+                    onRemove={removeImage}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
 
         <div className="form-grid form-grid-2" style={{ marginTop: 'var(--space-md)' }}>
