@@ -86,7 +86,6 @@ export default function SeoCatalogLanding({
         <RentalsEmptyLanding contactHref={config.secondaryCta.href} />
       ) : showCatalog ? (
         <PropertyCatalog
-          key={JSON.stringify(initialFilters)}
           properties={properties}
           zoneOptions={zoneOptions}
           initialFilters={initialFilters}

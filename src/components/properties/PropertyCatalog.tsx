@@ -138,6 +138,16 @@ export default function PropertyCatalog({
   const [queryDraft, setQueryDraft] = useState(() => filters.query);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filtersRef = useRef(filters);
+  const providedFiltersJson = JSON.stringify(providedFilters);
+
+  useEffect(() => {
+    const next = normalizeCatalogFilters({
+      ...DEFAULT_CATALOG_FILTERS,
+      ...JSON.parse(providedFiltersJson || '{}'),
+    });
+    setFilters(next);
+    setQueryDraft((current) => current !== next.query ? next.query : current);
+  }, [providedFiltersJson]);
 
   useEffect(() => {
     filtersRef.current = filters;
