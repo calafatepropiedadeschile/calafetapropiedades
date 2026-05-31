@@ -12,7 +12,7 @@ import LenisProvider from '@/components/providers/LenisProvider';
 import AttributionCapture from '@/components/marketing/AttributionCapture';
 import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { getSiteSettings } from '@/features/site-content/site-settings';
 import { SiteSettingsProvider } from '@/features/site-content/SiteSettingsProvider';
 import './globals.css';
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
   const locale = isSupportedLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
   const siteName = seo?.siteName ?? 'Calafate Propiedades';
-  const baseUrl = seo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
   const defaultTitle = locale === 'en'
     ? (seo?.defaultTitleEn ?? seo?.defaultTitleEs ?? 'Calafate Propiedades')
     : (seo?.defaultTitleEs ?? 'Calafate Propiedades');

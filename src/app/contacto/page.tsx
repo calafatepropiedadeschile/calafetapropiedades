@@ -8,7 +8,8 @@ import StaticPageContent from '@/components/site/StaticPageContent';
 import { getPublishedStaticPageBySlug, getStaticPageBySlugForAdmin } from '@/features/site-content/static-page';
 import { DEFAULT_LOCALE, isSupportedLocale, type Locale } from '@/lib/i18n/config';
 import { siteConfig } from '@/config/site';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 interface Props {
   searchParams: Promise<{ lang?: string }>;
@@ -31,10 +32,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const session = await auth();
   const cms = await getContactCms(locale, session?.user?.role === 'admin');
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
   const title = cms?.seoTitle ? cms.seoTitle : `Contacto - ${siteConfig.name}`;
   const description = cms?.seoDescription ?? `Ponte en contacto con ${siteConfig.name} para comprar, vender, alquilar o invertir en propiedades.`;
-  const canonical = cms?.customCanonical || `${baseUrl}/contacto${locale === 'en' ? '?lang=en' : ''}`;
+  const canonical = normalizeOptionalCanonicalUrl(cms?.customCanonical, baseUrl)
+    || buildCanonicalUrl(baseUrl, '/contacto', { locale });
   const image = cms?.ogImage || siteSeo?.defaultOgImage || undefined;
 
   return {

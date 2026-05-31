@@ -3,7 +3,8 @@ import { auth } from '@/lib/auth/auth';
 import NosotrosView from './NosotrosView';
 import { getPublishedStaticPageBySlug, getStaticPageBySlugForAdmin } from '@/features/site-content/static-page';
 import { siteConfig } from '@/config/site';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 async function resolveNosotrosCms(locale: 'es' | 'en', isAdmin: boolean) {
   const published = await getPublishedStaticPageBySlug('nosotros', locale);
@@ -17,10 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
     getPublishedStaticPageBySlug('nosotros', 'es').catch(() => null),
     getSiteSeoSettings().catch(() => null),
   ]);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
   const title = cms?.seoTitle || `Nosotros - ${siteConfig.name}`;
   const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompaña en cada operación.`;
-  const canonical = cms?.customCanonical || `${baseUrl}/nosotros`;
+  const canonical = normalizeOptionalCanonicalUrl(cms?.customCanonical, baseUrl)
+    || buildCanonicalUrl(baseUrl, '/nosotros');
   const image = cms?.ogImage || siteSeo?.defaultOgImage || undefined;
 
   return {

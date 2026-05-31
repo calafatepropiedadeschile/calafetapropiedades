@@ -23,7 +23,8 @@ import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { auth } from '@/lib/auth/auth';
 import StructuredData from '@/components/seo/StructuredData';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 export const revalidate = 3600;
 
@@ -107,7 +108,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const property = await getSafePropertyBySlug(slug, locale, isAdmin);
   if (!property) return { title: 'Propiedad no encontrada' };
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
 
   // Use dynamic override fields or fallback to translation-aware intelligent defaults
   const seoTitle = locale === 'en' 
@@ -118,7 +119,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     ? (property.seoDescriptionEn || property.seoDescriptionEs || property.description.slice(0, 160))
     : (property.seoDescriptionEs || property.description.slice(0, 160));
 
-  const canonicalUrl = property.customCanonical || `${baseUrl}/propiedades/${slug}${locale === 'en' ? '?lang=en' : ''}`;
+  const canonicalUrl = normalizeOptionalCanonicalUrl(property.customCanonical, baseUrl)
+    || buildCanonicalUrl(baseUrl, `/propiedades/${slug}`, { locale });
   const ogImageUrl = property.ogImage || property.coverImage || siteSeo?.defaultOgImage || '';
 
   return {

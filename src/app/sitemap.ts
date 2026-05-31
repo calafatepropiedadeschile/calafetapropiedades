@@ -1,19 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { getPrismaClient } from '@/lib/db/prisma';
 import { seoLandingPages } from '@/config/seo-pages';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
-export const revalidate = 86400; // Caching ISR for 24 hours to avoid CPU load
-
-const FALLBACK_SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL
-  || process.env.APP_ORIGIN
-  || 'https://calafatepropiedades.vercel.app'
-).replace(/\/$/, '');
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const seo = await getSiteSeoSettings().catch(() => null);
-  const siteUrl = seo?.canonicalBaseUrl ?? FALLBACK_SITE_URL;
+  const siteUrl = await resolveCanonicalBaseUrl();
 
   if (seo?.allowIndexing === false) {
     return [];

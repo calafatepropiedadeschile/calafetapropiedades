@@ -3,11 +3,9 @@ import { buildMailto, siteConfig } from '@/config/site';
 import type { Locale } from '@/lib/i18n/config';
 import { seoLandingPagesEn } from '@/config/seo-pages-en';
 
-export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL
-  || process.env.APP_ORIGIN
-  || 'https://calafatepropiedades.vercel.app'
-).replace(/\/$/, '');
+import { getDefaultCanonicalBaseUrl } from '@/config/seo-url';
+
+export const siteUrl = getDefaultCanonicalBaseUrl();
 
 export type SeoLandingKey = 'comprar' | 'arriendos' | 'proyectos' | 'terrenos' | 'vender' | 'topografia';
 

@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import SeoCatalogLanding from '@/components/seo/SeoCatalogLanding';
-import { getSeoLandingPage, seoLandingPages, siteUrl, type SeoLandingKey } from '@/config/seo-pages';
+import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { getSeoLandingPage, seoLandingPages, type SeoLandingKey } from '@/config/seo-pages';
 import { getCatalogPageData, type CatalogPageParams } from '@/features/properties/property.service';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
 import { getServerLocale } from '@/lib/i18n/server';
 import { getPublishedStaticPageBySlug } from '@/features/site-content/static-page';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 export const revalidate = 60;
 
@@ -16,7 +17,8 @@ const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
 export async function metadataForSeoLanding(key: SeoLandingKey): Promise<Metadata> {
   const locale = await getServerLocale();
   const config = getSeoLandingPage(key, locale);
-  const canonical = `${siteUrl}${config.path}`;
+  const baseUrl = await resolveCanonicalBaseUrl();
+  const canonical = buildCanonicalUrl(baseUrl, config.path);
 
   return {
     title: config.metadataTitle,
@@ -43,8 +45,9 @@ export async function generateMetadataForSeoLanding(key: SeoLandingKey): Promise
     getSiteSeoSettings().catch(() => null),
     getPublishedStaticPageBySlug(key, locale).catch(() => null),
   ]);
-  const canonicalBaseUrl = seo?.canonicalBaseUrl ?? siteUrl;
-  const canonical = cmsPage?.customCanonical || `${canonicalBaseUrl}${config.path}`;
+  const canonicalBaseUrl = await resolveCanonicalBaseUrl();
+  const canonical = normalizeOptionalCanonicalUrl(cmsPage?.customCanonical, canonicalBaseUrl)
+    || buildCanonicalUrl(canonicalBaseUrl, config.path);
   const title = cmsPage?.seoTitle || config.metadataTitle;
   const description = cmsPage?.seoDescription || config.metadataDescription;
   const image = cmsPage?.ogImage || seo?.defaultOgImage || undefined;

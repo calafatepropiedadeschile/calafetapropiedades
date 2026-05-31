@@ -18,7 +18,8 @@ import { getExchangeRates } from '@/lib/currency/exchange-rates';
 import { getServerCurrency, getServerLocale } from '@/lib/i18n/server';
 import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { projectLandingSlugs } from '@/config/seo-pages';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { buildCanonicalUrl } from '@/config/seo-url';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 export const revalidate = 3600;
 
@@ -52,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = await getServerLocale();
   const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
 
   if (!project) {
     return {
@@ -63,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = project.seoTitleEs || `${project.title} | Proyecto de parcelas`;
   const description = project.seoDescriptionEs
     || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imágenes y consulta disponibilidad con Calafate Propiedades.`;
-  const canonical = `${baseUrl}/proyectos/${project.slug}`;
+  const canonical = buildCanonicalUrl(baseUrl, `/proyectos/${project.slug}`);
   const image = project.ogImage || project.coverImage || siteSeo?.defaultOgImage || undefined;
 
   return {
@@ -96,7 +97,7 @@ export default async function ProjectLandingPage({ params }: Props) {
   ]);
   const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
 
   if (!project) notFound();
   const t = (key: TranslationKey) => translate(locale, key);
@@ -105,7 +106,7 @@ export default async function ProjectLandingPage({ params }: Props) {
     'site/project-fallback.webp',
     'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1400&auto=format&fit=crop'
   );
-  const canonical = `${baseUrl}/proyectos/${project.slug}`;
+  const canonical = buildCanonicalUrl(baseUrl, `/proyectos/${project.slug}`);
   const projectJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',

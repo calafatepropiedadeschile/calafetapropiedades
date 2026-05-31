@@ -1,3 +1,4 @@
+import { buildCanonicalUrl, getDefaultCanonicalBaseUrl, normalizeCanonicalBaseUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
 import type { Property } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
 
@@ -26,8 +27,9 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
     createdAt,
   } = property;
 
-  const canonicalBaseUrl = (baseUrl || 'https://calafatepropiedades.vercel.app').replace(/\/$/, '');
-  const canonicalUrl = property.customCanonical || `${canonicalBaseUrl}/propiedades/${slug}${locale === 'en' ? '?lang=en' : ''}`;
+  const canonicalBaseUrl = normalizeCanonicalBaseUrl(baseUrl || getDefaultCanonicalBaseUrl());
+  const canonicalUrl = normalizeOptionalCanonicalUrl(property.customCanonical, canonicalBaseUrl)
+    || buildCanonicalUrl(canonicalBaseUrl, `/propiedades/${slug}`, { locale });
 
   // Map business function
   const businessFunction = 'https://schema.org/SellAction';

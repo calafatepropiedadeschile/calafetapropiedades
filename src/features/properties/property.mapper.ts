@@ -1,5 +1,6 @@
 import type { Currency, PriceType, Property, PropertyCard, PropertyStatus, PropertyType } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
+import { normalizeOptionalCanonicalUrl } from '@/config/seo-url';
 import { getMarketRegionForCountry, isPropertyMarketRegion } from './property-markets';
 import { normalizeLandAmenities, normalizeLandServices } from './property-land-options';
 
@@ -209,7 +210,7 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
     seoTitleEn: property.seoTitleEn ?? null,
     seoDescriptionEs: property.seoDescriptionEs ?? null,
     seoDescriptionEn: property.seoDescriptionEn ?? null,
-    customCanonical: property.customCanonical ?? null,
+    customCanonical: normalizeOptionalCanonicalUrl(property.customCanonical),
     ogImage: property.ogImage ?? null,
   };
 }

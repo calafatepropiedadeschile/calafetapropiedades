@@ -3,6 +3,11 @@ import type { SiteSeoSettings } from '@prisma/client';
 import { getPrismaClient } from '@/lib/db/prisma';
 import { withDatabaseRole } from '@/lib/db/rls';
 import { siteConfig } from '@/config/site';
+import {
+  getDefaultCanonicalBaseUrl,
+  normalizeCanonicalBaseUrl,
+  normalizeOptionalCanonicalUrl,
+} from '@/config/seo-url';
 import type { SiteSeoSettingsInput } from './seo-settings.schemas';
 
 export const SITE_SEO_SETTINGS_ID = 'main';
@@ -54,12 +59,13 @@ function safeList(value: string | null | undefined, fallback: string[]) {
   }
 }
 
-function getDefaultCanonicalBaseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL
-    || process.env.APP_ORIGIN
-    || 'https://calafatepropiedades.vercel.app'
-  ).replace(/\/$/, '');
+function getDefaultCanonicalBaseUrlFromEnv() {
+  return getDefaultCanonicalBaseUrl();
+}
+
+export async function resolveCanonicalBaseUrl(): Promise<string> {
+  const seo = await getSiteSeoSettings().catch(() => null);
+  return seo?.canonicalBaseUrl ?? getDefaultCanonicalBaseUrl();
 }
 
 function trimOrNull(value: string | null | undefined) {
@@ -76,7 +82,7 @@ export function getDefaultSiteSeoSettings(): SiteSeoSettingsView {
     defaultTitleEn: null,
     defaultDescriptionEn: null,
     keywords: [...siteConfig.metadata.keywords],
-    canonicalBaseUrl: getDefaultCanonicalBaseUrl(),
+    canonicalBaseUrl: getDefaultCanonicalBaseUrlFromEnv(),
     defaultOgImage: null,
     googleSiteVerification: null,
     googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID ?? null,
@@ -99,7 +105,9 @@ export function mapSiteSeoSettings(row: SiteSeoSettings | null): SiteSeoSettings
     defaultTitleEn: trimOrNull(row.defaultTitleEn),
     defaultDescriptionEn: trimOrNull(row.defaultDescriptionEn),
     keywords: safeList(row.keywords, DEFAULT_KEYWORDS),
-    canonicalBaseUrl: row.canonicalBaseUrl.trim().replace(/\/$/, '') || fallback.canonicalBaseUrl,
+    canonicalBaseUrl: normalizeCanonicalBaseUrl(
+      row.canonicalBaseUrl.trim().replace(/\/$/, '') || fallback.canonicalBaseUrl,
+    ),
     defaultOgImage: trimOrNull(row.defaultOgImage),
     googleSiteVerification: trimOrNull(row.googleSiteVerification),
     googleAnalyticsId: trimOrNull(row.googleAnalyticsId) ?? fallback.googleAnalyticsId,
@@ -168,7 +176,7 @@ export async function saveSiteSeoSettings(input: SiteSeoSettingsInput) {
         defaultTitleEn: input.defaultTitleEn,
         defaultDescriptionEn: input.defaultDescriptionEn,
         keywords: JSON.stringify(input.keywords),
-        canonicalBaseUrl: input.canonicalBaseUrl.replace(/\/$/, ''),
+        canonicalBaseUrl: normalizeCanonicalBaseUrl(input.canonicalBaseUrl),
         defaultOgImage: input.defaultOgImage,
         googleSiteVerification: input.googleSiteVerification,
         googleAnalyticsId: input.googleAnalyticsId,
@@ -184,7 +192,7 @@ export async function saveSiteSeoSettings(input: SiteSeoSettingsInput) {
         defaultTitleEn: input.defaultTitleEn,
         defaultDescriptionEn: input.defaultDescriptionEn,
         keywords: JSON.stringify(input.keywords),
-        canonicalBaseUrl: input.canonicalBaseUrl.replace(/\/$/, ''),
+        canonicalBaseUrl: normalizeCanonicalBaseUrl(input.canonicalBaseUrl),
         defaultOgImage: input.defaultOgImage,
         googleSiteVerification: input.googleSiteVerification,
         googleAnalyticsId: input.googleAnalyticsId,

@@ -99,7 +99,7 @@ export default function SiteSeoSettingsForm({ initialValues }: Props) {
             <label className="input-label" htmlFor="seo-canonical-base-url">Dominio canonico</label>
             <input id="seo-canonical-base-url" name="canonicalBaseUrl" className="input" type="url" defaultValue={initialValues.canonicalBaseUrl} required />
             <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
-              Debe ser el dominio final que se enviara a Google Search Console.
+              Usa https://calafatepropiedades.vercel.app (con &quot;e&quot; en Calafate). Evita calafetapropiedades.
             </p>
           </div>
 

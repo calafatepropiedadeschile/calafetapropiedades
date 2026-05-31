@@ -6,26 +6,28 @@ import PropertyCatalog from '@/components/properties/PropertyCatalog';
 import { redirect } from 'next/navigation';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
 import { getCatalogPageData } from '@/features/properties/property.service';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { buildCanonicalUrl } from '@/config/seo-url';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { mergeCatalogSearchParams, readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
 import { getServerLocale } from '@/lib/i18n/server';
 import { translate } from '@/lib/i18n/dictionaries';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
   const title = 'Terrenos y loteos en venta';
   const description = 'Compara parcelas, terrenos y loteos en Chile por ubicación, superficie, precio y disponibilidad.';
+  const canonical = buildCanonicalUrl(baseUrl, '/propiedades');
 
   return {
     title,
     description,
     robots: siteSeo?.allowIndexing === false ? { index: false, follow: false } : undefined,
-    alternates: { canonical: `${baseUrl}/propiedades` },
+    alternates: { canonical },
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/propiedades`,
+      url: canonical,
       images: siteSeo?.defaultOgImage ? [{ url: siteSeo.defaultOgImage }] : [],
     },
     twitter: {

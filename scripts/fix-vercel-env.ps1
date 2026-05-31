@@ -32,9 +32,9 @@ if ([string]::IsNullOrWhiteSpace($env:ADMIN_PASSWORD)) {
 $fixes = @{
   'ADMIN_EMAIL' = $env:ADMIN_EMAIL
   'ADMIN_PASSWORD' = $env:ADMIN_PASSWORD
-  'AUTH_URL' = 'https://calafetapropiedades.vercel.app'
-  'NEXTAUTH_URL' = 'https://calafetapropiedades.vercel.app'
-  'APP_ORIGIN' = 'https://calafetapropiedades.vercel.app'
+  'AUTH_URL' = 'https://calafatepropiedades.vercel.app'
+  'NEXTAUTH_URL' = 'https://calafatepropiedades.vercel.app'
+  'APP_ORIGIN' = 'https://calafatepropiedades.vercel.app'
   'AUTH_TRUST_HOST' = 'true'
 }
 

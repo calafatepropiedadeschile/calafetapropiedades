@@ -4,6 +4,7 @@ import type { Locale } from '@/lib/i18n/config';
 import { getPrismaClient } from '@/lib/db/prisma';
 import { withDatabaseRole } from '@/lib/db/rls';
 import { sanitizeCmsHtml, sanitizeOptionalCmsHtml } from '@/lib/security/sanitize-html';
+import { normalizeOptionalCanonicalUrl } from '@/config/seo-url';
 import type { StaticPageInput } from './static-page.schemas';
 
 export type StaticPageView = {
@@ -49,7 +50,7 @@ export function mapStaticPageView(page: StaticPage, locale: Locale): StaticPageV
     published: page.published,
     seoTitle: pickLocalizedText(locale, page.seoTitleEs ?? '', page.seoTitleEn) || null,
     seoDescription: pickLocalizedText(locale, page.seoDescriptionEs ?? '', page.seoDescriptionEn) || null,
-    customCanonical: page.customCanonical,
+    customCanonical: normalizeOptionalCanonicalUrl(page.customCanonical),
     ogImage: page.ogImage,
     updatedAt: page.updatedAt,
   };

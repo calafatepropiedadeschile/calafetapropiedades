@@ -7,7 +7,8 @@ import { STATIC_PAGE_INTEGRATED_SLUGS, STATIC_PAGE_RESERVED_SLUGS } from '@/feat
 import { DEFAULT_LOCALE, isSupportedLocale, type Locale } from '@/lib/i18n/config';
 import { siteConfig } from '@/config/site';
 import { withDatabaseRole } from '@/lib/db/rls';
-import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { buildCanonicalUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -45,7 +46,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const isAdmin = session?.user?.role === 'admin';
   const page = await getPageForMetadata(slug, locale, isAdmin);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
+  const baseUrl = await resolveCanonicalBaseUrl();
 
   if (!page) {
     return { title: 'Pagina no encontrada' };
@@ -53,7 +54,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const title = page.seoTitle || page.title;
   const description = page.seoDescription || page.content.replace(/<[^>]+>/g, ' ').slice(0, 160);
-  const canonical = page.customCanonical || `${baseUrl}/${slug}${locale === 'en' ? '?lang=en' : ''}`;
+  const canonical = normalizeOptionalCanonicalUrl(page.customCanonical, baseUrl)
+    || buildCanonicalUrl(baseUrl, `/${slug}`, { locale });
   const image = page.ogImage || siteSeo?.defaultOgImage || undefined;
 
   return {
