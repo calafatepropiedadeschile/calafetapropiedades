@@ -2969,16 +2969,12 @@ input, textarea, select {
 
 .property-commercial-strip {
   margin-bottom: var(--space-2xl);
-  padding: var(--space-lg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-light);
-  background: linear-gradient(135deg, #fff 0%, var(--color-surface-2) 100%);
 }
 
 .property-commercial-strip-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
-  gap: var(--space-md);
+  gap: var(--space-lg) var(--space-md);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2987,16 +2983,11 @@ input, textarea, select {
 .property-commercial-strip-item {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid var(--color-border-light);
+  gap: 0.25rem;
 }
 
-.property-commercial-strip-item.is-emphasis {
-  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border-light));
-  background: color-mix(in srgb, var(--color-primary) 6%, #fff);
+.property-commercial-strip-item.is-emphasis .property-commercial-strip-value {
+  color: var(--color-primary);
 }
 
 .property-commercial-strip-label {
@@ -3015,8 +3006,7 @@ input, textarea, select {
 }
 
 .property-description-section {
-  border-top: 1px solid var(--color-border-light);
-  padding-top: var(--space-2xl);
+  padding-top: var(--space-md);
   margin-bottom: var(--space-2xl);
 }
 
