@@ -9,9 +9,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="admin-layout">
       <AdminSidebar user={session.user} />
-      <main className="admin-main">
-        {children}
-      </main>
+      <div className="admin-shell">
+        <main className="admin-main">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

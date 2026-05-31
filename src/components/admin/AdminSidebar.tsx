@@ -1,58 +1,75 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { 
-  BarChart3, 
-  Building2, 
-  Home, 
-  LogOut, 
-  Mail, 
-  Plus, 
-  Menu, 
-  X,
+import {
+  Building2,
+  LogOut,
+  Menu,
+  Plus,
   User as UserIcon,
+  X,
   ChevronRight,
-  LayoutTemplate,
-  FileText,
-  Megaphone,
-  Search,
-  Users,
-  Settings,
 } from 'lucide-react';
+import { ADMIN_NAV_GROUPS, isAdminNavItemActive } from '@/config/admin-nav';
 import { siteConfig } from '@/config/site';
-
-const NAV_ITEMS = [
-  { href: '/admin', label: 'Dashboard', icon: BarChart3 },
-  { href: '/admin/inicio', label: 'Hero inicio', icon: LayoutTemplate },
-  { href: '/admin/ajustes', label: 'Ajustes del sitio', icon: Settings },
-  { href: '/admin/seo', label: 'SEO avanzado', icon: Search },
-  { href: '/admin/paginas', label: 'Paginas', icon: FileText },
-  { href: '/admin/propiedades', label: 'Propiedades', icon: Home },
-  { href: '/admin/propiedades/nueva', label: 'Nueva propiedad', icon: Plus },
-  { href: '/admin/agentes', label: 'Agentes', icon: Users },
-  { href: '/admin/leads', label: 'Consultas', icon: Mail },
-  { href: '/admin/campanas', label: 'Campanas', icon: Megaphone },
-];
 
 interface Props {
   user: { name?: string | null; email?: string | null };
 }
 
+function AdminNav({
+  pathname,
+  onNavigate,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <nav className="admin-nav" aria-label="Administración">
+      {ADMIN_NAV_GROUPS.map((group) => (
+        <div key={group.label} className="admin-nav-group">
+          <span className="admin-nav-label">{group.label}</span>
+          {group.items.map((item) => {
+            const active = isAdminNavItemActive(pathname, item.href, item.exact);
+            const Icon = item.icon;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`admin-nav-item${active ? ' active' : ''}`}
+                onClick={onNavigate}
+                aria-current={active ? 'page' : undefined}
+              >
+                <div className="admin-nav-item-icon">
+                  <Icon size={20} />
+                </div>
+                <span className="admin-nav-item-text">{item.label}</span>
+                {active ? <ChevronRight size={14} className="admin-nav-active-indicator" aria-hidden /> : null}
+              </Link>
+            );
+          })}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
 export default function AdminSidebar({ user }: Props) {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuPath, setMobileMenuPath] = useState<string | null>(null);
+  const isMobileMenuOpen = mobileMenuPath === pathname;
 
-  // Prevent scroll when mobile menu is open
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
 
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     }
 
     return () => {
@@ -60,98 +77,68 @@ export default function AdminSidebar({ user }: Props) {
     };
   }, [isMobileMenuOpen]);
 
-  function isActive(href: string) {
-    if (href === '/admin') return pathname === href;
-    return pathname === href || pathname.startsWith(`${href}/`);
+  function closeMobileMenu() {
+    setMobileMenuPath(null);
+  }
+
+  function toggleMobileMenu() {
+    setMobileMenuPath(isMobileMenuOpen ? null : pathname);
   }
 
   return (
     <>
-      {/* Main Admin Header (Visible on both, but different content) */}
       <header className="admin-mobile-header">
         <Link href="/admin" className="admin-logo">
           <Building2 size={24} className="text-primary" />
-          <span className="admin-logo-text">Admin<span className="text-primary">.</span></span>
+          <span className="admin-logo-text">
+            Admin<span className="text-primary">.</span>
+          </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="admin-desktop-nav">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`admin-desktop-nav-item ${isActive(item.href) ? 'active' : ''}`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Desktop User Info & Logout */}
-        <div className="admin-desktop-user">
-          <div className="admin-user-info" style={{ textAlign: 'right' }}>
-            <span className="admin-user-name">{user.name || 'Admin'}</span>
-            <span className="admin-user-email" style={{ fontSize: '0.7rem' }}>{user.email}</span>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: '/admin/login' })}
-            className="admin-desktop-logout"
-          >
-            <LogOut size={16} />
-            <span>Salir</span>
-          </button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        <button
+          type="button"
+          onClick={toggleMobileMenu}
           className="admin-menu-toggle"
+          aria-expanded={isMobileMenuOpen}
           aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </header>
 
-      {/* Mobile Drawer Overlay */}
-      {isMobileMenuOpen && (
-        <div 
-          className="admin-sidebar-overlay" 
-          onClick={() => setIsMobileMenuOpen(false)}
+      {isMobileMenuOpen ? (
+        <div
+          className="admin-sidebar-overlay"
+          onClick={closeMobileMenu}
+          aria-hidden
         />
-      )}
+      ) : null}
 
-      {/* Mobile Drawer (Sidebar) */}
-      <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+      <aside
+        className={`admin-sidebar${isMobileMenuOpen ? ' open' : ''}`}
+        aria-label="Menú de administración"
+      >
         <div className="admin-sidebar-inner">
           <div className="admin-sidebar-header">
-            <Link href="/admin" className="admin-logo">
+            <Link href="/admin" className="admin-logo" onClick={closeMobileMenu}>
               <Building2 size={28} className="text-primary" />
               <div className="admin-logo-info">
                 <span className="admin-logo-text">{siteConfig.adminName}</span>
-                <span className="admin-logo-tagline">Management</span>
+                <span className="admin-logo-tagline">Panel comercial</span>
               </div>
             </Link>
           </div>
 
-          <nav className="admin-nav">
-            <div className="admin-nav-group">
-              <span className="admin-nav-label">Navegación</span>
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`admin-nav-item ${isActive(item.href) ? 'active' : ''}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <div className="admin-nav-item-icon">
-                    <item.icon size={20} />
-                  </div>
-                  <span className="admin-nav-item-text">{item.label}</span>
-                  {isActive(item.href) && <ChevronRight size={14} className="admin-nav-active-indicator" />}
-                </Link>
-              ))}
-            </div>
-          </nav>
+          <Link
+            href="/admin/propiedades/nueva"
+            className="btn btn-primary admin-sidebar-cta"
+            onClick={closeMobileMenu}
+          >
+            <Plus size={18} />
+            Nueva propiedad
+          </Link>
+
+          <AdminNav pathname={pathname} onNavigate={closeMobileMenu} />
 
           <div className="admin-sidebar-footer">
             <div className="admin-user-profile">
@@ -163,8 +150,9 @@ export default function AdminSidebar({ user }: Props) {
                 <span className="admin-user-email">{user.email}</span>
               </div>
             </div>
-            
+
             <button
+              type="button"
               onClick={() => signOut({ callbackUrl: '/admin/login' })}
               className="admin-logout-btn"
             >
