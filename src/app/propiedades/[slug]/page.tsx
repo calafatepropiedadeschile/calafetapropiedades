@@ -7,7 +7,8 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
 import PropertyGallery from '@/components/properties/PropertyGallery';
-import { getPropertyBySlug } from '@/features/properties/property.service';
+import SimilarPropertiesSection from '@/components/properties/SimilarPropertiesSection';
+import { getPropertyBySlug, getSimilarProperties } from '@/features/properties/property.service';
 import { formatArea, formatPropertyPrice } from '@/lib/utils/formatters';
 import PropertyCommercialHighlights from '@/components/properties/PropertyCommercialHighlights';
 import PropertyDescription from '@/components/properties/PropertyDescription';
@@ -189,6 +190,11 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
 
   if (!property) notFound();
   const siteSeo = await getSiteSeoSettings().catch(() => null);
+
+  const similarProperties = await getSimilarProperties(property.id, slug, locale).catch((error) => {
+    console.error(`Unable to load similar properties for slug "${slug}".`, error);
+    return [];
+  });
 
   const {
     id, title, description, price, priceFrom, priceType, currency, zone, city, address, province, addressVisibility,
@@ -413,6 +419,12 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
             </aside>
           </div>
         </section>
+
+        <SimilarPropertiesSection
+          properties={similarProperties}
+          property={property}
+          locale={locale}
+        />
       </main>
       <StructuredData property={property} locale={locale} baseUrl={siteSeo?.canonicalBaseUrl} />
       <Footer />

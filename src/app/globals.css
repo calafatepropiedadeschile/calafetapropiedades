@@ -7281,6 +7281,35 @@ input:checked + .slider:before {
   color: #999;
 }
 
+.pdp-similar-section {
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+}
+
+.pdp-similar-header {
+  max-width: 720px;
+  margin-bottom: var(--space-2xl);
+}
+
+.pdp-similar-header h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.pdp-similar-header p {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.pdp-similar-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-2xl);
+}
+
 @media (max-width: 768px) {
   .pdp-hero-title {
     font-size: 1.75rem;

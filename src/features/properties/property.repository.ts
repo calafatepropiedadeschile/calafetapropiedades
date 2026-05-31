@@ -4,6 +4,7 @@ import type { Locale } from '@/lib/i18n/config';
 import { getPropertyZoneFilterValues } from './property-zone-filters';
 import { normalizeCatalogFilters, parsePositiveNumber } from './property-filtering';
 import { mapProperty, mapPropertyCard } from './property.mapper';
+import { pickSimilarProperties } from './property-similar';
 
 type PropertyDbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -34,6 +35,72 @@ const propertyCardSelect = {
   availableLots: true,
   coverImage: true,
 } satisfies Prisma.PropertySelect;
+
+const similarCandidateSelect = {
+  ...propertyCardSelect,
+  sortOrder: true,
+  createdAt: true,
+} satisfies Prisma.PropertySelect;
+
+const SIMILAR_CANDIDATE_LIMIT = 40;
+const SIMILAR_RESULT_LIMIT = 3;
+
+function buildSimilarBaseWhere(source: {
+  id: string;
+  type: string;
+  priceType: string;
+  currency: string;
+}): Prisma.PropertyWhereInput {
+  return {
+    AND: [
+      { published: true },
+      { status: 'disponible' },
+      { country: 'Chile' },
+      { type: source.type },
+      { priceType: source.priceType },
+      { currency: source.currency },
+      { id: { not: source.id } },
+      { type: { in: ['terreno', 'casa'] } },
+      {
+        OR: [
+          { coverImage: null },
+          { coverImage: { not: { startsWith: 'https://images.unsplash.com' } } },
+        ],
+      },
+    ],
+  };
+}
+
+function buildSimilarLocationWhere(source: {
+  zoneEs: string;
+  zoneEn: string | null;
+  cityEs: string;
+  cityEn: string | null;
+}, scope: 'zone' | 'city'): Prisma.PropertyWhereInput {
+  const insensitive = 'insensitive' as const;
+
+  if (scope === 'zone') {
+    const zoneFilters: Prisma.PropertyWhereInput[] = [
+      { zoneEs: { equals: source.zoneEs, mode: insensitive } },
+    ];
+
+    if (source.zoneEn) {
+      zoneFilters.push({ zoneEn: { equals: source.zoneEn, mode: insensitive } });
+    }
+
+    return { OR: zoneFilters };
+  }
+
+  const cityFilters: Prisma.PropertyWhereInput[] = [
+    { cityEs: { equals: source.cityEs, mode: insensitive } },
+  ];
+
+  if (source.cityEn) {
+    cityFilters.push({ cityEn: { equals: source.cityEn, mode: insensitive } });
+  }
+
+  return { OR: cityFilters };
+}
 
 const propertyDetailSelect = {
   id: true,
@@ -125,8 +192,10 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
     minPrice: filters.minPrice?.toString(),
     maxPrice: filters.maxPrice?.toString(),
     minSurface: filters.minSurface?.toString(),
+    minBedrooms: filters.minBedrooms?.toString(),
+    minBathrooms: filters.minBathrooms?.toString(),
   });
-  const { query, type, priceType, country, zone, minPrice, maxPrice, minSurface, hasAvailableLots } = normalizedFilters;
+  const { query, type, priceType, country, zone, minPrice, maxPrice, minSurface, minBedrooms, minBathrooms, hasAvailableLots } = normalizedFilters;
   const textMatch = query
     ? {
         contains: query,
@@ -178,10 +247,10 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
     const zoneValues = getPropertyZoneFilterValues(zone);
     and.push({
       OR: zoneValues.flatMap((zoneValue) => [
-        { zoneEs: { equals: zoneValue } },
-        { zoneEn: { equals: zoneValue } },
-        { cityEs: { equals: zoneValue } },
-        { cityEn: { equals: zoneValue } },
+        { zoneEs: { equals: zoneValue, mode: 'insensitive' as const } },
+        { zoneEn: { equals: zoneValue, mode: 'insensitive' as const } },
+        { cityEs: { equals: zoneValue, mode: 'insensitive' as const } },
+        { cityEn: { equals: zoneValue, mode: 'insensitive' as const } },
       ]),
     });
   }
@@ -209,6 +278,16 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
         { builtArea: { gte: minSurfaceValue } },
       ],
     });
+  }
+
+  const minBedroomsValue = parsePositiveNumber(minBedrooms);
+  if (minBedroomsValue !== null) {
+    and.push({ bedrooms: { gte: minBedroomsValue } });
+  }
+
+  const minBathroomsValue = parsePositiveNumber(minBathrooms);
+  if (minBathroomsValue !== null) {
+    and.push({ bathrooms: { gte: minBathroomsValue } });
   }
 
   if (filters.marketRegion) {
@@ -304,6 +383,86 @@ export function createPropertyRepository(db: PropertyDbClient) {
         if (val) uniqueZones.add(val);
       }
       return Array.from(uniqueZones).sort();
+    },
+
+    async listSimilar(propertyId: string, locale: Locale = 'es', limit = SIMILAR_RESULT_LIMIT) {
+      const source = await db.property.findUnique({
+        where: { id: propertyId },
+        select: {
+          id: true,
+          price: true,
+          priceType: true,
+          currency: true,
+          type: true,
+          zoneEs: true,
+          zoneEn: true,
+          cityEs: true,
+          cityEn: true,
+          bedrooms: true,
+          lotSurfaceM2: true,
+          builtArea: true,
+          area: true,
+          totalArea: true,
+          featured: true,
+          sortOrder: true,
+        },
+      });
+
+      if (!source) return [];
+
+      const baseWhere = buildSimilarBaseWhere(source);
+      const orderBy = [{ sortOrder: 'desc' as const }, { featured: 'desc' as const }, { createdAt: 'desc' as const }];
+
+      const zoneMatches = await db.property.findMany({
+        where: { AND: [baseWhere, buildSimilarLocationWhere(source, 'zone')] },
+        select: similarCandidateSelect,
+        orderBy,
+        take: SIMILAR_CANDIDATE_LIMIT,
+      });
+
+      const seenIds = new Set(zoneMatches.map((property) => property.id));
+      let candidates = [...zoneMatches];
+
+      if (candidates.length < limit) {
+        const cityMatches = await db.property.findMany({
+          where: {
+            AND: [
+              baseWhere,
+              buildSimilarLocationWhere(source, 'city'),
+              { id: { notIn: [source.id, ...seenIds] } },
+            ],
+          },
+          select: similarCandidateSelect,
+          orderBy,
+          take: SIMILAR_CANDIDATE_LIMIT,
+        });
+
+        for (const property of cityMatches) {
+          if (seenIds.has(property.id)) continue;
+          seenIds.add(property.id);
+          candidates.push(property);
+        }
+      }
+
+      if (candidates.length < limit) {
+        const fallbackMatches = await db.property.findMany({
+          where: {
+            AND: [baseWhere, { id: { notIn: [source.id, ...seenIds] } }],
+          },
+          select: similarCandidateSelect,
+          orderBy,
+          take: SIMILAR_CANDIDATE_LIMIT,
+        });
+
+        for (const property of fallbackMatches) {
+          if (seenIds.has(property.id)) continue;
+          seenIds.add(property.id);
+          candidates.push(property);
+        }
+      }
+
+      const ranked = pickSimilarProperties(candidates, source, limit);
+      return ranked.map((property) => mapPropertyCard(property, locale));
     },
   };
 }

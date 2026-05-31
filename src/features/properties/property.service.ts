@@ -29,6 +29,9 @@ export function createPropertyService(repository: PropertyRepository) {
     listZones(locale: Locale = 'es'): Promise<string[]> {
       return repository.listZones(locale);
     },
+    listSimilar(propertyId: string, locale: Locale = 'es'): Promise<PropertyCard[]> {
+      return repository.listSimilar(propertyId, locale);
+    },
   };
 }
 
@@ -89,6 +92,17 @@ export async function getFeaturedProperties(locale: Locale = 'es'): Promise<Prop
     },
     ['featured-properties-v4', locale],
     { revalidate: 300, tags: ['properties'] }
+  )();
+}
+
+export async function getSimilarProperties(propertyId: string, slug: string, locale: Locale = 'es'): Promise<PropertyCard[]> {
+  return unstable_cache(
+    async () => {
+      const db = getPrismaClient();
+      return createPropertyService(createPropertyRepository(db)).listSimilar(propertyId, locale);
+    },
+    ['similar-properties-v4', propertyId, locale],
+    { revalidate: 3600, tags: ['properties', `property-${slug}`] }
   )();
 }
 
