@@ -61,8 +61,10 @@ export default function WhatsAppWidget() {
 
   return (
     <div className="whatsapp-widget-container" ref={widgetRef} id="whatsapp-widget">
+
+
       {showTooltip && !isOpen && (
-        <div className="whatsapp-tooltip">
+        <div className="whatsapp-tooltip desktop-only-tooltip">
           <span>{t('whatsapp.tooltip')}</span>
           <button
             className="whatsapp-tooltip-close"
@@ -76,7 +78,13 @@ export default function WhatsAppWidget() {
           </button>
         </div>
       )}
-
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 768px) {
+          .desktop-only-tooltip {
+            display: none !important;
+          }
+        }
+      ` }} />
       <button
         onClick={toggleWidget}
         className={`whatsapp-trigger-btn ${isOpen ? 'active' : ''}`}

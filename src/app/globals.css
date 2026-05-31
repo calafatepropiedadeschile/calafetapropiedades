@@ -5710,7 +5710,7 @@ input:checked + .slider:before {
 .footer-bottom {
   position: relative;
   z-index: 1;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .footer-bottom-inner {
@@ -5725,9 +5725,10 @@ input:checked + .slider:before {
 
 .footer-copyright {
   font-size: 0.80rem;
-  color: #ffffff;
+  color: #ffffff !important;
   margin: 0;
   letter-spacing: 0.2px;
+  opacity: 1 !important;
 }
 
 .footer-credit {
@@ -6081,7 +6082,8 @@ input:checked + .slider:before {
 
 .discover-image-wrapper {
   position: relative;
-  height: 480px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-card);
