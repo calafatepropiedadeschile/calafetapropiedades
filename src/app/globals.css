@@ -1844,7 +1844,7 @@ input, textarea, select {
   margin: 16px;
   padding: 18px;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.70);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.8);

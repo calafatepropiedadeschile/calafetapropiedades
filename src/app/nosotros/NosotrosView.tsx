@@ -117,7 +117,7 @@ export default function NosotrosView({ cmsByLocale }: Props) {
                 {pillars.map((pillar, index) => {
                   const Icon = pillar.icon;
                   return (
-                    <li key={pillar.index} className="service-card scroll-reveal" style={{ animationDelay: \`\${index * 80}ms\` }} role="listitem">
+                    <li key={pillar.index} className="service-card scroll-reveal" style={{ animationDelay: `${index * 80}ms` }} role="listitem">
                       <div className="service-card-icon-badge" aria-hidden>
                         <Icon size={24} strokeWidth={1.5} />
                       </div>
@@ -168,7 +168,7 @@ export default function NosotrosView({ cmsByLocale }: Props) {
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: 'var(--space-md)', borderTop: '1px solid var(--color-border-light)' }}>
-                    <a href={\`mailto:\${office.email}\`} style={{ color: 'var(--color-text)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }} className="contact-link">
+                    <a href={`mailto:${office.email}`} style={{ color: 'var(--color-text)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }} className="contact-link">
                       <MessageCircle size={16} /> {office.email}
                     </a>
                     <a href={office.phoneHref} style={{ color: 'var(--color-text)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }} className="contact-link">
@@ -183,7 +183,7 @@ export default function NosotrosView({ cmsByLocale }: Props) {
 
         {/* CTA BANNER */}
         <CtaBanner
-          variant="default"
+          variant="subtle"
           eyebrow={t('home.ctaAvailabilityEyebrow')}
           headline={t('home.ctaAvailabilityHeadline')}
           sub={t('home.ctaAvailabilitySub')}
