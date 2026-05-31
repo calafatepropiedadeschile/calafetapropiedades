@@ -12,14 +12,29 @@ import { assertCuid } from '@/lib/db/ids';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+const INTEGRATED_SEO_PATHS: Record<string, string[]> = {
+  contacto: ['/contacto'],
+  nosotros: ['/nosotros'],
+  propiedades: ['/propiedades'],
+  comprar: ['/comprar'],
+  arriendos: ['/arriendos'],
+  proyectos: ['/proyectos'],
+  terrenos: ['/terrenos'],
+  vender: ['/vender'],
+  topografia: ['/topografia'],
+};
+
 function revalidateStaticPageViews(slug: string) {
   updateTag('site-content');
   updateTag(`static-page-${slug}`);
   revalidatePath('/admin/paginas');
   revalidatePath(`/${slug}`);
-  revalidatePath('/contacto');
-  revalidatePath('/nosotros');
   revalidatePath('/sitemap.xml');
+  revalidatePath('/', 'layout');
+
+  for (const path of INTEGRATED_SEO_PATHS[slug] ?? []) {
+    revalidatePath(path);
+  }
 }
 
 export async function createStaticPage(formData: FormData) {

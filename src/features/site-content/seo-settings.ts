@@ -139,6 +139,7 @@ async function ensureSiteSeoSettingsRow() {
         defaultTitleEn: fallback.defaultTitleEn,
         defaultDescriptionEn: fallback.defaultDescriptionEn,
         keywords: JSON.stringify(fallback.keywords),
+        serviceAreas: JSON.stringify(fallback.serviceAreas),
         canonicalBaseUrl: fallback.canonicalBaseUrl,
         defaultOgImage: fallback.defaultOgImage,
         googleSiteVerification: fallback.googleSiteVerification,

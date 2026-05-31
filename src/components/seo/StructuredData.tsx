@@ -1,4 +1,5 @@
 import { buildCanonicalUrl, getDefaultCanonicalBaseUrl, normalizeCanonicalBaseUrl, normalizeOptionalCanonicalUrl } from '@/config/seo-url';
+import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
 import JsonLdScript from '@/components/seo/JsonLdScript';
 import type { Property } from '@/types/property';
 import type { Locale } from '@/lib/i18n/config';
@@ -35,7 +36,7 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
 
   const canonicalBaseUrl = normalizeCanonicalBaseUrl(baseUrl || getDefaultCanonicalBaseUrl());
   const canonicalUrl = normalizeOptionalCanonicalUrl(property.customCanonical, canonicalBaseUrl)
-    || buildCanonicalUrl(canonicalBaseUrl, `/propiedades/${slug}`, { locale });
+    || buildCanonicalUrl(canonicalBaseUrl, getPreferredProjectCanonicalPath(slug), { locale });
 
   // Map business function
   const businessFunction = 'https://schema.org/SellAction';

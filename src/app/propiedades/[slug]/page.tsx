@@ -25,6 +25,8 @@ import { auth } from '@/lib/auth/auth';
 import StructuredData from '@/components/seo/StructuredData';
 import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
+import { getPreferredProjectCanonicalPath, isProjectLandingSlug } from '@/lib/seo/project-landings';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { getResolvedGoogleMapsLink } from '@/lib/maps/google-maps-resolve';
 
@@ -121,10 +123,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     ? (property.seoDescriptionEn || property.seoDescriptionEs || property.description.slice(0, 160))
     : (property.seoDescriptionEs || property.description.slice(0, 160));
 
-  const alternates = buildPageAlternates(`/propiedades/${slug}`, {
+  const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, property });
+  const alternates = buildPageAlternates(getPreferredProjectCanonicalPath(slug), {
     baseUrl,
     locale,
     customCanonical: property.customCanonical,
+    includeEnglish,
   });
   const ogImageUrl = property.ogImage || property.coverImage || siteSeo?.defaultOgImage || '';
 
@@ -455,8 +459,11 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
         baseUrl={siteSeo?.canonicalBaseUrl}
         items={[
           { name: 'Inicio', path: '/' },
-          { name: 'Propiedades', path: '/propiedades' },
-          { name: title, path: `/propiedades/${slug}` },
+          {
+            name: isProjectLandingSlug(slug) ? 'Proyectos' : 'Propiedades',
+            path: isProjectLandingSlug(slug) ? '/proyectos' : '/propiedades',
+          },
+          { name: title, path: getPreferredProjectCanonicalPath(slug) },
         ]}
       />
       <Footer />

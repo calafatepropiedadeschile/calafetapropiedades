@@ -8,6 +8,7 @@ import { DEFAULT_LOCALE, isSupportedLocale, type Locale } from '@/lib/i18n/confi
 import { siteConfig } from '@/config/site';
 import { withDatabaseRole } from '@/lib/db/rls';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 interface Props {
@@ -54,10 +55,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const title = page.seoTitle || page.title;
   const description = page.seoDescription || page.content.replace(/<[^>]+>/g, ' ').slice(0, 160);
+  const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, cmsSlug: slug });
   const alternates = buildPageAlternates(`/${slug}`, {
     baseUrl,
     locale,
     customCanonical: page.customCanonical,
+    includeEnglish,
   });
   const image = page.ogImage || siteSeo?.defaultOgImage || undefined;
 

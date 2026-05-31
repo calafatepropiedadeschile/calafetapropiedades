@@ -13,6 +13,9 @@ Este proyecto queda preparado para operar primero en Vercel y despues migrar el 
 - JSON-LD global para `RealEstateAgent` y `WebSite`.
 - JSON-LD de propiedades y proyectos con `RealEstateListing`, `Offer`, direccion, imagenes y seller.
 - Breadcrumb JSON-LD en fichas de propiedad y landings de proyecto.
+- hreflang `en` solo si hay contenido EN en admin (global, CMS o ficha).
+- Proyectos de parcelas: canónico en `/proyectos/[slug]`; el sitemap no duplica `/propiedades/[slug]` para esos slugs.
+- Catálogo `/propiedades`: SEO editable con página CMS slug `propiedades`.
 
 ## Variables que se cambiaran cuando el dominio este listo
 

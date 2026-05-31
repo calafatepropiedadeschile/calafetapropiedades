@@ -7,17 +7,34 @@ import { redirect } from 'next/navigation';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
 import { getCatalogPageData } from '@/features/properties/property.service';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
+import { getPublishedStaticPageBySlug } from '@/features/site-content/static-page';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { mergeCatalogSearchParams, readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
 import { getServerLocale } from '@/lib/i18n/server';
 import { translate } from '@/lib/i18n/dictionaries';
 
+const CATALOG_DEFAULT_TITLE = 'Terrenos y loteos en venta';
+const CATALOG_DEFAULT_DESCRIPTION =
+  'Compara parcelas, terrenos y loteos en Chile por ubicación, superficie, precio y disponibilidad.';
+
 export async function generateMetadata(): Promise<Metadata> {
-  const siteSeo = await getSiteSeoSettings().catch(() => null);
+  const locale = await getServerLocale();
+  const [siteSeo, cmsPage] = await Promise.all([
+    getSiteSeoSettings().catch(() => null),
+    getPublishedStaticPageBySlug('propiedades', locale).catch(() => null),
+  ]);
   const baseUrl = await resolveCanonicalBaseUrl();
-  const title = 'Terrenos y loteos en venta';
-  const description = 'Compara parcelas, terrenos y loteos en Chile por ubicación, superficie, precio y disponibilidad.';
-  const alternates = buildPageAlternates('/propiedades', { baseUrl });
+  const title = cmsPage?.seoTitle || CATALOG_DEFAULT_TITLE;
+  const description = cmsPage?.seoDescription || CATALOG_DEFAULT_DESCRIPTION;
+  const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, cmsSlug: 'propiedades' });
+  const alternates = buildPageAlternates('/propiedades', {
+    baseUrl,
+    locale,
+    customCanonical: cmsPage?.customCanonical,
+    includeEnglish,
+  });
+  const image = cmsPage?.ogImage || siteSeo?.defaultOgImage || undefined;
 
   return {
     title,
@@ -28,13 +45,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: alternates.canonical,
-      images: siteSeo?.defaultOgImage ? [{ url: siteSeo.defaultOgImage }] : [],
+      images: image ? [{ url: image }] : [],
     },
     twitter: {
-      card: siteSeo?.defaultOgImage ? 'summary_large_image' : 'summary',
+      card: image ? 'summary_large_image' : 'summary',
       title,
       description,
-      images: siteSeo?.defaultOgImage ? [siteSeo.defaultOgImage] : [],
+      images: image ? [image] : [],
     },
   };
 }

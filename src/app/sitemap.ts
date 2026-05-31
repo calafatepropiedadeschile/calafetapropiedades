@@ -3,6 +3,8 @@ import { getPrismaClient } from '@/lib/db/prisma';
 import { projectLandingSlugs, seoLandingPages } from '@/config/seo-pages';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { buildSitemapLanguageAlternates } from '@/lib/seo/metadata-alternates';
+import { isProjectLandingSlug } from '@/lib/seo/project-landings';
+import { resolveSitemapIncludeEnglish } from '@/lib/seo/sitemap-locale';
 
 export const revalidate = 86400;
 
@@ -27,16 +29,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRouteSet = new Set(staticRoutes.map((route) => route.replace(/^\//, '')));
 
   for (const route of staticRoutes) {
+    const includeEnglish = await resolveSitemapIncludeEnglish(route || '/', seo);
     sitemapEntries.push({
       url: `${siteUrl}${route}`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: route === '' ? 1.0 : 0.8,
-      alternates: buildSitemapLanguageAlternates(siteUrl, route || '/'),
+      alternates: buildSitemapLanguageAlternates(siteUrl, route || '/', { includeEnglish }),
     });
   }
 
-  const projectUpdatedAt = new Map<string, Date>();
+  const projectMeta = new Map<string, { updatedAt: Date; seoTitleEn: string | null; seoDescriptionEn: string | null }>();
   try {
     const db = getPrismaClient();
     const projectProperties = await db.property.findMany({
@@ -47,11 +50,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: {
         slug: true,
         updatedAt: true,
+        seoTitleEn: true,
+        seoDescriptionEn: true,
       },
     });
 
     for (const property of projectProperties) {
-      projectUpdatedAt.set(property.slug, property.updatedAt);
+      projectMeta.set(property.slug, property);
     }
   } catch (error) {
     console.error('Error fetching project landings for sitemap:', error);
@@ -59,12 +64,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const slug of projectLandingSlugs) {
     const path = `/proyectos/${slug}`;
+    const meta = projectMeta.get(slug);
+    const includeEnglish = await resolveSitemapIncludeEnglish(path, seo, meta);
     sitemapEntries.push({
       url: `${siteUrl}${path}`,
-      lastModified: projectUpdatedAt.get(slug) ?? new Date(),
+      lastModified: meta?.updatedAt ?? new Date(),
       changeFrequency: 'weekly',
       priority: 0.75,
-      alternates: buildSitemapLanguageAlternates(siteUrl, path),
+      alternates: buildSitemapLanguageAlternates(siteUrl, path, { includeEnglish }),
     });
   }
 
@@ -75,6 +82,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: {
         slug: true,
         updatedAt: true,
+        seoTitleEn: true,
+        seoDescriptionEn: true,
       },
     });
 
@@ -82,12 +91,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (staticRouteSet.has(page.slug.replace(/^\//, ''))) continue;
 
       const pageSlug = page.slug.startsWith('/') ? page.slug : `/${page.slug}`;
+      const includeEnglish = await resolveSitemapIncludeEnglish(pageSlug, seo, page);
       sitemapEntries.push({
         url: `${siteUrl}${pageSlug}`,
         lastModified: page.updatedAt,
         changeFrequency: 'weekly',
         priority: 0.6,
-        alternates: buildSitemapLanguageAlternates(siteUrl, pageSlug),
+        alternates: buildSitemapLanguageAlternates(siteUrl, pageSlug, { includeEnglish }),
       });
     }
   } catch (error) {
@@ -113,12 +123,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         coverImage: true,
         images: true,
         updatedAt: true,
+        seoTitleEn: true,
+        seoDescriptionEn: true,
       },
       orderBy: { updatedAt: 'desc' },
       take: 2000,
     });
 
     for (const property of properties) {
+      if (isProjectLandingSlug(property.slug)) {
+        continue;
+      }
+
       const extraImages = (() => {
         try {
           return JSON.parse(property.images) as unknown;
@@ -133,15 +149,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .filter((image): image is string => typeof image === 'string' && image.startsWith('http'))
         .slice(0, 6);
 
+      const path = `/propiedades/${property.slug}`;
+      const includeEnglish = await resolveSitemapIncludeEnglish(path, seo, property);
       sitemapEntries.push({
-        url: `${siteUrl}/propiedades/${property.slug}`,
+        url: `${siteUrl}${path}`,
         lastModified: property.updatedAt,
         changeFrequency: 'weekly',
         priority: 0.7,
         images,
-        alternates: buildSitemapLanguageAlternates(siteUrl, `/propiedades/${property.slug}`),
+        alternates: buildSitemapLanguageAlternates(siteUrl, path, { includeEnglish }),
       });
-
     }
   } catch (error) {
     console.error('Error fetching properties for sitemap:', error);

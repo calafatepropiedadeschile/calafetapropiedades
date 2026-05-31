@@ -22,6 +22,7 @@ import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import { projectLandingSlugs } from '@/config/seo-pages';
 import { buildCanonicalUrl } from '@/config/seo-url';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 export const revalidate = 3600;
@@ -72,7 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       || `${project.title} in ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Review price, area, images and contact Calafate Propiedades.`)
     : (project.seoDescriptionEs
       || `${project.title} en ${project.city}, ${project.province ?? project.country ?? 'Chile'}. Revisa precio, superficie, imágenes y consulta disponibilidad con Calafate Propiedades.`);
-  const alternates = buildPageAlternates(`/proyectos/${project.slug}`, { baseUrl, locale });
+  const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, property: project });
+  const alternates = buildPageAlternates(`/proyectos/${project.slug}`, { baseUrl, locale, includeEnglish });
   const image = project.ogImage || project.coverImage || siteSeo?.defaultOgImage || undefined;
 
   return {

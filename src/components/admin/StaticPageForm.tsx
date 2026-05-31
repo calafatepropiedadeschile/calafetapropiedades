@@ -94,7 +94,7 @@ export default function StaticPageForm({ action, defaultValues = {} }: Props) {
             />
             <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
               La página se publicara en <strong>/{slug || 'tu-slug'}</strong>.
-              Slugs integrados: <code>contacto</code>, <code>nosotros</code>, <code>comprar</code>, <code>arriendos</code>, <code>proyectos</code>, <code>terrenos</code>, <code>vender</code>, <code>topografia</code> actualizan el SEO de esas rutas existentes.
+              Slugs integrados: <code>contacto</code>, <code>nosotros</code>, <code>propiedades</code>, <code>comprar</code>, <code>arriendos</code>, <code>proyectos</code>, <code>terrenos</code>, <code>vender</code>, <code>topografia</code> actualizan el SEO de esas rutas existentes.
             </p>
           </div>
 

@@ -19,6 +19,7 @@ export const STATIC_PAGE_RESERVED_SLUGS = new Set([
 export const STATIC_PAGE_INTEGRATED_SLUGS = [
   'contacto',
   'nosotros',
+  'propiedades',
   'comprar',
   'arriendos',
   'proyectos',

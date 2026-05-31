@@ -9,6 +9,7 @@ import { getPublishedStaticPageBySlug, getStaticPageBySlugForAdmin } from '@/fea
 import { DEFAULT_LOCALE, isSupportedLocale, type Locale } from '@/lib/i18n/config';
 import { siteConfig } from '@/config/site';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 
 interface Props {
@@ -35,10 +36,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const baseUrl = await resolveCanonicalBaseUrl();
   const title = cms?.seoTitle ? cms.seoTitle : `Contacto - ${siteConfig.name}`;
   const description = cms?.seoDescription ?? `Ponte en contacto con ${siteConfig.name} para comprar, vender, alquilar o invertir en propiedades.`;
+  const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, cmsSlug: 'contacto' });
   const alternates = buildPageAlternates('/contacto', {
     baseUrl,
     locale,
     customCanonical: cms?.customCanonical,
+    includeEnglish,
   });
   const image = cms?.ogImage || siteSeo?.defaultOgImage || undefined;
 

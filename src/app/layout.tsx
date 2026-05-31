@@ -14,6 +14,7 @@ import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
 import SiteStructuredDataGate from '@/components/seo/SiteStructuredDataGate';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
+import { hasSiteEnglishSeo } from '@/lib/seo/english-index';
 import { getSiteSettings } from '@/features/site-content/site-settings';
 import { SiteSettingsProvider } from '@/features/site-content/SiteSettingsProvider';
 import './globals.css';
@@ -39,6 +40,14 @@ export async function generateMetadata(): Promise<Metadata> {
     ? (seo?.defaultDescriptionEn ?? seo?.defaultDescriptionEs ?? '')
     : (seo?.defaultDescriptionEs ?? '');
   const defaultOgImage = seo?.defaultOgImage ? [{ url: seo.defaultOgImage }] : [];
+  const includeEnglish = hasSiteEnglishSeo(seo);
+  const homeAlternates = {
+    canonical: baseUrl,
+    languages: {
+      'es-CL': baseUrl,
+      ...(includeEnglish ? { en: `${baseUrl}?lang=en` } : {}),
+    },
+  };
 
   return {
     metadataBase: new URL(baseUrl),
@@ -54,13 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
     publisher: siteName,
     category: 'real estate',
     robots: seo?.allowIndexing === false ? { index: false, follow: false } : { index: true, follow: true },
-    alternates: {
-      canonical: baseUrl,
-      languages: {
-        'es-CL': baseUrl,
-        en: `${baseUrl}?lang=en`,
-      },
-    },
+    alternates: homeAlternates,
     verification: seo?.googleSiteVerification
       ? { google: seo.googleSiteVerification }
       : undefined,

@@ -73,6 +73,7 @@ function revalidatePropertyViews() {
   }
   revalidatePath('/propiedades/[slug]', 'page');
   revalidatePath('/proyectos/[slug]', 'page');
+  revalidatePath('/sitemap.xml');
   revalidatePath('/admin');
   revalidatePath('/admin/propiedades');
 }

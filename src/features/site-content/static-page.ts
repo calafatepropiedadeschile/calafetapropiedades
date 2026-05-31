@@ -56,6 +56,22 @@ export function mapStaticPageView(page: StaticPage, locale: Locale): StaticPageV
   };
 }
 
+export async function getStaticPageEnglishSeoAvailable(slug: string): Promise<boolean> {
+  try {
+    const db = getPrismaClient();
+    const page = await db.staticPage.findFirst({
+      where: { slug, published: true },
+      select: {
+        seoTitleEn: true,
+        seoDescriptionEn: true,
+      },
+    });
+    return Boolean(page?.seoTitleEn?.trim() || page?.seoDescriptionEn?.trim());
+  } catch {
+    return false;
+  }
+}
+
 export async function getPublishedStaticPageBySlug(slug: string, locale: Locale) {
   return unstable_cache(
     async () => {

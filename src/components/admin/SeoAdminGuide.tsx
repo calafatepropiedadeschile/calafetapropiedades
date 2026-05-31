@@ -26,7 +26,10 @@ export default function SeoAdminGuide() {
           <strong>FAQs de landings</strong>: hoy estan en codigo; el schema FAQPage se genera automaticamente en esas paginas.
         </li>
         <li>
-          El sitio publica <code>hreflang</code> (<code>es-CL</code> + <code>en</code> con <code>?lang=en</code>) y un sitemap con propiedades, landings y <code>/proyectos/[slug]</code>.
+          <code>hreflang</code> en ingles solo aparece si hay titulo/descripcion EN (global, CMS o ficha). El sitemap lista proyectos en <code>/proyectos/[slug]</code>; las fichas duplicadas en catálogo apuntan canónico al proyecto.
+        </li>
+        <li>
+          El catálogo <code>/propiedades</code> se puede personalizar con una pagina CMS slug <code>propiedades</code>.
         </li>
       </ul>
     </aside>
