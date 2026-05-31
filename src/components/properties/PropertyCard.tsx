@@ -55,6 +55,7 @@ export default function PropertyCard({ property }: Props) {
   );
   
   const propertyHref = localizedHref(`/propiedades/${slug}`, locale);
+  const showCardInfo = infoRevealed || prefersReducedMotion;
   const effectiveArea = lotSurfaceM2 ?? area;
   const statusLabel = status === 'disponible'
     ? t('property.available')
@@ -63,10 +64,7 @@ export default function PropertyCard({ property }: Props) {
       : t('property.sold');
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      setInfoRevealed(true);
-      return;
-    }
+    if (prefersReducedMotion) return;
 
     const node = cardRef.current;
     if (!node) return;
@@ -132,7 +130,7 @@ export default function PropertyCard({ property }: Props) {
       </div>
 
       {/* Floating Content Card */}
-      <div className={`property-card-floating-content${infoRevealed ? ' is-revealed' : ''}`}>
+      <div className={`property-card-floating-content${showCardInfo ? ' is-revealed' : ''}`}>
         <h3 className="property-card-title">
           <Link href={propertyHref}>{title}</Link>
         </h3>

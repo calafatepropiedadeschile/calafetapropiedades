@@ -427,7 +427,7 @@ export function createPropertyRepository(db: PropertyDbClient) {
       });
 
       const seenIds = new Set(zoneMatches.map((property) => property.id));
-      let candidates = [...zoneMatches];
+      const candidates = [...zoneMatches];
 
       if (candidates.length < limit) {
         const cityMatches = await db.property.findMany({

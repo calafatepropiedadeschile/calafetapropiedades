@@ -65,9 +65,14 @@ interface Props {
 export default function MasterplanInteractiveSection({ allProperties }: Props) {
   const { locale, t } = useI18n();
   const sectionRef = useRef<HTMLElement>(null);
+  const activeProjectIdRef = useRef(PROJECTS_DATA[0].id);
   const [activeProject, setActiveProject] = useState<ProyectoTour>(PROJECTS_DATA[0]);
   const [loadedTourIds, setLoadedTourIds] = useState<Set<string>>(() => new Set());
   const [sectionInView, setSectionInView] = useState(false);
+
+  useEffect(() => {
+    activeProjectIdRef.current = activeProject.id;
+  }, [activeProject.id]);
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -77,6 +82,11 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
       ([entry]) => {
         if (entry?.isIntersecting) {
           setSectionInView(true);
+          setLoadedTourIds((current) => {
+            const next = new Set(current);
+            next.add(activeProjectIdRef.current);
+            return next;
+          });
           observer.disconnect();
         }
       },
@@ -108,15 +118,6 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
       });
     }
   }
-
-  useEffect(() => {
-    if (!sectionInView) return;
-    setLoadedTourIds((current) => {
-      const next = new Set(current);
-      next.add(activeProject.id);
-      return next;
-    });
-  }, [sectionInView, activeProject.id]);
 
   return (
     <section

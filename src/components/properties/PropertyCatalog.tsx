@@ -131,23 +131,26 @@ export default function PropertyCatalog({
   const { hasPublishedRentals } = useRentalsNav();
   const router = useRouter();
   const pathname = usePathname();
-  const [filters, setFilters] = useState<CatalogFilterState>(() => normalizeCatalogFilters({
-    ...DEFAULT_CATALOG_FILTERS,
-    ...providedFilters,
-  }));
-  const [queryDraft, setQueryDraft] = useState(() => filters.query);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const filtersRef = useRef(filters);
   const providedFiltersJson = JSON.stringify(providedFilters);
-
-  useEffect(() => {
-    const next = normalizeCatalogFilters({
+  const normalizedProvidedFilters = useMemo(
+    () => normalizeCatalogFilters({
       ...DEFAULT_CATALOG_FILTERS,
       ...JSON.parse(providedFiltersJson || '{}'),
-    });
-    setFilters(next);
-    setQueryDraft((current) => current !== next.query ? next.query : current);
-  }, [providedFiltersJson]);
+    }),
+    [providedFiltersJson],
+  );
+
+  const [filters, setFilters] = useState<CatalogFilterState>(() => normalizedProvidedFilters);
+  const [queryDraft, setQueryDraft] = useState(() => normalizedProvidedFilters.query);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filtersRef = useRef(filters);
+  const [syncedProvidedFiltersJson, setSyncedProvidedFiltersJson] = useState(providedFiltersJson);
+
+  if (providedFiltersJson !== syncedProvidedFiltersJson) {
+    setSyncedProvidedFiltersJson(providedFiltersJson);
+    setFilters(normalizedProvidedFilters);
+    setQueryDraft(normalizedProvidedFilters.query);
+  }
 
   useEffect(() => {
     filtersRef.current = filters;

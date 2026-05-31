@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRef, useState, useTransition } from 'react';
 import { ImagePlus, Loader2, RotateCcw } from 'lucide-react';
 import type { SiteSettingsInput } from '@/features/site-content/site-settings.schemas';
@@ -147,7 +148,7 @@ export default function SiteSettingsForm({ initialValues }: Props) {
         >
           <p className="text-muted" style={{ gridColumn: '1 / -1', margin: 0, fontSize: '0.9rem' }}>
             Dirección estructurada para Google (JSON-LD). También editable en{' '}
-            <a href="/admin/seo#organizacion-google">SEO avanzado</a>.
+            <Link href="/admin/seo#organizacion-google">SEO avanzado</Link>.
           </p>
           <div className="input-group">
             <label className="input-label">Calle y número</label>
@@ -221,7 +222,7 @@ export default function SiteSettingsForm({ initialValues }: Props) {
 
       {/* SECCION INICIO - DESCUBRE */}
       <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Sección Inicio: "Criterio Local"</h2>
+        <h2 className="admin-form-section-title">Sección Inicio: Criterio Local</h2>
         <p className="text-muted" style={{ marginBottom: 'var(--space-md)', fontSize: '0.9rem' }}>
           Configura los textos y la imagen de la sección inferior de la página de inicio.
         </p>

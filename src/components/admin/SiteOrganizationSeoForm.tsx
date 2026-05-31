@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { Save } from 'lucide-react';
 import { updateSiteOrganizationSeoAction } from '@/app/admin/(dashboard)/seo/actions';
@@ -45,7 +46,7 @@ export default function SiteOrganizationSeoForm({ initialValues }: Props) {
         <h2 className="admin-form-section-title">Organizacion en Google (JSON-LD)</h2>
         <p className="text-muted" style={{ marginBottom: 'var(--space-md)', fontSize: '0.9rem', lineHeight: 1.6 }}>
           Estos datos alimentan el schema <code>RealEstateAgent</code> del sitio (telefono, email y redes se editan en{' '}
-          <a href="/admin/ajustes">Ajustes globales</a>).
+          <Link href="/admin/ajustes">Ajustes globales</Link>).
         </p>
 
         <div className="form-grid form-grid-2">

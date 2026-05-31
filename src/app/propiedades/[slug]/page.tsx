@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Bed, Bath, Ruler, CheckCircle2, Heart } from 'lucide-react';
+import { Bed, Bath, Ruler, CheckCircle2 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PropertyLeadPanel from '@/components/marketing/PropertyLeadPanel';
@@ -270,13 +270,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
               <PropertyGallery images={galleryImages} title={title} locale={locale} youtubeUrl={property.youtubeUrl} />
 
               <div className="pdp-info-block">
-                {/* Título + Favorito */}
-                <div className="pdp-hero-title-row">
-                  <h1 className="pdp-hero-title">{title}</h1>
-                  <button className="pdp-save-btn" aria-label="Guardar propiedad">
-                    <Heart size={24} strokeWidth={1.5} />
-                  </button>
-                </div>
+                <h1 className="pdp-hero-title">{title}</h1>
 
                 <div className="pdp-price-location-row">
                   <div className="pdp-price-location-meta">

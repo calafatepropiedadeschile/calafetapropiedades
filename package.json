@@ -7,6 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npm run lint && npm run build && tsx scripts/verify-admin-panel.ts",
+    "test:admin": "tsx scripts/verify-admin-panel.ts",
     "ci:verify": "npm run lint && npm run build",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",

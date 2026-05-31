@@ -47,37 +47,40 @@ function persistPreferences(preferences: Partial<{ locale: Locale; currency: Sup
   });
 }
 
+function readStoredLocale(fallback: Locale): Locale {
+  if (typeof window === 'undefined') return fallback;
+  const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+  return isSupportedLocale(stored) ? stored : fallback;
+}
+
+function readStoredCurrency(fallback: SupportedCurrency): SupportedCurrency {
+  if (typeof window === 'undefined') return fallback;
+  const stored = window.localStorage.getItem(CURRENCY_STORAGE_KEY);
+  return isSupportedCurrency(stored) ? stored : fallback;
+}
+
 export function I18nProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
   initialCurrency = DEFAULT_CURRENCY,
 }: I18nProviderProps) {
   const router = useRouter();
-  const [locale, setLocaleState] = useState<Locale>(initialLocale);
-  const [currency, setCurrencyState] = useState<SupportedCurrency>(initialCurrency);
+  const [locale, setLocaleState] = useState<Locale>(() => readStoredLocale(initialLocale));
+  const [currency, setCurrencyState] = useState<SupportedCurrency>(() => readStoredCurrency(initialCurrency));
 
   useEffect(() => {
-    const storedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-    const storedCurrency = window.localStorage.getItem(CURRENCY_STORAGE_KEY);
-
-    if (isSupportedLocale(storedLocale) && storedLocale !== initialLocale) {
-      setLocaleState(storedLocale);
-      writePreferenceCookie('NEXT_LOCALE', storedLocale);
-      persistPreferences({ locale: storedLocale });
-    } else {
-      window.localStorage.setItem(LOCALE_STORAGE_KEY, initialLocale);
-      writePreferenceCookie('NEXT_LOCALE', initialLocale);
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    writePreferenceCookie('NEXT_LOCALE', locale);
+    if (locale !== initialLocale) {
+      persistPreferences({ locale });
     }
 
-    if (isSupportedCurrency(storedCurrency) && storedCurrency !== initialCurrency) {
-      setCurrencyState(storedCurrency);
-      writePreferenceCookie('NEXT_CURRENCY', storedCurrency);
-      persistPreferences({ currency: storedCurrency });
-    } else {
-      window.localStorage.setItem(CURRENCY_STORAGE_KEY, initialCurrency);
-      writePreferenceCookie('NEXT_CURRENCY', initialCurrency);
+    window.localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
+    writePreferenceCookie('NEXT_CURRENCY', currency);
+    if (currency !== initialCurrency) {
+      persistPreferences({ currency });
     }
-  }, [initialCurrency, initialLocale]);
+  }, [currency, initialCurrency, initialLocale, locale]);
 
   useEffect(() => {
     document.documentElement.lang = locale;
