@@ -132,7 +132,7 @@ function listingFor(base: BaseProperty, priceType: PriceType, price: number, cur
     parking: base.parking,
     internalCode: `DH-${String(index).padStart(3, '0')}-${priceType.toUpperCase()}`,
     agentName: 'Calafate Propiedades',
-    agentPhone: '+56 9 9541 7524',
+    agentPhone: '+56 9 3540 6356',
     agentEmail: 'calafatepropiedadesloslagos@gmail.com',
     frontage: null,
     depth: null,
