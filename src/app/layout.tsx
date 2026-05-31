@@ -13,6 +13,8 @@ import AttributionCapture from '@/components/marketing/AttributionCapture';
 import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
 import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
+import { getSiteSettings } from '@/features/site-content/site-settings';
+import { SiteSettingsProvider } from '@/features/site-content/SiteSettingsProvider';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -67,13 +69,48 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+function AppProviders({
+  children,
+  locale,
+  currency,
+  exchangeRates,
+  showRentalsLink,
+  rentalsPublished,
+  googleAnalyticsId,
+  metaPixelId,
+}: {
+  children: React.ReactNode;
+  locale: Awaited<ReturnType<typeof getServerLocale>>;
+  currency: Awaited<ReturnType<typeof getServerCurrency>>;
+  exchangeRates: Awaited<ReturnType<typeof getExchangeRates>>;
+  showRentalsLink: boolean;
+  rentalsPublished: boolean;
+  googleAnalyticsId?: string | null;
+  metaPixelId?: string | null;
+}) {
+  return (
+    <I18nProvider initialLocale={locale} initialCurrency={currency}>
+      <ExchangeRatesProvider initialRates={exchangeRates}>
+        <RentalsNavProvider showRentalsLink={showRentalsLink} hasPublishedRentals={rentalsPublished}>
+          <AttributionCapture />
+          <GoogleAnalytics measurementId={googleAnalyticsId} />
+          <MetaPixel pixelId={metaPixelId} />
+          {children}
+          <WhatsAppWidget />
+        </RentalsNavProvider>
+      </ExchangeRatesProvider>
+    </I18nProvider>
+  );
+}
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [seo, showRentalsLink, rentalsPublished, locale, currency, exchangeRates] = await Promise.all([
+  const [seo, siteSettings, showRentalsLink, rentalsPublished, locale, currency, exchangeRates] = await Promise.all([
     getSiteSeoSettings().catch(() => null),
+    getSiteSettings(),
     shouldShowRentalsNavigation(),
     hasPublishedRentals(),
     getServerLocale(),
@@ -81,21 +118,25 @@ export default async function RootLayout({
     getExchangeRates(),
   ]);
 
+  const providerProps = {
+    locale,
+    currency,
+    exchangeRates,
+    showRentalsLink,
+    rentalsPublished,
+    googleAnalyticsId: seo?.googleAnalyticsId,
+    metaPixelId: seo?.metaPixelId,
+  };
+
   return (
     <html lang={locale}>
       <body>
         <LenisProvider>
-          <I18nProvider initialLocale={locale} initialCurrency={currency}>
-            <ExchangeRatesProvider initialRates={exchangeRates}>
-              <RentalsNavProvider showRentalsLink={showRentalsLink} hasPublishedRentals={rentalsPublished}>
-                <AttributionCapture />
-                <GoogleAnalytics measurementId={seo?.googleAnalyticsId} />
-                <MetaPixel pixelId={seo?.metaPixelId} />
-                {children}
-                <WhatsAppWidget />
-              </RentalsNavProvider>
-            </ExchangeRatesProvider>
-          </I18nProvider>
+          <SiteSettingsProvider settings={siteSettings}>
+            <AppProviders {...providerProps}>
+              {children}
+            </AppProviders>
+          </SiteSettingsProvider>
         </LenisProvider>
       </body>
     </html>

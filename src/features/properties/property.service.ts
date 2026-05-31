@@ -107,8 +107,14 @@ export async function getSimilarProperties(propertyId: string, slug: string, loc
 }
 
 export async function getZones(locale: Locale = 'es'): Promise<string[]> {
-  const db = getPrismaClient();
-  return createPropertyService(createPropertyRepository(db)).listZones(locale);
+  return unstable_cache(
+    async () => {
+      const db = getPrismaClient();
+      return createPropertyService(createPropertyRepository(db)).listZones(locale);
+    },
+    ['property-zones-v1', locale],
+    { revalidate: 300, tags: ['properties'] }
+  )();
 }
 
 export type CatalogPageParams = Record<string, string | string[] | undefined>;

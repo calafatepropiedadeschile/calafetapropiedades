@@ -207,12 +207,24 @@ export default function PropertyCatalog({
     filters.minPrice,
     filters.maxPrice,
     filters.minSurface,
+    filters.minBedrooms,
+    filters.minBathrooms,
     filters.hasAvailableLots ? 'available' : '',
   ].filter(Boolean).length, [filters]);
 
   function updateFilter<K extends keyof CatalogFilterState>(key: K, value: CatalogFilterState[K]) {
     if (key === 'query') {
       setQueryDraft(String(value));
+      return;
+    }
+    // Cuando se cambia a terreno, limpiar filtros de casa
+    if (key === 'type' && (value === 'terreno' || value === '')) {
+      applyFilters({
+        ...filters,
+        type: value as CatalogFilterState['type'],
+        minBedrooms: '',
+        minBathrooms: '',
+      }, 1);
       return;
     }
     applyFilters({ ...filters, [key]: value }, 1);
@@ -374,6 +386,41 @@ export default function PropertyCatalog({
               onChange={(event) => updateFilter('minSurface', event.target.value)}
             />
           </div>
+
+          {(filters.type === 'casa') && (
+            <>
+              <div className="input-group">
+                <label className="input-label">{t('catalog.minBedrooms')}</label>
+                <CustomCatalogSelect
+                  value={filters.minBedrooms}
+                  onChange={(value) => updateFilter('minBedrooms', value)}
+                  options={[
+                    { value: '', label: t('catalog.noLimit') },
+                    { value: '1', label: '1+' },
+                    { value: '2', label: '2+' },
+                    { value: '3', label: '3+' },
+                    { value: '4', label: '4+' },
+                    { value: '5', label: '5+' },
+                  ]}
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">{t('catalog.minBathrooms')}</label>
+                <CustomCatalogSelect
+                  value={filters.minBathrooms}
+                  onChange={(value) => updateFilter('minBathrooms', value)}
+                  options={[
+                    { value: '', label: t('catalog.noLimit') },
+                    { value: '1', label: '1+' },
+                    { value: '2', label: '2+' },
+                    { value: '3', label: '3+' },
+                    { value: '4', label: '4+' },
+                  ]}
+                />
+              </div>
+            </>
+          )}
 
           <label className="form-check catalog-availability-filter">
             <input

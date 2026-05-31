@@ -2,7 +2,6 @@
 
 import { ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PROPERTY_LOCATION_FILTERS } from '@/features/properties/property-zone-filters';
 import { persistCatalogPreferencesClient } from '@/lib/catalog/catalog-preferences';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 
@@ -129,11 +128,13 @@ function SearchSelect({ label, value, options, icon, onChange }: SearchSelectPro
 interface PropertySearchProps {
   initialType?: 'terreno' | 'casa';
   initialZone?: string;
+  zoneOptions?: string[];
 }
 
 export default function PropertySearch({
   initialType = 'terreno',
   initialZone = '',
+  zoneOptions = [],
 }: PropertySearchProps) {
   const router = useRouter();
   const { t } = useI18n();
@@ -146,10 +147,15 @@ export default function PropertySearch({
     { value: 'casa', label: t('propertySearch.typeCasa'), description: t('propertySearch.typeCasaDesc') },
   ] satisfies readonly SearchOption[]), [t]);
 
-  const locationOptions = useMemo(() => PROPERTY_LOCATION_FILTERS.map((location) => ({
-    ...location,
-    description: location.value ? t('propertySearch.zoneFilter') : t('propertySearch.allZones'),
-  })) satisfies SearchOption[], [t]);
+  const locationOptions = useMemo(() => {
+    const defaultOption = { value: '', label: t('propertySearch.allZones'), description: t('propertySearch.allZones') };
+    const dynamicOptions = zoneOptions.map(zone => ({
+      value: zone,
+      label: zone,
+      description: t('propertySearch.zoneFilter'),
+    }));
+    return [defaultOption, ...dynamicOptions] satisfies SearchOption[];
+  }, [t, zoneOptions]);
 
   function handleTypeChange(nextType: string) {
     setType(nextType);

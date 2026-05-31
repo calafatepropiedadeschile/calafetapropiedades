@@ -2,7 +2,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HomeHeroSection from '@/components/home/HomeHeroSection';
 import HomePageContent from '@/components/home/HomePageContent';
-import { getFeaturedProperties, getStaticPropertyCatalog } from '@/features/properties/property.service';
+import { getFeaturedProperties, getStaticPropertyCatalog, getZones } from '@/features/properties/property.service';
 import { getHomeHeroContent } from '@/features/site-content/home-hero';
 import { HOME_HERO_DEFAULTS } from '@/features/site-content/home-hero.defaults';
 import { readCatalogPreferences } from '@/lib/catalog/catalog-preferences';
@@ -40,7 +40,7 @@ export default async function HomePage() {
   const cookieStore = await cookies();
   const catalogPreferences = readCatalogPreferences(cookieStore);
 
-  const [featuredProperties, propertyCatalog, hero] = await Promise.all([
+  const [featuredProperties, propertyCatalog, hero, zoneOptions] = await Promise.all([
     getSafeFeaturedProperties(locale),
     getSafePropertyCatalog(locale),
     hasDatabaseUrl
@@ -56,6 +56,7 @@ export default async function HomePage() {
           titleLine2: locale === 'en' ? HOME_HERO_DEFAULTS.titleLine2En : HOME_HERO_DEFAULTS.titleLine2Es,
           subtitle: locale === 'en' ? HOME_HERO_DEFAULTS.subtitleEn : HOME_HERO_DEFAULTS.subtitleEs,
         }),
+    hasDatabaseUrl ? getZones(locale).catch(() => []) : Promise.resolve([]),
   ]);
 
   const featured = propertyCatalog.length > 0 ? propertyCatalog : featuredProperties;
@@ -71,6 +72,7 @@ export default async function HomePage() {
           propertyCatalog={propertyCatalog}
           initialSearchType={initialSearchType}
           initialSearchZone={catalogPreferences.zone}
+          zoneOptions={zoneOptions}
         />
       </main>
       <Footer />

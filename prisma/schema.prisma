@@ -147,6 +147,34 @@ model HomeHeroSettings {
   updatedAt    DateTime @updatedAt
 }
 
+model SiteSettings {
+  id                   String   @id @default("main")
+  
+  // Contact
+  whatsappNumber       String?
+  primaryPhone         String?
+  primaryEmail         String?
+  officeAddress        String?
+  
+  // Social
+  instagramUrl         String?
+  facebookUrl          String?
+  linkedinUrl          String?
+  
+  // Discover Section (Home)
+  discoverImageUrl     String?
+  discoverEyebrow      String?
+  discoverTitle        String?
+  discoverParagraph1   String?
+  discoverParagraph2   String?
+  discoverEyebrowEn    String?
+  discoverTitleEn      String?
+  discoverParagraph1En String?
+  discoverParagraph2En String?
+  
+  updatedAt            DateTime @updatedAt
+}
+
 model SiteSeoSettings {
   id                       String   @id @default("main")
   siteName                 String   @default("Calafate Propiedades")

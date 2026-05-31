@@ -42,6 +42,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."HomeHeroSettings" TO calaf
 GRANT SELECT ON TABLE public."SiteSeoSettings" TO calafate_public_runtime;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."SiteSeoSettings" TO calafate_admin_runtime;
 
+GRANT SELECT ON TABLE public."SiteSettings" TO calafate_public_runtime;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."SiteSettings" TO calafate_admin_runtime;
+
 -- Policies: Property
 DROP POLICY IF EXISTS "public_runtime_read_published_property" ON public."Property";
 CREATE POLICY "public_runtime_read_published_property"
@@ -114,4 +117,16 @@ CREATE POLICY "public_runtime_read_site_seo_settings"
 DROP POLICY IF EXISTS "admin_runtime_manage_site_seo_settings" ON public."SiteSeoSettings";
 CREATE POLICY "admin_runtime_manage_site_seo_settings"
   ON public."SiteSeoSettings" FOR ALL TO calafate_admin_runtime
+  USING (true) WITH CHECK (true);
+
+-- Policies: SiteSettings
+ALTER TABLE public."SiteSettings" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "public_runtime_read_site_settings" ON public."SiteSettings";
+CREATE POLICY "public_runtime_read_site_settings"
+  ON public."SiteSettings" FOR SELECT TO calafate_public_runtime USING (true);
+
+DROP POLICY IF EXISTS "admin_runtime_manage_site_settings" ON public."SiteSettings";
+CREATE POLICY "admin_runtime_manage_site_settings"
+  ON public."SiteSettings" FOR ALL TO calafate_admin_runtime
   USING (true) WITH CHECK (true);

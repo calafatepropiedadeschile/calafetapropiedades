@@ -11,6 +11,7 @@ import { CURRENCY_OPTIONS, LANGUAGE_OPTIONS, type Locale, type SupportedCurrency
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { buildMailto, siteConfig } from '@/config/site';
 import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
+import { useSiteSettings } from '@/features/site-content/SiteSettingsProvider';
 
 type NavItem = {
   href: string;
@@ -26,34 +27,56 @@ function NavSocialLinks({
   className?: string;
   linkClassName?: string;
 }) {
-  const { social } = siteConfig.contact;
+  const { instagramUrl, facebookUrl, linkedinUrl } = useSiteSettings();
 
-  return (
-    <div className={`social-links ${className}`.trim()}>
-      <a
-        href={social.instagram}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={linkClassName}
-        aria-label="Instagram"
-      >
+  const links = [
+    {
+      href: instagramUrl,
+      label: 'Instagram',
+      icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
           <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
           <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
         </svg>
-      </a>
-      <a
-        href={social.facebook}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={linkClassName}
-        aria-label="Facebook"
-      >
+      ),
+    },
+    {
+      href: facebookUrl,
+      label: 'Facebook',
+      icon: (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
           <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z" />
         </svg>
-      </a>
+      ),
+    },
+    {
+      href: linkedinUrl,
+      label: 'LinkedIn',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.78 2.65 4.78 6.1V24h-4v-7.1c0-1.7-.03-3.88-2.37-3.88-2.37 0-2.73 1.85-2.73 3.76V24h-4V8z" />
+        </svg>
+      ),
+    },
+  ].filter((link) => Boolean(link.href));
+
+  if (links.length === 0) return null;
+
+  return (
+    <div className={`social-links ${className}`.trim()}>
+      {links.map((link) => (
+        <a
+          key={link.label}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClassName}
+          aria-label={link.label}
+        >
+          {link.icon}
+        </a>
+      ))}
     </div>
   );
 }
@@ -111,6 +134,7 @@ function NavMenuLinks({
 
 export default function Navbar() {
   const { showRentalsLink } = useRentalsNav();
+  const { primaryPhone, primaryPhoneHref } = useSiteSettings();
   const [scrolled, setScrolled] = useState(false);
   const [showLangPopover, setShowLangPopover] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -249,15 +273,15 @@ export default function Navbar() {
           <div className="nav-topbar-inner container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="nav-topbar-left" style={{ display: 'flex', alignItems: 'center' }}>
               <a
-                href={siteConfig.contact.primaryPhoneHref}
+                href={primaryPhoneHref}
                 className="nav-topbar-link nav-topbar-phone"
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 aria-label={formatTranslation(locale, 'nav.callAria', {
-                  phone: siteConfig.contact.primaryPhoneLabel,
+                  phone: primaryPhone,
                 })}
               >
                 <Phone size={14} aria-hidden />
-                <span>{siteConfig.contact.primaryPhoneLabel}</span>
+                <span>{primaryPhone}</span>
               </a>
             </div>
 

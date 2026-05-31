@@ -111,6 +111,8 @@ export interface PropertyFilters {
   minPrice?: number;
   maxPrice?: number;
   minSurface?: number;
+  minBedrooms?: number;
+  minBathrooms?: number;
   hasAvailableLots?: boolean;
   page?: number;
   limit?: number;

@@ -281,12 +281,12 @@ function buildPublishedPropertyWhere(filters: PropertyFilters): Prisma.PropertyW
   }
 
   const minBedroomsValue = parsePositiveNumber(minBedrooms);
-  if (minBedroomsValue !== null) {
+  if (minBedroomsValue !== null && type === 'casa') {
     and.push({ bedrooms: { gte: minBedroomsValue } });
   }
 
   const minBathroomsValue = parsePositiveNumber(minBathrooms);
-  if (minBathroomsValue !== null) {
+  if (minBathroomsValue !== null && type === 'casa') {
     and.push({ bathrooms: { gte: minBathroomsValue } });
   }
 
@@ -371,18 +371,24 @@ export function createPropertyRepository(db: PropertyDbClient) {
 
     async listZones(locale: Locale = 'es') {
       const isEn = locale === 'en';
-      const zones = await db.property.findMany({
+      const rows = await db.property.findMany({
         where: buildPublishedPropertyWhere({ country: 'Chile' }),
-        select: { zoneEs: true, zoneEn: true },
+        select: { zoneEs: true, zoneEn: true, cityEs: true, cityEn: true },
         orderBy: { zoneEs: 'asc' },
       });
 
-      const uniqueZones = new Set<string>();
-      for (const z of zones) {
-        const val = isEn && z.zoneEn ? z.zoneEn : z.zoneEs;
-        if (val) uniqueZones.add(val);
+      const uniqueLocations = new Set<string>();
+      for (const row of rows) {
+        const zone = isEn && row.zoneEn ? row.zoneEn : row.zoneEs;
+        const city = isEn && row.cityEn ? row.cityEn : row.cityEs;
+
+        if (zone) uniqueLocations.add(zone);
+        if (city && city.toLowerCase() !== zone?.toLowerCase()) {
+          uniqueLocations.add(city);
+        }
       }
-      return Array.from(uniqueZones).sort();
+
+      return Array.from(uniqueLocations).sort((a, b) => a.localeCompare(b, 'es'));
     },
 
     async listSimilar(propertyId: string, locale: Locale = 'es', limit = SIMILAR_RESULT_LIMIT) {

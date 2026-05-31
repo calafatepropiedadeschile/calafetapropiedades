@@ -59,6 +59,8 @@ interface Props {
     minPrice?: string;
     maxPrice?: string;
     minSurface?: string;
+    minBedrooms?: string;
+    minBathrooms?: string;
     hasAvailableLots?: string;
     page?: string;
   }>;
@@ -92,6 +94,8 @@ export default async function PropiedadesPage({ searchParams }: Props) {
     minPrice: params.minPrice,
     maxPrice: params.maxPrice,
     minSurface: params.minSurface,
+    minBedrooms: params.minBedrooms,
+    minBathrooms: params.minBathrooms,
     hasAvailableLots: params.hasAvailableLots,
     page: params.page,
   });

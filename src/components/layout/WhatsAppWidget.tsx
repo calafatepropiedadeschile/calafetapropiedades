@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { X, MessageCircle } from 'lucide-react';
-import { primaryContact } from '@/config/contact';
 import { trackWhatsAppClick } from '@/lib/marketing/analytics';
-import { buildDefaultWhatsAppMessage, buildWhatsAppUrl } from '@/lib/marketing/whatsapp';
+import { useSiteSettings } from '@/features/site-content/SiteSettingsProvider';
 
 export default function WhatsAppWidget() {
   const { t, locale } = useI18n();
+  const { whatsappNumber, whatsappHref } = useSiteSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
@@ -47,12 +47,9 @@ export default function WhatsAppWidget() {
 
   function openWhatsApp() {
     trackWhatsAppClick({ placement: 'floating_widget' });
-
-    const url = buildWhatsAppUrl({
-      message: buildDefaultWhatsAppMessage({ locale }),
-    });
-
-    window.open(url, '_blank', 'noopener,noreferrer');
+    const message = encodeURIComponent(t('whatsapp.defaultMessage') ?? 'Hola, me gustaría consultar por una propiedad.');
+    window.open(`${whatsappHref}?text=${message}`, '_blank', 'noopener,noreferrer');
+    
     setIsOpen(false);
     setShowTooltip(false);
   }
@@ -108,10 +105,10 @@ export default function WhatsAppWidget() {
               <MessageCircle size={20} color="#fff" />
             </div>
             <div>
-              <h4 className="whatsapp-header-title">{t('whatsapp.title')}</h4>
+              <h4 className="whatsapp-header-title">{t('whatsapp.title') ?? 'WhatsApp'}</h4>
               <p className="whatsapp-header-status">
                 <span className="whatsapp-status-pulse" />
-                {primaryContact.displayPhone}
+                {whatsappNumber}
               </p>
             </div>
           </div>
@@ -133,8 +130,7 @@ export default function WhatsAppWidget() {
             </div>
             <div className="whatsapp-agent-details">
               <span className="whatsapp-agent-name">Calafate Propiedades</span>
-              <span className="whatsapp-agent-region">{primaryContact.displayPhone}</span>
-              <span className="whatsapp-agent-phone">{primaryContact.email}</span>
+              <span className="whatsapp-agent-region">{whatsappNumber}</span>
             </div>
             <div className="whatsapp-agent-action">
               <MessageCircle size={18} className="whatsapp-msg-icon" />

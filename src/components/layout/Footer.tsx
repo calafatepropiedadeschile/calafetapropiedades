@@ -5,12 +5,19 @@ import Image from 'next/image';
 import { useRentalsNav } from '@/components/layout/RentalsNavProvider';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { siteConfig } from '@/config/site';
+import { useSiteSettings } from '@/features/site-content/SiteSettingsProvider';
 
 export default function Footer() {
   const { showRentalsLink } = useRentalsNav();
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const currentYear = new Date().getFullYear();
+  const settings = useSiteSettings();
   const primaryOffice = siteConfig.offices[0];
+
+  const socialLinks = [];
+  if (settings.instagramUrl) socialLinks.push({ label: 'Instagram', href: settings.instagramUrl, external: true });
+  if (settings.facebookUrl) socialLinks.push({ label: 'Facebook', href: settings.facebookUrl, external: true });
+  if (settings.linkedinUrl) socialLinks.push({ label: 'LinkedIn', href: settings.linkedinUrl, external: true });
 
   const propertyLinks = [
     { label: t('footerNav.lotsForSale'), href: '/propiedades?priceType=venta&type=terreno' },
@@ -32,10 +39,7 @@ export default function Footer() {
     },
     {
       title: t('footerNav.social'),
-      links: [
-        { label: 'Instagram', href: siteConfig.contact.social.instagram, external: true },
-        { label: 'Facebook', href: siteConfig.contact.social.facebook, external: true },
-      ],
+      links: socialLinks,
     },
   ];
 
@@ -77,15 +81,15 @@ export default function Footer() {
           <p className="footer-brand-desc">{t('footerNav.brandDesc')}</p>
 
           <address className="footer-contact-info">
-            <span className="footer-contact-address">
-              {primaryOffice.addressLines.join(', ')}
-            </span>
-            <a href={`mailto:${siteConfig.contact.primaryEmail}`} className="footer-contact-link">
-              {siteConfig.contact.primaryEmail}
+            <a href={`mailto:${settings.primaryEmail}`} className="footer-contact-link">
+              {settings.primaryEmail}
             </a>
-            <a href={siteConfig.contact.primaryPhoneHref} className="footer-contact-link">
-              {siteConfig.contact.primaryPhoneLabel}
+            <a href={settings.primaryPhoneHref} className="footer-contact-link">
+              {settings.primaryPhone}
             </a>
+            <p className="footer-address">
+              {settings.officeAddress}
+            </p>
           </address>
         </div>
 

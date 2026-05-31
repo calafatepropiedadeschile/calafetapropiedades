@@ -20,12 +20,14 @@ import {
   Megaphone,
   Search,
   Users,
+  Settings,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: BarChart3 },
   { href: '/admin/inicio', label: 'Hero inicio', icon: LayoutTemplate },
+  { href: '/admin/ajustes', label: 'Ajustes del sitio', icon: Settings },
   { href: '/admin/seo', label: 'SEO global', icon: Search },
   { href: '/admin/paginas', label: 'Paginas', icon: FileText },
   { href: '/admin/propiedades', label: 'Propiedades', icon: Home },

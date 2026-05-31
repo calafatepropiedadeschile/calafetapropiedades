@@ -13,6 +13,8 @@ export type CatalogFilterState = {
   minPrice: string;
   maxPrice: string;
   minSurface: string;
+  minBedrooms: string;
+  minBathrooms: string;
   hasAvailableLots: boolean;
 };
 
@@ -28,6 +30,8 @@ export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   minPrice: '',
   maxPrice: '',
   minSurface: '',
+  minBedrooms: '',
+  minBathrooms: '',
   hasAvailableLots: false,
 };
 
@@ -71,6 +75,8 @@ export function normalizeCatalogFilters(
     minPrice: valueFrom(filters, 'minPrice'),
     maxPrice: valueFrom(filters, 'maxPrice'),
     minSurface: valueFrom(filters, 'minSurface'),
+    minBedrooms: valueFrom(filters, 'minBedrooms'),
+    minBathrooms: valueFrom(filters, 'minBathrooms'),
     hasAvailableLots,
   };
 }
@@ -95,6 +101,8 @@ export function catalogFiltersToPropertyFilters(
     minPrice: parsePositiveNumber(normalized.minPrice) ?? undefined,
     maxPrice: parsePositiveNumber(normalized.maxPrice) ?? undefined,
     minSurface: parsePositiveNumber(normalized.minSurface) ?? undefined,
+    minBedrooms: parsePositiveNumber(normalized.minBedrooms) ?? undefined,
+    minBathrooms: parsePositiveNumber(normalized.minBathrooms) ?? undefined,
     hasAvailableLots: normalized.hasAvailableLots || undefined,
     page: options?.page ?? 1,
     limit: options?.limit ?? CATALOG_PAGE_LIMIT,
@@ -108,6 +116,8 @@ export function filterPropertyCards(properties: PropertyCard[], filters: Catalog
   const minPrice = parsePositiveNumber(normalized.minPrice);
   const maxPrice = parsePositiveNumber(normalized.maxPrice);
   const minSurface = parsePositiveNumber(normalized.minSurface);
+  const minBedrooms = parsePositiveNumber(normalized.minBedrooms);
+  const minBathrooms = parsePositiveNumber(normalized.minBathrooms);
 
   return properties.filter((property) => {
     const matchesQuery = !query || [property.title, property.zone, property.city]
@@ -122,6 +132,8 @@ export function filterPropertyCards(properties: PropertyCard[], filters: Catalog
       (minPrice === null || property.price >= minPrice) &&
       (maxPrice === null || property.price <= maxPrice) &&
       (minSurface === null || getEffectiveSurfaceM2(property) >= minSurface) &&
+      (minBedrooms === null || normalized.type !== 'casa' || (property.bedrooms ?? 0) >= minBedrooms) &&
+      (minBathrooms === null || normalized.type !== 'casa' || (property.bathrooms ?? 0) >= minBathrooms) &&
       (!normalized.hasAvailableLots || property.availableLots === null || property.availableLots > 0)
     );
   });
@@ -138,6 +150,8 @@ export function buildCatalogFilterSearchParams(filters: CatalogFilterState, page
   if (normalized.minPrice) params.set('minPrice', normalized.minPrice);
   if (normalized.maxPrice) params.set('maxPrice', normalized.maxPrice);
   if (normalized.minSurface) params.set('minSurface', normalized.minSurface);
+  if (normalized.minBedrooms) params.set('minBedrooms', normalized.minBedrooms);
+  if (normalized.minBathrooms) params.set('minBathrooms', normalized.minBathrooms);
   if (normalized.hasAvailableLots) params.set('hasAvailableLots', 'true');
   if (page && page > 1) params.set('page', String(page));
 
