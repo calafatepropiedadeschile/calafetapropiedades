@@ -34,18 +34,14 @@ export default function SeoCatalogLanding({
 
   return (
     <section className="section container">
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
-        gap: 'var(--space-3xl)',
-        alignItems: 'start',
-        marginBottom: 'var(--space-3xl)',
+      <div style={{ 
+        marginBottom: 'var(--space-2xl)'
       }}>
         <div>
-          <span style={{
+          <span style={{ 
             display: 'block',
             color: 'var(--color-primary)',
-            fontSize: '0.78rem',
+            fontSize: '0.85rem',
             fontWeight: 800,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
@@ -60,20 +56,6 @@ export default function SeoCatalogLanding({
             {description}
           </p>
         </div>
-
-        <aside style={{
-          borderLeft: '3px solid var(--color-primary)',
-          paddingLeft: 'var(--space-lg)',
-        }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: 'var(--space-md)' }}>
-            Información clave
-          </h2>
-          <ul style={{ display: 'grid', gap: 'var(--space-sm)', margin: 0, paddingLeft: '1.1rem', color: 'var(--color-text-muted)', lineHeight: 1.65 }}>
-            {config.highlights.map((highlight) => (
-              <li key={highlight}>{highlight}</li>
-            ))}
-          </ul>
-        </aside>
       </div>
 
       {cmsPage?.content ? (
