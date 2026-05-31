@@ -5,9 +5,9 @@ import { enforceRateLimit, RATE_LIMITS } from '@/server/security/rate-limit';
 export const { GET } = handlers;
 export const runtime = 'nodejs';
 
-export function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   if (request.nextUrl.pathname.endsWith('/callback/credentials')) {
-    const limited = enforceRateLimit(request, {
+    const limited = await enforceRateLimit(request, {
       keyPrefix: 'auth:credentials',
       ...RATE_LIMITS.auth,
       message: 'Demasiados intentos de inicio de sesion. Espera unos minutos y vuelve a intentar.',

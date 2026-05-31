@@ -17,6 +17,14 @@ function isMissingRoleError(error: unknown): boolean {
   return message.includes('does not exist') && message.includes('role');
 }
 
+function shouldEnforceRlsRoles(): boolean {
+  if (process.env.DATABASE_RLS_RELAXED === 'true') {
+    return false;
+  }
+
+  return process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL);
+}
+
 export function withDatabaseRole<T>(
   role: DatabaseRole,
   callback: (db: RoleScopedPrismaClient) => Promise<T>
@@ -31,8 +39,17 @@ export function withDatabaseRole<T>(
     } catch (error) {
       if (!isMissingRoleError(error)) throw error;
       await tx.$executeRawUnsafe('ROLLBACK TO SAVEPOINT app_role_switch');
+
+      const setupHint = 'Run scripts/setup-calafate-rls-roles.sql in Supabase SQL Editor.';
+
+      if (shouldEnforceRlsRoles()) {
+        throw new Error(
+          `Database role "${roleName}" is missing. ${setupHint} Set DATABASE_RLS_RELAXED=true only for local development without RLS roles.`,
+        );
+      }
+
       console.warn(
-        `Database role "${roleName}" is missing. Run scripts/setup-calafate-rls-roles.sql in Supabase. Continuing without SET ROLE.`,
+        `Database role "${roleName}" is missing. ${setupHint} Continuing without SET ROLE (development only).`,
       );
     }
     return callback(tx);

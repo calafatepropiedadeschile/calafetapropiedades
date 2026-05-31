@@ -20,10 +20,18 @@ function Set-VercelEnv {
   $Value | vercel env add $Name $Environment --force 2>&1
 }
 
-# Valores limpios (sin \r\n). Ajusta ADMIN_PASSWORD si cambiaste la clave local.
+# Valores limpios (sin \r\n). Las credenciales deben venir desde el entorno local.
+if ([string]::IsNullOrWhiteSpace($env:ADMIN_EMAIL)) {
+  throw 'Set ADMIN_EMAIL in your shell before running this script.'
+}
+
+if ([string]::IsNullOrWhiteSpace($env:ADMIN_PASSWORD)) {
+  throw 'Set ADMIN_PASSWORD in your shell before running this script.'
+}
+
 $fixes = @{
-  'ADMIN_EMAIL' = 'admin@calafatepropiedades.com'
-  'ADMIN_PASSWORD' = '123Password.,'
+  'ADMIN_EMAIL' = $env:ADMIN_EMAIL
+  'ADMIN_PASSWORD' = $env:ADMIN_PASSWORD
   'AUTH_URL' = 'https://calafetapropiedades.vercel.app'
   'NEXTAUTH_URL' = 'https://calafetapropiedades.vercel.app'
   'APP_ORIGIN' = 'https://calafetapropiedades.vercel.app'

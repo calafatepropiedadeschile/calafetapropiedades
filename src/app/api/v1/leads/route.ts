@@ -20,7 +20,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   const headers = apiCorsHeaders(request);
 
   try {
-    const limited = enforceRateLimit(request, {
+    const limited = await enforceRateLimit(request, {
       keyPrefix: 'api:leads',
       ...RATE_LIMITS.leads,
       headers,

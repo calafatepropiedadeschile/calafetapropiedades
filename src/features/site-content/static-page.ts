@@ -3,6 +3,7 @@ import type { StaticPage } from '@prisma/client';
 import type { Locale } from '@/lib/i18n/config';
 import { getPrismaClient } from '@/lib/db/prisma';
 import { withDatabaseRole } from '@/lib/db/rls';
+import { sanitizeCmsHtml, sanitizeOptionalCmsHtml } from '@/lib/security/sanitize-html';
 import type { StaticPageInput } from './static-page.schemas';
 
 export type StaticPageView = {
@@ -44,7 +45,7 @@ export function mapStaticPageView(page: StaticPage, locale: Locale): StaticPageV
     id: page.id,
     slug: page.slug,
     title: pickLocalizedText(locale, page.titleEs, page.titleEn),
-    content: pickLocalizedText(locale, page.contentEs, page.contentEn),
+    content: sanitizeCmsHtml(pickLocalizedText(locale, page.contentEs, page.contentEn)),
     published: page.published,
     seoTitle: pickLocalizedText(locale, page.seoTitleEs ?? '', page.seoTitleEn) || null,
     seoDescription: pickLocalizedText(locale, page.seoDescriptionEs ?? '', page.seoDescriptionEn) || null,
@@ -113,8 +114,8 @@ export async function createStaticPageRecord(input: StaticPageInput) {
         slug: input.slug,
         titleEs: input.titleEs,
         titleEn: input.titleEn,
-        contentEs: input.contentEs,
-        contentEn: input.contentEn,
+        contentEs: sanitizeCmsHtml(input.contentEs),
+        contentEn: sanitizeOptionalCmsHtml(input.contentEn),
         published: input.published,
         seoTitleEs: input.seoTitleEs,
         seoTitleEn: input.seoTitleEn,
@@ -148,8 +149,8 @@ export async function updateStaticPageRecord(id: string, input: StaticPageInput)
         slug: input.slug,
         titleEs: input.titleEs,
         titleEn: input.titleEn,
-        contentEs: input.contentEs,
-        contentEn: input.contentEn,
+        contentEs: sanitizeCmsHtml(input.contentEs),
+        contentEn: sanitizeOptionalCmsHtml(input.contentEn),
         published: input.published,
         seoTitleEs: input.seoTitleEs,
         seoTitleEn: input.seoTitleEn,

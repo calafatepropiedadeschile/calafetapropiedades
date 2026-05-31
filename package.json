@@ -28,6 +28,8 @@
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "framer-motion": "^12.40.0",
@@ -44,6 +46,7 @@
     "react-dom": "19.2.4",
     "react-hook-form": "^7.75.0",
     "react-leaflet": "^5.0.0",
+    "sanitize-html": "^2.17.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -53,6 +56,7 @@
     "@types/nodemailer": "^8.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "ts-node": "^10.9.2",

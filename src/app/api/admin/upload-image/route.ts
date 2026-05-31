@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/auth';
 import { enforceRateLimit, RATE_LIMITS } from '@/server/security/rate-limit';
+import { validateImageUpload } from '@/lib/security/validate-image';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const limited = enforceRateLimit(request, {
+  const limited = await enforceRateLimit(request, {
     keyPrefix: 'admin:upload-image',
     identifier: session.user.id || session.user.email,
     ...RATE_LIMITS.uploads,
@@ -82,18 +83,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Archivo requerido' }, { status: 400 });
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'El archivo debe ser una imagen' }, { status: 400 });
-    }
-
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
       return NextResponse.json({ error: 'La imagen debe pesar menos de 10MB' }, { status: 400 });
+    }
+
+    const body = Buffer.from(await file.arrayBuffer());
+    const validation = validateImageUpload(new Uint8Array(body), file.type);
+
+    if (!validation.ok) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
     const { supabaseUrl, serviceRoleKey, bucket } = getStorageConfig();
     const storagePath = buildStoragePath(file);
     const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${encodeStoragePath(storagePath)}`;
-    const body = Buffer.from(await file.arrayBuffer());
 
     const response = await fetch(uploadUrl, {
       method: 'POST',
@@ -101,7 +104,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${serviceRoleKey}`,
         apikey: serviceRoleKey,
         'Cache-Control': '31536000',
-        'Content-Type': file.type || 'application/octet-stream',
+        'Content-Type': validation.mime,
         'x-upsert': 'false',
       },
       body,

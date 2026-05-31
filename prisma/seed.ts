@@ -27,8 +27,16 @@ const pool = new Pool({
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@calafatepropiedades.com';
-const adminPassword = process.env.ADMIN_PASSWORD ?? 'CalafatePropiedades2026!';
+function requireEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`${name} is required to seed the admin user.`);
+  }
+  return value;
+}
+
+const adminEmail = requireEnv('ADMIN_EMAIL');
+const adminPassword = requireEnv('ADMIN_PASSWORD');
 
 const properties = [
   {

@@ -1,3 +1,5 @@
+import { sanitizeCmsHtml } from '@/lib/security/sanitize-html';
+
 interface Props {
   content: string;
   className?: string;
@@ -28,10 +30,12 @@ function renderPlainContent(content: string) {
 
 export default function StaticPageContent({ content, className = '' }: Props) {
   if (looksLikeHtml(content)) {
+    const safeHtml = sanitizeCmsHtml(content);
+
     return (
       <div
         className={`static-page-prose ${className}`.trim()}
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
     );
   }

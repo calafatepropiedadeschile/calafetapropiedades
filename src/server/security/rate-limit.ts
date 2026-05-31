@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 type RateLimitOptions = {
   keyPrefix: string;
@@ -16,6 +18,7 @@ type RateLimitEntry = {
 
 const globalRateLimitStore = globalThis as typeof globalThis & {
   appRateLimitStore?: Map<string, RateLimitEntry>;
+  appRateLimitWarned?: boolean;
 };
 
 function getStore() {
@@ -53,7 +56,66 @@ export const RATE_LIMITS = {
   },
 } as const;
 
-export function enforceRateLimit(request: NextRequest, options: RateLimitOptions) {
+const upstashRedisUrl = process.env.UPSTASH_REDIS_REST_URL?.trim();
+const upstashRedisToken = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+
+const upstashRedis = upstashRedisUrl && upstashRedisToken
+  ? new Redis({ url: upstashRedisUrl, token: upstashRedisToken })
+  : null;
+
+const upstashLimiters = new Map<string, Ratelimit>();
+
+function warnInMemoryRateLimitOnce() {
+  if (globalRateLimitStore.appRateLimitWarned) return;
+  globalRateLimitStore.appRateLimitWarned = true;
+
+  if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) return;
+
+  console.warn(
+    'Rate limiting uses in-memory storage. Configure UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN for distributed limits on Vercel.',
+  );
+}
+
+function getUpstashLimiter(options: RateLimitOptions) {
+  if (!upstashRedis) return null;
+
+  const cacheKey = `${options.keyPrefix}:${options.limit}:${options.windowSeconds}`;
+  const existing = upstashLimiters.get(cacheKey);
+  if (existing) return existing;
+
+  const limiter = new Ratelimit({
+    redis: upstashRedis,
+    limiter: Ratelimit.slidingWindow(options.limit, `${options.windowSeconds} s`),
+    prefix: `calafate:${options.keyPrefix}`,
+    analytics: false,
+  });
+
+  upstashLimiters.set(cacheKey, limiter);
+  return limiter;
+}
+
+function buildRateLimitResponse(options: RateLimitOptions, retryAfterSeconds: number) {
+  const headers = new Headers(options.headers);
+  headers.set('Retry-After', String(retryAfterSeconds));
+  headers.set('X-RateLimit-Limit', String(options.limit));
+  headers.set('X-RateLimit-Remaining', '0');
+  headers.set('X-RateLimit-Reset', String(Math.ceil(Date.now() / 1000) + retryAfterSeconds));
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: options.message ?? 'Demasiadas solicitudes. Intenta nuevamente en unos minutos.',
+    },
+    {
+      status: 429,
+      headers,
+    }
+  );
+}
+
+function enforceInMemoryRateLimit(request: NextRequest, options: RateLimitOptions) {
+  warnInMemoryRateLimitOnce();
+
   const now = Date.now();
   const store = getStore();
   const identifier = options.identifier || getClientIp(request);
@@ -75,20 +137,27 @@ export function enforceRateLimit(request: NextRequest, options: RateLimitOptions
   }
 
   const retryAfterSeconds = Math.max(1, Math.ceil((existing.resetAt - now) / 1000));
-  const headers = new Headers(options.headers);
-  headers.set('Retry-After', String(retryAfterSeconds));
-  headers.set('X-RateLimit-Limit', String(options.limit));
-  headers.set('X-RateLimit-Remaining', '0');
-  headers.set('X-RateLimit-Reset', String(Math.ceil(existing.resetAt / 1000)));
+  return buildRateLimitResponse(options, retryAfterSeconds);
+}
 
-  return NextResponse.json(
-    {
-      success: false,
-      error: options.message ?? 'Demasiadas solicitudes. Intenta nuevamente en unos minutos.',
-    },
-    {
-      status: 429,
-      headers,
-    }
+export async function enforceRateLimit(request: NextRequest, options: RateLimitOptions) {
+  const identifier = options.identifier || getClientIp(request);
+  const limiter = getUpstashLimiter(options);
+
+  if (!limiter) {
+    return enforceInMemoryRateLimit(request, options);
+  }
+
+  const result = await limiter.limit(`${options.keyPrefix}:${identifier}`);
+
+  if (result.success) {
+    return null;
+  }
+
+  const retryAfterSeconds = Math.max(
+    1,
+    Math.ceil((result.reset - Date.now()) / 1000),
   );
+
+  return buildRateLimitResponse(options, retryAfterSeconds);
 }

@@ -8,6 +8,7 @@ const serverActionOrigins = [
 ].filter((origin): origin is string => Boolean(origin));
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
