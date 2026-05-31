@@ -5924,6 +5924,85 @@ input:checked + .slider:before {
 }
 
 /* =============================================
+   SEO — service landing (e.g. /topografia)
+   ============================================= */
+.seo-service-landing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xl);
+  margin-bottom: var(--space-2xl);
+}
+
+.seo-service-landing__hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.seo-service-landing__block {
+  max-width: 860px;
+}
+
+.seo-service-landing__heading {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 var(--space-lg);
+  color: var(--color-dark);
+}
+
+.seo-service-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.seo-service-highlights__item {
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  line-height: 1.65;
+  font-size: 0.98rem;
+}
+
+.seo-service-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.seo-service-list li {
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border-light);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+}
+
+.seo-service-list li:last-child {
+  border-bottom: none;
+}
+
+.seo-service-related {
+  max-width: 860px;
+  padding: var(--space-2xl);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.seo-service-related__description {
+  margin: 0 0 var(--space-lg);
+  line-height: 1.75;
+  max-width: 640px;
+}
+
+/* =============================================
    HOME — shared section patterns
    ============================================= */
 .home-section-header {

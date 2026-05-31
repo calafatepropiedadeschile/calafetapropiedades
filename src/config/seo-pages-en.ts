@@ -145,28 +145,91 @@ export const seoLandingPagesEn: Record<
     eyebrow: 'Surveying services',
     title: 'Surveying for land and projects',
     description:
-      'Request surveying support for land, lots, and real estate projects that need reliable technical information.',
+      'We coordinate surveying for land, lots, and subdivisions in southern Chile. Get measurements, slopes, and site data before you buy, sell, or move a project forward.',
     metadataTitle: 'Surveying services | Calafate Propiedades',
     metadataDescription:
-      'Surveying for land, lots, and real estate projects. Request information and commercial coordination.',
+      'Surveying for land, lots, and projects in Los Lagos, Los Ríos, and Maule. Request a quote and commercial coordination.',
     primaryCta: {
       label: 'Request surveying',
       href: buildMailto(siteConfig.contact.salesEmail, 'I want to request surveying services'),
     },
-    secondaryCta: { label: 'View land', href: '/terrenos' },
+    secondaryCta: { label: 'View land for sale', href: '/terrenos' },
+    highlightsTitle: 'Why coordinate surveying with Calafate',
     highlights: [
-      'Support for land, lots, and projects.',
-      'Technical information oriented to real estate decisions.',
-      'Direct coordination with the Calafate Propiedades team.',
+      'Coverage in Los Lagos, Los Ríos, and Maule Region.',
+      'Technical information to buy, sell, or plan with more confidence.',
+      'Direct commercial coordination with clear scope, timing, and next steps.',
     ],
+    serviceSections: [
+      {
+        title: 'Work we coordinate',
+        items: [
+          'Topographic survey and site layout plans.',
+          'Boundary review and on-site location checks.',
+          'Slope, elevation, and site condition information.',
+          'Support before buying a lot, subdivision, or early design.',
+        ],
+      },
+      {
+        title: 'How it works',
+        items: [
+          'You contact us with the site location and goal of the survey.',
+          'We review scope based on municipality, area, and land type.',
+          'We schedule a site visit and an indicative delivery timeline.',
+          'You receive technical deliverables according to the agreed scope.',
+        ],
+      },
+      {
+        title: 'What we need for a quote',
+        items: [
+          'Location: municipality, parcel ID, Google Maps link, or a listing on this site.',
+          'Approximate area and purpose (buy, sell, build, subdivide).',
+          'Available documents: prior plans, boundaries, or land only.',
+        ],
+      },
+    ],
+    ctaBanner: {
+      eyebrow: 'Service request',
+      headline: 'Tell us the site location and your goal',
+      sub: 'Send basic details and we will guide you on the right surveying scope, timing, and next step.',
+    },
+    relatedCatalog: {
+      title: 'Land and lots for sale',
+      description:
+        'If you are looking to buy, browse published opportunities and ask about surveying for the lot you are interested in.',
+      href: '/terrenos',
+      linkLabel: 'View land for sale',
+    },
     faqs: [
       {
         question: 'What is surveying used for?',
-        answer: 'It helps understand measurements, slopes, boundaries, and land conditions before buying, selling, or building.',
+        answer:
+          'It helps you understand measurements, slopes, boundaries, and real site conditions before buying, selling, financing, or building.',
       },
       {
-        question: 'Can I request surveying for a lot for sale?',
-        answer: 'Yes. Ask about the service and the team will review scope based on location and land type.',
+        question: 'Can I request surveying for a lot listed on this site?',
+        answer:
+          'Yes. Share the project or listing link and the team will review scope based on location and land type.',
+      },
+      {
+        question: 'Which areas do you cover?',
+        answer:
+          'Mainly Los Lagos, Los Ríos, and Maule Region, depending on availability and type of work.',
+      },
+      {
+        question: 'How long does it take and what do I receive?',
+        answer:
+          'It depends on scope and season. After your inquiry we share an indicative timeline and deliverables (e.g. plans, elevations, or site data).',
+      },
+      {
+        question: 'Does Calafate perform field work or coordinate third parties?',
+        answer:
+          'We coordinate the service case by case. On the first inquiry we explain who performs the work and what the quote includes.',
+      },
+      {
+        question: 'Do you publish fixed prices?',
+        answer:
+          'Pricing depends on location, area, and survey type. We quote case by case after reviewing the information you send.',
       },
     ],
   },

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import PropertyCatalog, { type CatalogPagination } from '@/components/properties/PropertyCatalog';
 import RentalsEmptyLanding from '@/components/seo/RentalsEmptyLanding';
-import CtaBanner from '@/components/ui/CtaBanner';
+import SeoServiceLandingSections from '@/components/seo/SeoServiceLandingSections';
 import StaticPageContent from '@/components/site/StaticPageContent';
 import type { SeoLandingPageConfig } from '@/config/seo-pages';
 import type { StaticPageView } from '@/features/site-content/static-page';
@@ -30,7 +30,7 @@ export default function SeoCatalogLanding({
   const hasRentalInventory = pagination.total > 0;
   const showRentalsEmptyLanding = showCatalog && isRentalsPage && !hasRentalInventory;
   const title = cmsPage?.title ?? config.title;
-  const description = cmsPage?.seoDescription ?? config.description;
+  const description = config.description;
 
   return (
     <section className="section container">
@@ -76,17 +76,7 @@ export default function SeoCatalogLanding({
           catalogPriceMode={isRentalsPage ? 'arriendo' : 'venta'}
         />
       ) : (
-        <CtaBanner
-          variant="inline"
-          eyebrow="Consulta comercial"
-          headline="Coordinamos arriendos según disponibilidad actual."
-          sub="El equipo comercial puede indicarte opciones vigentes, condiciones y zonas. Escríbenos para recibir asesoría."
-          ctas={[
-            { label: config.primaryCta.label, href: config.primaryCta.href, primary: true },
-            { label: config.secondaryCta.label, href: config.secondaryCta.href },
-          ]}
-          id="cta-seo-arriendos"
-        />
+        <SeoServiceLandingSections config={config} />
       )}
 
       <section style={{ marginTop: 'var(--space-4xl)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>

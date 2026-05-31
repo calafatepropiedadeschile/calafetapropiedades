@@ -9,6 +9,11 @@ export const siteUrl = getDefaultCanonicalBaseUrl();
 
 export type SeoLandingKey = 'comprar' | 'arriendos' | 'proyectos' | 'terrenos' | 'vender' | 'topografia';
 
+export interface SeoLandingServiceSection {
+  title: string;
+  items: string[];
+}
+
 export interface SeoLandingPageConfig {
   path: `/${SeoLandingKey}`;
   title: string;
@@ -28,6 +33,20 @@ export interface SeoLandingPageConfig {
     href: string;
   };
   highlights: string[];
+  highlightsTitle?: string;
+  /** Bloques de servicio cuando showCatalog es false. */
+  serviceSections?: SeoLandingServiceSection[];
+  ctaBanner?: {
+    eyebrow?: string;
+    headline: string;
+    sub?: string;
+  };
+  relatedCatalog?: {
+    title: string;
+    description: string;
+    href: string;
+    linkLabel: string;
+  };
   faqs: Array<{
     question: string;
     answer: string;
@@ -173,25 +192,94 @@ export const seoLandingPages: Record<SeoLandingKey, SeoLandingPageConfig> = {
     path: '/topografia',
     eyebrow: 'Servicios de topografía',
     title: 'Trabajos de topografía para terrenos y proyectos',
-    description: 'Solicita apoyo para trabajos de topografía asociados a terrenos, parcelas y proyectos inmobiliarios que requieren información técnica confiable.',
+    description:
+      'Coordinamos trabajos de topografía para terrenos, parcelas y loteos en el sur de Chile. Te ayudamos a obtener medidas, pendientes y antecedentes del terreno antes de comprar, vender o avanzar un proyecto.',
     metadataTitle: 'Trabajos de topografía | Calafate Propiedades',
-    metadataDescription: 'Servicios de topografía para terrenos, parcelas y proyectos inmobiliarios. Solicita información y coordinación comercial.',
-    filters: { type: 'terreno', priceType: 'venta' },
-    primaryCta: { label: 'Solicitar topografía', href: buildMailto(siteConfig.contact.salesEmail, 'Quiero solicitar trabajos de topografía') },
-    secondaryCta: { label: 'Ver terrenos', href: '/terrenos' },
+    metadataDescription:
+      'Servicios de topografía para terrenos, parcelas y proyectos en Los Lagos, Los Ríos y Maule. Solicita cotización y coordinación comercial.',
+    showCatalog: false,
+    filters: {},
+    primaryCta: {
+      label: 'Solicitar topografía',
+      href: buildMailto(siteConfig.contact.salesEmail, 'Quiero solicitar trabajos de topografía'),
+    },
+    secondaryCta: { label: 'Ver terrenos en venta', href: '/terrenos' },
+    highlightsTitle: 'Por qué coordinar topografía con Calafate',
     highlights: [
-      'Apoyo para terrenos, parcelas y proyectos.',
-      'Información técnica orientada a decisiones inmobiliarias.',
-      'Coordinación directa con el equipo de Calafate Propiedades.',
+      'Cobertura en Los Lagos, Los Ríos y Región del Maule.',
+      'Información técnica útil para comprar, vender o proyectar con más seguridad.',
+      'Coordinación comercial directa: alcance, plazos y siguiente paso claros.',
     ],
+    serviceSections: [
+      {
+        title: 'Trabajos que coordinamos',
+        items: [
+          'Levantamiento topográfico y plano de emplazamiento.',
+          'Revisión de deslindes, límites y ubicación en terreno.',
+          'Información de pendientes, cotas y condiciones del predio.',
+          'Apoyo previo a compra de parcela, subdivisión o anteproyecto.',
+        ],
+      },
+      {
+        title: 'Cómo es el proceso',
+        items: [
+          'Nos escribes con ubicación del terreno y el objetivo del trabajo.',
+          'Revisamos alcance según comuna, superficie y tipo de terreno.',
+          'Coordinamos visita a terreno y plazo orientativo de entrega.',
+          'Recibes antecedentes técnicos según el trabajo acordado.',
+        ],
+      },
+      {
+        title: 'Qué necesitamos para cotizar',
+        items: [
+          'Ubicación: comuna, rol, enlace de Google Maps o parcela publicada en el sitio.',
+          'Superficie aproximada y uso (comprar, vender, construir, subdividir).',
+          'Antecedentes disponibles: planos previos, deslindes o solo el terreno.',
+        ],
+      },
+    ],
+    ctaBanner: {
+      eyebrow: 'Solicitud de servicio',
+      headline: 'Cuéntanos ubicación y objetivo del terreno',
+      sub: 'Envíanos los antecedentes básicos y te orientamos sobre el trabajo de topografía que corresponde, plazos y siguiente paso.',
+    },
+    relatedCatalog: {
+      title: 'Terrenos y parcelas en venta',
+      description:
+        'Si buscas comprar, revisa oportunidades publicadas y consulta por topografía en la parcela que te interese.',
+      href: '/terrenos',
+      linkLabel: 'Ver terrenos en venta',
+    },
     faqs: [
       {
         question: '¿Para qué sirve un trabajo de topografía?',
-        answer: 'Ayuda a conocer medidas, pendientes, límites y condiciones del terreno antes de comprar, vender o proyectar una construcción.',
+        answer:
+          'Permite conocer medidas, pendientes, límites y condiciones reales del terreno antes de comprar, vender, financiar o proyectar una construcción.',
       },
       {
-        question: 'Puedo solicitar topografía para una parcela en venta?',
-        answer: 'Sí. Puedes consultar por el servicio y el equipo revisará el alcance según ubicación y tipo de terreno.',
+        question: '¿Puedo solicitar topografía para una parcela publicada en el sitio?',
+        answer:
+          'Sí. Indica el proyecto o enlace de la ficha y el equipo revisará alcance según ubicación y tipo de terreno.',
+      },
+      {
+        question: '¿En qué zonas trabajan?',
+        answer:
+          'Principalmente en Los Lagos, Los Ríos y Región del Maule, según disponibilidad y tipo de trabajo.',
+      },
+      {
+        question: '¿Cuánto demora y qué entregables recibo?',
+        answer:
+          'Depende del alcance y la temporada. Tras la consulta te indicamos plazo orientativo y entregables (por ejemplo planos, cotas o antecedentes de terreno).',
+      },
+      {
+        question: '¿Calafate realiza el trabajo en terreno o coordina con terceros?',
+        answer:
+          'Coordinamos el servicio según el caso. En la consulta inicial te explicamos quién ejecuta el trabajo y qué incluye la cotización.',
+      },
+      {
+        question: '¿Tienen precio publicado?',
+        answer:
+          'El valor depende de ubicación, superficie y tipo de levantamiento. Cotizamos caso a caso tras revisar la información que nos envíes.',
       },
     ],
   },
