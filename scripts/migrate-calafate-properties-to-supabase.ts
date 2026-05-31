@@ -6,6 +6,10 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { loadEnvConfig } from '@next/env';
 import { Pool } from 'pg';
+import {
+  cleanImportedDescription,
+  parseDistanceHighlightsFromText,
+} from '../src/features/properties/property-import-text';
 
 loadEnvConfig(process.cwd());
 
@@ -405,10 +409,7 @@ function parseReservationAmount(text: string) {
 }
 
 function parseDistanceHighlights(text: string) {
-  return Array.from(text.matchAll(/A\s+(?:prox\.\s*)?[^.\n-]{3,90}/gi))
-    .map((match) => normalizeSpaces(match[0]))
-    .filter((value, index, items) => items.indexOf(value) === index)
-    .slice(0, 6);
+  return parseDistanceHighlightsFromText(text);
 }
 
 function parseInfrastructure(text: string) {
@@ -465,18 +466,12 @@ function parseLocation(location: string | null) {
 }
 
 function parseDescription(text: string, title: string) {
-  const markers = ['PORTALES INMOBILIARIOS', 'TEXTO', 'Texto:'];
-  const markerIndex = markers
-    .map((marker) => text.toUpperCase().indexOf(marker.toUpperCase()))
-    .filter((index) => index >= 0)
-    .sort((a, b) => a - b)[0];
-  const rawDescription = markerIndex == null ? text : text.slice(markerIndex);
-  const titleIndex = rawDescription.toLowerCase().indexOf(title.toLowerCase());
-  const description = titleIndex >= 0 ? rawDescription.slice(titleIndex) : rawDescription;
+  const fromField = captureField(text, 'Descripcion');
+  if (fromField && fromField.length > 40) {
+    return cleanImportedDescription(fromField, title).slice(0, 4500);
+  }
 
-  return normalizeSpaces(description)
-    .replace(/^Texto:\s*/i, '')
-    .slice(0, 4500);
+  return cleanImportedDescription(text, title).slice(0, 4500);
 }
 
 function parseDocxProperty(sourceDir: string): PropertyDraft {

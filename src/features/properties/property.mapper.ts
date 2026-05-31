@@ -3,6 +3,10 @@ import type { Locale } from '@/lib/i18n/config';
 import { normalizeOptionalCanonicalUrl } from '@/config/seo-url';
 import { getMarketRegionForCountry, isPropertyMarketRegion } from './property-markets';
 import { normalizeLandAmenities, normalizeLandServices } from './property-land-options';
+import {
+  cleanImportedDescription,
+  sanitizeDistanceHighlights,
+} from './property-import-text';
 
 type AgentRecord = {
   name: string;
@@ -158,7 +162,10 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
 
   return {
     ...mapPropertyCard(property, locale),
-    description: (isEn && property.descriptionEn) ? property.descriptionEn : (property.descriptionEs ?? ''),
+    description: cleanImportedDescription(
+      (isEn && property.descriptionEn) ? property.descriptionEn : (property.descriptionEs ?? ''),
+      property.titleEs,
+    ),
     address: property.address ?? null,
     province: property.province ?? null,
     country: property.country ?? null,
@@ -200,7 +207,9 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
     hasOwnRol: property.hasOwnRol ?? false,
     availabilityNotes: property.availabilityNotes ?? null,
     commercialNotes: property.commercialNotes ?? null,
-    distanceHighlights: parseJsonField<string[]>(property.distanceHighlights, []),
+    distanceHighlights: sanitizeDistanceHighlights(
+      parseJsonField<string[]>(property.distanceHighlights, []),
+    ),
     services: normalizeLandServices(parseJsonField<string[]>(property.services, [])),
     amenities: normalizeLandAmenities(parseJsonField<string[]>(property.amenities, [])),
     images: parseJsonField<string[]>(property.images, []),
