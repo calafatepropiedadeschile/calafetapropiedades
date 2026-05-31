@@ -63,7 +63,7 @@ export default function HomeFeaturedProperties({ properties }: Props) {
           className="property-grid"
           role="list"
           variants={STAGGER_GRID_CONTAINER}
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={SCROLL_REVEAL_VIEWPORT}
         >

@@ -61,7 +61,7 @@ export function I18nProvider({
     const storedCurrency = window.localStorage.getItem(CURRENCY_STORAGE_KEY);
 
     if (isSupportedLocale(storedLocale) && storedLocale !== initialLocale) {
-      window.setTimeout(() => setLocaleState(storedLocale), 0);
+      setLocaleState(storedLocale);
       writePreferenceCookie('NEXT_LOCALE', storedLocale);
       persistPreferences({ locale: storedLocale });
     } else {
@@ -70,7 +70,7 @@ export function I18nProvider({
     }
 
     if (isSupportedCurrency(storedCurrency) && storedCurrency !== initialCurrency) {
-      window.setTimeout(() => setCurrencyState(storedCurrency), 0);
+      setCurrencyState(storedCurrency);
       writePreferenceCookie('NEXT_CURRENCY', storedCurrency);
       persistPreferences({ currency: storedCurrency });
     } else {

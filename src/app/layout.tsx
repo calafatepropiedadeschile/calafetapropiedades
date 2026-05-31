@@ -129,8 +129,8 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang={locale}>
-      <body>
+    <html lang={locale} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <LenisProvider>
           <SiteSettingsProvider settings={siteSettings}>
             <AppProviders {...providerProps}>
