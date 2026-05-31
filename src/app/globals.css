@@ -1844,8 +1844,11 @@ input, textarea, select {
   margin: 16px;
   padding: 18px;
   border-radius: var(--radius-lg);
-  background: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .property-card-price {
@@ -1887,8 +1890,9 @@ input, textarea, select {
   order: 2;
   margin: 0;
   overflow: hidden;
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: 0.85rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1899,9 +1903,10 @@ input, textarea, select {
   flex-wrap: wrap;
   gap: 10px 12px;
   align-items: center;
-  margin-top: 2px;
-  color: var(--color-text-subtle);
-  font-size: 0.75rem;
+  margin-top: 4px;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.8rem;
 }
 
 .spec-item {
@@ -4174,16 +4179,6 @@ input, textarea, select {
   }
 }
 
-/* WhatsApp: no tapar controles del tour 360 (esquina inferior derecha) */
-@media (max-width: 768px) {
-  body:has(.masterplan-tour-wrapper) .whatsapp-widget-container,
-  body:has(.property-widget-frame--tour) .whatsapp-widget-container {
-    right: auto;
-    left: 1rem;
-    bottom: 1rem;
-  }
-}
-
 /* Realtor.com Hero Specifics */
 .hero-search-pill {
   background: #ffffff;
@@ -6107,6 +6102,7 @@ input:checked + .slider:before {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  left: auto;
   z-index: 9999;
   font-family: var(--font-sans);
 }
@@ -6477,6 +6473,7 @@ input:checked + .slider:before {
   .whatsapp-widget-container {
     bottom: 1rem;
     right: 1rem;
+    left: auto;
   }
   
   .whatsapp-card {
