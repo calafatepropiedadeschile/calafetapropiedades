@@ -44,6 +44,9 @@ export interface Property {
   zoning: string | null;
   mapUrl: string | null;
   virtualTourUrl: string | null;
+  youtubeUrl: string | null;
+  sortOrder: number;
+  agentId: string | null;
   lotSurfaceM2: number | null;
   totalLots: number | null;
   availableLots: number | null;

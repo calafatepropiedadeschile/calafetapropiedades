@@ -47,6 +47,9 @@ type PropertyRecord = {
   zoning?: string | null;
   mapUrl?: string | null;
   virtualTourUrl?: string | null;
+  youtubeUrl?: string | null;
+  sortOrder?: number;
+  agentId?: string | null;
   lotSurfaceM2?: number | null;
   totalLots?: number | null;
   availableLots?: number | null;
@@ -142,6 +145,9 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
     zoning: property.zoning ?? null,
     mapUrl: property.mapUrl ?? null,
     virtualTourUrl: property.virtualTourUrl ?? null,
+    youtubeUrl: property.youtubeUrl ?? null,
+    sortOrder: property.sortOrder ?? 0,
+    agentId: property.agentId ?? null,
     lotSurfaceM2: property.lotSurfaceM2 ?? null,
     totalLots: property.totalLots ?? null,
     availableLots: property.availableLots ?? null,
