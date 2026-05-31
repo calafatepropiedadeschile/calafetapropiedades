@@ -251,16 +251,18 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
               {/* Modern Gallery is now INSIDE the left column */}
               <PropertyGallery images={galleryImages} title={title} locale={locale} youtubeUrl={property.youtubeUrl} />
 
-              <div style={{ marginBottom: 'var(--space-2xl)' }}>
-                <div className="pdp-hero-header">
-                  <div className="pdp-hero-title-row">
-                    <h1 className="pdp-hero-title">{title}</h1>
-                    <button className="pdp-save-btn" aria-label="Guardar propiedad">
-                      <Heart size={28} strokeWidth={1.5} />
-                    </button>
-                  </div>
-                  
-                  <div className="pdp-hero-price">
+              <div className="pdp-info-block">
+                {/* Título + Favorito */}
+                <div className="pdp-hero-title-row">
+                  <h1 className="pdp-hero-title">{title}</h1>
+                  <button className="pdp-save-btn" aria-label="Guardar propiedad">
+                    <Heart size={24} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                {/* Precio + Ubicación + Badges en fila */}
+                <div className="pdp-price-location-row">
+                  <span className="pdp-price-display">
                     {formatPropertyPrice(price, currency, {
                       priceFrom: shouldShowPriceFrom({ priceFrom, type, currency }),
                       locale,
@@ -268,57 +270,68 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                       displayCurrency,
                       rates: exchangeRates,
                     })}
-                  </div>
-
-                  <div className="pdp-hero-badges">
-                    <span className="pdp-hero-badge pdp-hero-badge--primary">
+                  </span>
+                  <span className="pdp-location-text">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {[zone, city, province].filter(Boolean).join(', ')}
+                  </span>
+                  <div className="pdp-badges-inline">
+                    <span className="pdp-badge pdp-badge--primary">
                       {priceTypeKey ? t(priceTypeKey) : priceType}
                     </span>
                     {statusKey && (
-                      <span className="pdp-hero-badge pdp-hero-badge--secondary">
+                      <span className="pdp-badge pdp-badge--secondary">
                         {t(statusKey)}
                       </span>
                     )}
                   </div>
-
-                  <div className="pdp-hero-specs-inline">
-                    <span className="pdp-hero-spec-item">
-                      {[province, city, zone].filter(Boolean).join(', ')}
-                    </span>
-                    {(builtArea || area) ? (
-                      <>
-                        <span className="pdp-hero-spec-dot">•</span>
-                        <span className="pdp-hero-spec-item">{Math.round(builtArea ?? area ?? 0)} m²</span>
-                      </>
-                    ) : null}
-                    {lotSurfaceM2 ? (
-                      <>
-                        <span className="pdp-hero-spec-dot">•</span>
-                        <span className="pdp-hero-spec-item">{Math.round(lotSurfaceM2)} m² {t('property.lotSurface')}</span>
-                      </>
-                    ) : null}
-                    {bedrooms ? (
-                      <>
-                        <span className="pdp-hero-spec-dot">•</span>
-                        <span className="pdp-hero-spec-item">{bedrooms} {t('property.bedrooms')}</span>
-                      </>
-                    ) : null}
-                    {bathrooms ? (
-                      <>
-                        <span className="pdp-hero-spec-dot">•</span>
-                        <span className="pdp-hero-spec-item">{bathrooms} {t('property.bathrooms')}</span>
-                      </>
-                    ) : null}
-                    {availableLots != null ? (
-                      <>
-                        <span className="pdp-hero-spec-dot">•</span>
-                        <span className="pdp-hero-spec-item">{availableLots} disp.</span>
-                      </>
-                    ) : null}
-                  </div>
                 </div>
 
-
+                {/* Barra de specs con iconos y separadores */}
+                <div className="pdp-specs-bar">
+                  {(builtArea || area) ? (
+                    <div className="pdp-spec-pill">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                      <span><strong>{Math.round(builtArea ?? area ?? 0)} m²</strong> {t('property.livingArea')}</span>
+                    </div>
+                  ) : null}
+                  {lotSurfaceM2 ? (
+                    <>
+                      <span className="pdp-spec-divider" aria-hidden />
+                      <div className="pdp-spec-pill">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><polyline points="3 6 3 3 6 3"/><polyline points="18 3 21 3 21 6"/><polyline points="21 18 21 21 18 21"/><polyline points="6 21 3 21 3 18"/><rect x="7" y="7" width="10" height="10"/></svg>
+                        <span><strong>{Math.round(lotSurfaceM2)} m²</strong> {t('property.lotSurface')}</span>
+                      </div>
+                    </>
+                  ) : null}
+                  {bedrooms ? (
+                    <>
+                      <span className="pdp-spec-divider" aria-hidden />
+                      <div className="pdp-spec-pill">
+                        <Bed size={20} strokeWidth={1.5} aria-hidden />
+                        <span><strong>{bedrooms}</strong> {t('property.bedrooms')}</span>
+                      </div>
+                    </>
+                  ) : null}
+                  {bathrooms ? (
+                    <>
+                      <span className="pdp-spec-divider" aria-hidden />
+                      <div className="pdp-spec-pill">
+                        <Bath size={20} strokeWidth={1.5} aria-hidden />
+                        <span><strong>{bathrooms}</strong> {t('property.bathrooms')}</span>
+                      </div>
+                    </>
+                  ) : null}
+                  {availableLots != null ? (
+                    <>
+                      <span className="pdp-spec-divider" aria-hidden />
+                      <div className="pdp-spec-pill">
+                        <CheckCircle2 size={20} strokeWidth={1.5} aria-hidden />
+                        <span><strong>{availableLots}</strong> {t('property.lotsAvailable')}</span>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
               </div>
 
               <PropertyCommercialHighlights
@@ -346,10 +359,8 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                 </>
               ) : (
                 <>
-                  <section style={{ marginTop: 'var(--space-lg)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 'var(--space-md)' }}>
-                      {t('property.mainDetails')}
-                    </h2>
+                  <section className="pdp-section-block">
+                    <h2 className="pdp-section-title">{t('property.mainDetails')}</h2>
                     <div className="detail-specs-grid">
                       {specs.map((spec, index) => (
                         <div key={`${spec.labelKey}-${index}`} className="detail-spec-item">
@@ -361,10 +372,8 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                   </section>
 
                   {(frontage || depth || zoning) && (
-                    <section style={{ marginTop: 'var(--space-3xl)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>
-                      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 'var(--space-md)' }}>
-                        {t('property.landDetails')}
-                      </h2>
+                    <section className="pdp-section-block">
+                      <h2 className="pdp-section-title">{t('property.landDetails')}</h2>
                       <div className="detail-specs-grid">
                         {frontage && (
                           <div className="detail-spec-item">
@@ -389,15 +398,13 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                   )}
 
                   {amenities.length > 0 && (
-                    <section style={{ marginTop: 'var(--space-3xl)', borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-2xl)' }}>
-                      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 'var(--space-md)' }}>
-                        {t('property.amenities')}
-                      </h2>
-                      <div className="amenities-grid">
+                    <section className="pdp-section-block">
+                      <h2 className="pdp-section-title">{t('property.amenities')}</h2>
+                      <div className="pdp-amenities-grid">
                         {amenities.map((amenity) => (
-                          <div key={amenity} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', fontSize: '0.9375rem' }}>
-                            <span style={{ color: 'var(--color-primary)' }}>+</span>{' '}
-                            {t(getAmenityTranslationKey(amenity))}
+                          <div key={amenity} className="pdp-amenity-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>{t(getAmenityTranslationKey(amenity))}</span>
                           </div>
                         ))}
                       </div>
