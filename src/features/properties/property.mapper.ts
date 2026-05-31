@@ -3,6 +3,13 @@ import type { Locale } from '@/lib/i18n/config';
 import { getMarketRegionForCountry, isPropertyMarketRegion } from './property-markets';
 import { normalizeLandAmenities, normalizeLandServices } from './property-land-options';
 
+type AgentRecord = {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  photoUrl?: string | null;
+};
+
 type PropertyRecord = {
   id: string;
   slug: string;
@@ -50,6 +57,7 @@ type PropertyRecord = {
   youtubeUrl?: string | null;
   sortOrder?: number;
   agentId?: string | null;
+  agent?: AgentRecord | null;
   lotSurfaceM2?: number | null;
   totalLots?: number | null;
   availableLots?: number | null;
@@ -79,6 +87,32 @@ type PropertyRecord = {
   customCanonical?: string | null;
   ogImage?: string | null;
 };
+
+function resolveAgentFields(property: PropertyRecord) {
+  const hasManualOverride = Boolean(property.agentName || property.agentPhone || property.agentEmail);
+
+  if (hasManualOverride) {
+    return {
+      agentName: property.agentName ?? null,
+      agentPhone: property.agentPhone ?? null,
+      agentEmail: property.agentEmail ?? null,
+    };
+  }
+
+  if (property.agent) {
+    return {
+      agentName: property.agent.name,
+      agentPhone: property.agent.phone ?? null,
+      agentEmail: property.agent.email ?? null,
+    };
+  }
+
+  return {
+    agentName: null,
+    agentPhone: null,
+    agentEmail: null,
+  };
+}
 
 function parseJsonField<T>(value: string | undefined, fallback: T): T {
   if (!value) return fallback;
@@ -119,6 +153,8 @@ export function mapPropertyCard(property: PropertyRecord, locale: Locale = 'es')
 
 export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Property {
   const isEn = locale === 'en';
+  const agent = resolveAgentFields(property);
+
   return {
     ...mapPropertyCard(property, locale),
     description: (isEn && property.descriptionEn) ? property.descriptionEn : (property.descriptionEs ?? ''),
@@ -137,9 +173,9 @@ export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Pr
     yearBuilt: property.yearBuilt ?? null,
     expenses: property.expenses ?? null,
     internalCode: property.internalCode ?? null,
-    agentName: property.agentName ?? null,
-    agentPhone: property.agentPhone ?? null,
-    agentEmail: property.agentEmail ?? null,
+    agentName: agent.agentName,
+    agentPhone: agent.agentPhone,
+    agentEmail: agent.agentEmail,
     frontage: property.frontage ?? null,
     depth: property.depth ?? null,
     zoning: property.zoning ?? null,

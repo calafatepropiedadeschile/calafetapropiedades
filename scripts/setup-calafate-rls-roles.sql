@@ -29,6 +29,9 @@ GRANT SELECT ("id", "email", "password", "name", "role") ON TABLE public."User" 
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."Property", public."Lead" TO calafate_admin_runtime;
 
+GRANT SELECT ON TABLE public."Agent" TO calafate_public_runtime;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."Agent" TO calafate_admin_runtime;
+
 -- CMS tables (if exist)
 GRANT SELECT ON TABLE public."StaticPage" TO calafate_public_runtime;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public."StaticPage" TO calafate_admin_runtime;
@@ -68,6 +71,18 @@ CREATE POLICY "admin_runtime_manage_property"
 DROP POLICY IF EXISTS "admin_runtime_manage_lead" ON public."Lead";
 CREATE POLICY "admin_runtime_manage_lead"
   ON public."Lead" FOR ALL TO calafate_admin_runtime
+  USING (true) WITH CHECK (true);
+
+-- Policies: Agent
+ALTER TABLE public."Agent" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "public_runtime_read_agent" ON public."Agent";
+CREATE POLICY "public_runtime_read_agent"
+  ON public."Agent" FOR SELECT TO calafate_public_runtime USING (true);
+
+DROP POLICY IF EXISTS "admin_runtime_manage_agent" ON public."Agent";
+CREATE POLICY "admin_runtime_manage_agent"
+  ON public."Agent" FOR ALL TO calafate_admin_runtime
   USING (true) WITH CHECK (true);
 
 -- Policies: StaticPage

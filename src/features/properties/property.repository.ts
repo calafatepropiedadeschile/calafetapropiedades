@@ -78,6 +78,17 @@ const propertyDetailSelect = {
   zoning: true,
   mapUrl: true,
   virtualTourUrl: true,
+  youtubeUrl: true,
+  sortOrder: true,
+  agentId: true,
+  agent: {
+    select: {
+      name: true,
+      email: true,
+      phone: true,
+      photoUrl: true,
+    },
+  },
   lotSurfaceM2: true,
   totalLots: true,
   availableLots: true,

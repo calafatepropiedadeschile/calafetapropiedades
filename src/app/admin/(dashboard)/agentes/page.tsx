@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import { requireAdminSession } from '@/lib/auth/require-admin';
 import { withDatabaseRole } from '@/lib/db/rls';
-import { Trash2, UserPlus, Users } from 'lucide-react';
-import { deleteAgent } from './actions';
+import { Users } from 'lucide-react';
 import AgentFormModal from '@/components/admin/AgentFormModal';
+import DeleteAgentButton from '@/components/admin/DeleteAgentButton';
 
 export default async function AdminAgentsPage() {
   await requireAdminSession();
@@ -54,18 +53,7 @@ export default async function AdminAgentsPage() {
                   <td>{agent.phone || '-'}</td>
                   <td>{agent._count.properties}</td>
                   <td>
-                    <form action={deleteAgent.bind(null, agent.id)}>
-                      <button 
-                        type="submit" 
-                        className="btn btn-ghost btn-sm"
-                        style={{ color: 'var(--color-red)' }}
-                        onClick={(e) => {
-                          if (!confirm(`¿Estás seguro de eliminar a ${agent.name}?`)) e.preventDefault();
-                        }}
-                      >
-                        <Trash2 size={16} /> Eliminar
-                      </button>
-                    </form>
+                    <DeleteAgentButton id={agent.id} name={agent.name} />
                   </td>
                 </tr>
               ))}

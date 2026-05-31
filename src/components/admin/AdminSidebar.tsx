@@ -19,6 +19,7 @@ import {
   FileText,
   Megaphone,
   Search,
+  Users,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { href: '/admin/paginas', label: 'Paginas', icon: FileText },
   { href: '/admin/propiedades', label: 'Propiedades', icon: Home },
   { href: '/admin/propiedades/nueva', label: 'Nueva propiedad', icon: Plus },
+  { href: '/admin/agentes', label: 'Agentes', icon: Users },
   { href: '/admin/leads', label: 'Consultas', icon: Mail },
   { href: '/admin/campanas', label: 'Campanas', icon: Megaphone },
 ];

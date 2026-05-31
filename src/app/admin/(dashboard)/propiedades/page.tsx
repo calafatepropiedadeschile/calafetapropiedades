@@ -54,7 +54,7 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
     const safePage = Math.min(page, totalPages);
     const properties = await db.property.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ sortOrder: 'desc' }, { createdAt: 'desc' }],
       skip: (safePage - 1) * ADMIN_PROPERTIES_PAGE_SIZE,
       take: ADMIN_PROPERTIES_PAGE_SIZE,
       select: adminPropertyListSelect,
