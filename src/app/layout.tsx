@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter, Montserrat, Playfair_Display } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
 import { ExchangeRatesProvider } from '@/lib/currency/ExchangeRatesProvider';
@@ -18,6 +19,37 @@ import { hasSiteEnglishSeo } from '@/lib/seo/english-index';
 import { getSiteSettings } from '@/features/site-content/site-settings';
 import { SiteSettingsProvider } from '@/features/site-content/SiteSettingsProvider';
 import './globals.css';
+
+const fontSans = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+});
+
+const fontAdmin = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+const fontSerif = Playfair_Display({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-playfair',
+  weight: ['400', '600', '700'],
+});
+
+function getSupabasePreconnectOrigin(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -145,8 +177,14 @@ export default async function RootLayout({
     metaPixelId: seo?.metaPixelId,
   };
 
+  const supabaseOrigin = getSupabasePreconnectOrigin();
+  const fontVariables = `${fontSans.variable} ${fontAdmin.variable} ${fontSerif.variable}`;
+
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className={fontVariables} suppressHydrationWarning>
+      <head>
+        {supabaseOrigin ? <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" /> : null}
+      </head>
       <body suppressHydrationWarning>
         <LenisProvider>
           <SiteSettingsProvider settings={siteSettings}>

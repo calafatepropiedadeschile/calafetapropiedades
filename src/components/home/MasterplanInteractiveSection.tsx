@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import VirtualTour from '../properties/VirtualTour';
 import PropertyCard from '../properties/PropertyCard';
@@ -64,8 +64,28 @@ interface Props {
 
 export default function MasterplanInteractiveSection({ allProperties }: Props) {
   const { locale, t } = useI18n();
+  const sectionRef = useRef<HTMLElement>(null);
   const [activeProject, setActiveProject] = useState<ProyectoTour>(PROJECTS_DATA[0]);
-  const [loadedTourIds, setLoadedTourIds] = useState<Set<string>>(() => new Set([PROJECTS_DATA[0].id]));
+  const [loadedTourIds, setLoadedTourIds] = useState<Set<string>>(() => new Set());
+  const [sectionInView, setSectionInView] = useState(false);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setSectionInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '240px' },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   const filteredProperties = useMemo(() => (
     allProperties
@@ -80,15 +100,30 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
 
   function selectProject(project: ProyectoTour) {
     setActiveProject(project);
-    setLoadedTourIds((current) => {
-      const next = new Set(current);
-      next.add(project.id);
-      return next;
-    });
+    if (sectionInView) {
+      setLoadedTourIds((current) => {
+        const next = new Set(current);
+        next.add(project.id);
+        return next;
+      });
+    }
   }
 
+  useEffect(() => {
+    if (!sectionInView) return;
+    setLoadedTourIds((current) => {
+      const next = new Set(current);
+      next.add(activeProject.id);
+      return next;
+    });
+  }, [sectionInView, activeProject.id]);
+
   return (
-    <section className="section container masterplan-section" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4xl)', position: 'relative', zIndex: 10 }}>
+    <section
+      ref={sectionRef}
+      className="section container masterplan-section"
+      style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4xl)', position: 'relative', zIndex: 10 }}
+    >
       <div className="masterplan-section-header">
         <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px', display: 'block', marginBottom: 'var(--space-xs)' }}>
           {t('masterplan.toursEyebrow')}
@@ -134,7 +169,6 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
                   src={project.tourUrl}
                   title={`Tour virtual 360 ${project.name}`}
                   visible={project.id === activeProject.id}
-                  eager={project.id === PROJECTS_DATA[0].id}
                 />
               ) : null
             ))}

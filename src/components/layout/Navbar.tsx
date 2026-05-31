@@ -321,7 +321,7 @@ export default function Navbar() {
                   width={176}
                   height={39}
                   className="nav-logo-image"
-                  priority
+                  quality={70}
                 />
               </Link>
             </div>

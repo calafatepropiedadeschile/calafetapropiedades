@@ -1,11 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import PropertySearch from '@/components/properties/PropertySearch';
 import HomeFeaturedProperties from '@/components/home/HomeFeaturedProperties';
-import MasterplanInteractiveSection from '@/components/home/MasterplanInteractiveSection';
+
+const MasterplanInteractiveSection = dynamic(
+  () => import('@/components/home/MasterplanInteractiveSection'),
+  { loading: () => <div className="masterplan-section-placeholder" aria-hidden /> },
+);
 import TrustStatsSection from '@/components/home/TrustStatsSection';
 import ServicesSection from '@/components/home/ServicesSection';
 import CtaBanner from '@/components/ui/CtaBanner';

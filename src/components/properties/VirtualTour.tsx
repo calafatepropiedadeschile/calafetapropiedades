@@ -8,23 +8,20 @@ interface VirtualTourProps {
   title: string;
   /** Mantiene el iframe montado pero oculto (evita flash negro al cambiar pestañas). */
   visible?: boolean;
-  /** Precarga el tour aunque aún no esté visible. */
-  eager?: boolean;
 }
 
 export default function VirtualTour({
   src,
   title,
   visible = true,
-  eager = false,
 }: VirtualTourProps) {
   const { t } = useI18n();
-  const [shouldLoad, setShouldLoad] = useState(eager || visible);
+  const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const shouldRenderIframe = shouldLoad || eager || visible;
+  const shouldRenderIframe = shouldLoad;
 
   useEffect(() => {
-    if (shouldRenderIframe || !visible) return;
+    if (shouldRenderIframe) return;
 
     if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
       const timeout = globalThis.setTimeout(() => setShouldLoad(true), 0);
@@ -63,7 +60,7 @@ export default function VirtualTour({
           className="virtual-tour-iframe"
           allow="accelerometer; autoplay; fullscreen; gyroscope; magnetometer; xr-spatial-tracking"
           allowFullScreen
-          loading={eager || visible ? 'eager' : 'lazy'}
+          loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
         />
       ) : (

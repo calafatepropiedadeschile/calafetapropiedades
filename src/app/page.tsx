@@ -45,13 +45,13 @@ export default async function HomePage() {
     getSafePropertyCatalog(locale),
     hasDatabaseUrl
       ? getHomeHeroContent(locale).catch(() => ({
-          imageUrl: '/heroe.jpg',
+          imageUrl: '/heroe.webp',
           titleLine1: locale === 'en' ? HOME_HERO_DEFAULTS.titleLine1En : HOME_HERO_DEFAULTS.titleLine1Es,
           titleLine2: locale === 'en' ? HOME_HERO_DEFAULTS.titleLine2En : HOME_HERO_DEFAULTS.titleLine2Es,
           subtitle: locale === 'en' ? HOME_HERO_DEFAULTS.subtitleEn : HOME_HERO_DEFAULTS.subtitleEs,
         }))
       : Promise.resolve({
-          imageUrl: '/heroe.jpg',
+          imageUrl: '/heroe.webp',
           titleLine1: locale === 'en' ? HOME_HERO_DEFAULTS.titleLine1En : HOME_HERO_DEFAULTS.titleLine1Es,
           titleLine2: locale === 'en' ? HOME_HERO_DEFAULTS.titleLine2En : HOME_HERO_DEFAULTS.titleLine2Es,
           subtitle: locale === 'en' ? HOME_HERO_DEFAULTS.subtitleEn : HOME_HERO_DEFAULTS.subtitleEs,

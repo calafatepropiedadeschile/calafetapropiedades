@@ -16,7 +16,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "properties:migrate:supabase": "tsx scripts/migrate-calafate-properties-to-supabase.ts",
-    "properties:migrate:supabase:dry-run": "tsx scripts/migrate-calafate-properties-to-supabase.ts --dry-run"
+    "properties:migrate:supabase:dry-run": "tsx scripts/migrate-calafate-properties-to-supabase.ts --dry-run",
+    "optimize:hero": "tsx scripts/optimize-hero-image.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -59,6 +60,7 @@
     "@types/sanitize-html": "^2.16.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "sharp": "^0.34.5",
     "ts-node": "^10.9.2",
     "tsx": "^4.22.0",
     "typescript": "^5"

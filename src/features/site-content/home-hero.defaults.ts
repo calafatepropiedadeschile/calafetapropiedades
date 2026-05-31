@@ -1,6 +1,6 @@
 export const HOME_HERO_ID = 'main' as const;
 
-export const HOME_HERO_DEFAULT_IMAGE = '/heroe.jpg';
+export const HOME_HERO_DEFAULT_IMAGE = '/heroe.webp';
 
 export const HOME_HERO_DEFAULTS = {
   titleLine1Es: 'Parcelas, loteos y terrenos',
