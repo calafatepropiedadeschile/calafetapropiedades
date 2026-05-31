@@ -101,7 +101,7 @@ export const siteConfig = {
       en: 'Real estate agency focused on lots, land, and development projects with clear commercial information for buyers and investors.',
     },
     aboutModelTitle: {
-      es: 'Acompanamiento directo para decidir con información.',
+      es: 'Acompañamiento directo para decidir con información.',
       en: 'Direct guidance to decide with clear information.',
     },
     aboutModelParagraphs: {

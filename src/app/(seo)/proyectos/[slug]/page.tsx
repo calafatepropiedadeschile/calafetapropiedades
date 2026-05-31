@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = await getServerLocale();
   const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
 
   if (!project) {
     return {
@@ -96,7 +96,7 @@ export default async function ProjectLandingPage({ params }: Props) {
   ]);
   const project = await getSafeProject(slug, locale);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
 
   if (!project) notFound();
   const t = (key: TranslationKey) => translate(locale, key);

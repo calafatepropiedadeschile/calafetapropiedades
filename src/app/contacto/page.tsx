@@ -31,7 +31,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const session = await auth();
   const cms = await getContactCms(locale, session?.user?.role === 'admin');
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
   const title = cms?.seoTitle ? cms.seoTitle : `Contacto - ${siteConfig.name}`;
   const description = cms?.seoDescription ?? `Ponte en contacto con ${siteConfig.name} para comprar, vender, alquilar o invertir en propiedades.`;
   const canonical = cms?.customCanonical || `${baseUrl}/contacto${locale === 'en' ? '?lang=en' : ''}`;

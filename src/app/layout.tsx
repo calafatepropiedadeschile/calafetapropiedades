@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value;
   const locale = isSupportedLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
   const siteName = seo?.siteName ?? 'Calafate Propiedades';
-  const baseUrl = seo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = seo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
   const defaultTitle = locale === 'en'
     ? (seo?.defaultTitleEn ?? seo?.defaultTitleEs ?? 'Calafate Propiedades')
     : (seo?.defaultTitleEs ?? 'Calafate Propiedades');

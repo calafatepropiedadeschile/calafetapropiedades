@@ -26,6 +26,7 @@ export const dictionaries = {
       call: 'Llamar',
       callAria: 'Llamar a Calafate Propiedades al {phone}',
       exchangeRatesHint: 'Tipos de cambio referenciales del día: 1 UF = {uf} · 1 USD = {usd}',
+      mobileWelcome: '¡Bienvenido!',
     },
     home: {
       heroTitleLine1: 'Parcelas y loteos',
@@ -453,6 +454,7 @@ export const dictionaries = {
       call: 'Call',
       callAria: 'Call Calafate Propiedades at {phone}',
       exchangeRatesHint: 'Reference exchange rates today: 1 UF = {uf} · 1 USD = {usd}',
+      mobileWelcome: 'Welcome!',
     },
     home: {
       heroTitleLine1: 'Lots and land projects',

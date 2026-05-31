@@ -184,7 +184,7 @@ model SiteSeoSettings {
   defaultTitleEn           String?
   defaultDescriptionEn     String?
   keywords                 String   @default("[]")
-  canonicalBaseUrl         String   @default("https://calafetapropiedades.vercel.app")
+  canonicalBaseUrl         String   @default("https://calafatepropiedades.vercel.app")
   defaultOgImage           String?
   googleSiteVerification   String?
   googleAnalyticsId        String?

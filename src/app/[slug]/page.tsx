@@ -45,7 +45,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const isAdmin = session?.user?.role === 'admin';
   const page = await getPageForMetadata(slug, locale, isAdmin);
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
 
   if (!page) {
     return { title: 'Pagina no encontrada' };

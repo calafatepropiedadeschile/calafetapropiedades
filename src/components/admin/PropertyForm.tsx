@@ -1151,7 +1151,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
 
           <div className="input-group">
             <label className="input-label">Canonical personalizado</label>
-            <input className="input" type="url" placeholder="https://calafetapropiedades.vercel.app/propiedades/..." {...register('customCanonical')} />
+            <input className="input" type="url" placeholder="https://calafatepropiedades.vercel.app/propiedades/..." {...register('customCanonical')} />
             {errors.customCanonical && <p className="form-error">{errors.customCanonical.message}</p>}
           </div>
 

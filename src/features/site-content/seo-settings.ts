@@ -58,7 +58,7 @@ function getDefaultCanonicalBaseUrl() {
   return (
     process.env.NEXT_PUBLIC_SITE_URL
     || process.env.APP_ORIGIN
-    || 'https://calafetapropiedades.vercel.app'
+    || 'https://calafatepropiedades.vercel.app'
   ).replace(/\/$/, '');
 }
 

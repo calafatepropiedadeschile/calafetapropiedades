@@ -8,7 +8,7 @@ export const revalidate = 86400; // Caching ISR for 24 hours to avoid CPU load
 const FALLBACK_SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL
   || process.env.APP_ORIGIN
-  || 'https://calafetapropiedades.vercel.app'
+  || 'https://calafatepropiedades.vercel.app'
 ).replace(/\/$/, '');
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

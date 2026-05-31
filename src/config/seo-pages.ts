@@ -6,7 +6,7 @@ import { seoLandingPagesEn } from '@/config/seo-pages-en';
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL
   || process.env.APP_ORIGIN
-  || 'https://calafetapropiedades.vercel.app'
+  || 'https://calafatepropiedades.vercel.app'
 ).replace(/\/$/, '');
 
 export type SeoLandingKey = 'comprar' | 'arriendos' | 'proyectos' | 'terrenos' | 'vender' | 'topografia';

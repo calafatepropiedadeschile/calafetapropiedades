@@ -26,7 +26,7 @@ export default function StructuredData({ property, locale, baseUrl }: Structured
     createdAt,
   } = property;
 
-  const canonicalBaseUrl = (baseUrl || 'https://calafetapropiedades.vercel.app').replace(/\/$/, '');
+  const canonicalBaseUrl = (baseUrl || 'https://calafatepropiedades.vercel.app').replace(/\/$/, '');
   const canonicalUrl = property.customCanonical || `${canonicalBaseUrl}/propiedades/${slug}${locale === 'en' ? '?lang=en' : ''}`;
 
   // Map business function

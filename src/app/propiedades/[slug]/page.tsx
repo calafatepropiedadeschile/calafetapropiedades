@@ -107,7 +107,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const property = await getSafePropertyBySlug(slug, locale, isAdmin);
   if (!property) return { title: 'Propiedad no encontrada' };
   const siteSeo = await getSiteSeoSettings().catch(() => null);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
 
   // Use dynamic override fields or fallback to translation-aware intelligent defaults
   const seoTitle = locale === 'en' 

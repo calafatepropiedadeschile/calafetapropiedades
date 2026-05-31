@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getPublishedStaticPageBySlug('nosotros', 'es').catch(() => null),
     getSiteSeoSettings().catch(() => null),
   ]);
-  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafetapropiedades.vercel.app';
+  const baseUrl = siteSeo?.canonicalBaseUrl ?? 'https://calafatepropiedades.vercel.app';
   const title = cms?.seoTitle || `Nosotros - ${siteConfig.name}`;
   const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompaña en cada operación.`;
   const canonical = cms?.customCanonical || `${baseUrl}/nosotros`;

@@ -426,7 +426,7 @@ export default function Navbar() {
       <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-nav-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="mobile-nav-welcome" style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--color-dark)', letterSpacing: '-0.02em' }}>
-            ¡Hola, bienvenido!
+            {t('nav.mobileWelcome')}
           </span>
           <div className="mobile-locale-minimal" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="mobile-locale-icon">
@@ -467,7 +467,6 @@ export default function Navbar() {
                       setExpandedItem(expandedItem === item.href ? null : item.href);
                     } else {
                       closeMobileMenu();
-                      // Redirect handled by Link, but since this is a div we should use Link inside. Wait, I should make the entire row clickable. 
                     }
                   }}
                 >
