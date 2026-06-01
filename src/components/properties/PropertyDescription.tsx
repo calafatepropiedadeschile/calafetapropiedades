@@ -10,9 +10,10 @@ interface Props {
   parsed: ParsedPropertyDescription;
   sectionTitle: string;
   hint?: string;
+  showSpanishFallbackNotice?: boolean;
 }
 
-export default function PropertyDescription({ parsed, sectionTitle, hint }: Props) {
+export default function PropertyDescription({ parsed, sectionTitle, hint, showSpanishFallbackNotice = false }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
 
@@ -30,6 +31,12 @@ export default function PropertyDescription({ parsed, sectionTitle, hint }: Prop
         </h2>
         {hint ? <p className="property-description-hint">{hint}</p> : null}
       </div>
+
+      {showSpanishFallbackNotice ? (
+        <p className="property-description-locale-notice" role="note">
+          {t('property.descriptionInSpanishOnly')}
+        </p>
+      ) : null}
 
       {parsed.lead ? (
         <p className="property-description-lead">{parsed.lead}</p>

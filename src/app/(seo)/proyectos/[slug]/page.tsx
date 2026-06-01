@@ -233,6 +233,7 @@ export default async function ProjectLandingPage({ params }: Props) {
                 parsed={parsedDescription}
                 sectionTitle={t('property.about')}
                 hint={t('property.descriptionHint')}
+                showSpanishFallbackNotice={locale === 'en' && project.descriptionContentLocale === 'es'}
               />
 
               <h2 className="property-technical-heading">{t('property.technicalDetailsBelow')}</h2>

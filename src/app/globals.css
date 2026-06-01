@@ -3118,6 +3118,18 @@ input, textarea, select {
   line-height: 1.55;
 }
 
+.property-description-locale-notice {
+  margin: 0 0 var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  max-width: 68ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+
 .property-description-lead {
   font-size: 1.08rem;
   line-height: 1.75;
@@ -7758,14 +7770,13 @@ input:checked + .slider:before {
   letter-spacing: -0.02em;
 }
 
-/* Fila: Precio · Ubicación · Badges */
+/* Fila: Precio · Ubicación */
 .pdp-price-location-row {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: space-between;
   gap: var(--space-md);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .pdp-price-location-meta {
@@ -7801,13 +7812,13 @@ input:checked + .slider:before {
   margin-top: 3px;
 }
 
-.pdp-badges-inline {
+/* Badges de modalidad y estado (En venta / Disponible) */
+.pdp-hero-badges {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm);
-  margin-left: auto;
-  flex: 0 1 auto;
+  margin-bottom: var(--space-md);
 }
 
 .pdp-badge {
@@ -7954,6 +7965,7 @@ input:checked + .slider:before {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-md);
+    margin-bottom: var(--space-sm);
   }
 
   .pdp-price-location-meta {
@@ -7962,13 +7974,8 @@ input:checked + .slider:before {
     gap: var(--space-sm);
   }
 
-  .pdp-badges-inline {
-    margin-left: 0;
-    width: 100%;
-    justify-content: flex-start;
-    gap: var(--space-sm);
-    padding-top: var(--space-xs);
-    border-top: 1px solid var(--color-border-light);
+  .pdp-hero-badges {
+    margin-bottom: var(--space-md);
   }
 
   .pdp-specs-bar {

@@ -247,8 +247,6 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
     detailSpec('property.parking', parking != null ? `${parking}` : null),
     detailSpec('property.year', yearBuilt != null ? `${yearBuilt}` : null),
     detailSpec('property.expenses', expenses != null ? formatPropertyPrice(expenses, currency, { locale, displayCurrency, rates: exchangeRates }) : null),
-    detailSpec('property.mode', priceTypeKey ? t(priceTypeKey) : priceType),
-    detailSpec('property.status', statusKey ? t(statusKey) : status),
     detailSpec('property.zone', zone),
   ].filter(hasDetailSpec);
 
@@ -288,17 +286,22 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                       {[zone, city, province].filter(Boolean).join(', ')}
                     </span>
                   </div>
-                  <div className="pdp-badges-inline">
-                    <span className="pdp-badge pdp-badge--primary">
-                      {priceTypeKey ? t(priceTypeKey) : priceType}
-                    </span>
+                </div>
+
+                {(priceTypeKey || statusKey) ? (
+                  <div className="pdp-hero-badges">
+                    {priceTypeKey ? (
+                      <span className="pdp-badge pdp-badge--primary">
+                        {t(priceTypeKey)}
+                      </span>
+                    ) : null}
                     {statusKey ? (
                       <span className="pdp-badge pdp-badge--secondary">
                         {t(statusKey)}
                       </span>
                     ) : null}
                   </div>
-                </div>
+                ) : null}
 
                 {/* Barra de specs con iconos y separadores */}
                 <div className="pdp-specs-bar">
@@ -359,6 +362,7 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
                 parsed={parsedDescription}
                 sectionTitle={t('property.about')}
                 hint={showLandSections ? t('property.descriptionHint') : undefined}
+                showSpanishFallbackNotice={locale === 'en' && property.descriptionContentLocale === 'es'}
               />
 
               {!showLandSections && (

@@ -3,6 +3,7 @@ export type CatalogPublishChecklistInput = {
   price?: number | null;
   titleEs?: string;
   descriptionEs?: string;
+  descriptionEn?: string | null;
   cityEs?: string;
   zoneEs?: string;
   lotSurfaceM2?: number | null;
@@ -91,6 +92,13 @@ export function getCatalogPublishChecklist(
       label: 'Descripcion en espanol',
       hint: 'Mejora la búsqueda por texto en el catálogo',
       ok: hasText(values.descriptionEs, 20),
+      required: false,
+    },
+    {
+      id: 'descriptionEn',
+      label: 'Descripcion en ingles (opcional)',
+      hint: 'Evita el aviso en la ficha cuando el visitante usa English',
+      ok: hasText(values.descriptionEn ?? undefined, 20),
       required: false,
     },
   ];

@@ -129,6 +129,17 @@ function parseJsonField<T>(value: string | undefined, fallback: T): T {
   }
 }
 
+export function resolveDescriptionContentLocale(
+  property: Pick<PropertyRecord, 'descriptionEn'>,
+  locale: Locale,
+): Locale {
+  if (locale === 'en' && property.descriptionEn?.trim()) {
+    return 'en';
+  }
+
+  return 'es';
+}
+
 export function mapPropertyCard(property: PropertyRecord, locale: Locale = 'es'): PropertyCard {
   const isEn = locale === 'en';
   return {
@@ -157,15 +168,16 @@ export function mapPropertyCard(property: PropertyRecord, locale: Locale = 'es')
 }
 
 export function mapProperty(property: PropertyRecord, locale: Locale = 'es'): Property {
-  const isEn = locale === 'en';
   const agent = resolveAgentFields(property);
+  const descriptionContentLocale = resolveDescriptionContentLocale(property, locale);
+  const descriptionSource = descriptionContentLocale === 'en'
+    ? property.descriptionEn!
+    : (property.descriptionEs ?? '');
 
   return {
     ...mapPropertyCard(property, locale),
-    description: cleanImportedDescription(
-      (isEn && property.descriptionEn) ? property.descriptionEn : (property.descriptionEs ?? ''),
-      property.titleEs,
-    ),
+    description: cleanImportedDescription(descriptionSource, property.titleEs),
+    descriptionContentLocale,
     address: property.address ?? null,
     province: property.province ?? null,
     country: property.country ?? null,
