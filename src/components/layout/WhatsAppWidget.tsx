@@ -116,7 +116,7 @@ export default function WhatsAppWidget() {
               <h4 className="whatsapp-header-title">Chatea con nosotros</h4>
               <p className="whatsapp-header-status">
                 <span className="whatsapp-status-pulse" />
-                56935406356
+                +56935406356
               </p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function WhatsAppWidget() {
             </div>
             <div className="whatsapp-agent-details">
               <span className="whatsapp-agent-name">Calafate Propiedades</span>
-              <span className="whatsapp-agent-region">56935406356</span>
+              <span className="whatsapp-agent-region">+56935406356</span>
             </div>
             <div className="whatsapp-agent-action">
               <MessageCircle size={18} className="whatsapp-msg-icon" />
