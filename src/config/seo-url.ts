@@ -1,9 +1,10 @@
 /** Host canónico de marca (Calafate, no "Calafeta"). */
-export const CANONICAL_BRAND_HOST = 'calafatepropiedades.vercel.app';
+export const CANONICAL_BRAND_HOST = 'calafatepropiedades.com';
 
 /** Dominios erróneos detectados en migraciones / Vercel legacy. */
 const CANONICAL_TYPO_HOSTS = [
   'calafetapropiedades.vercel.app',
+  'calafatepropiedades.vercel.app',
 ] as const;
 
 export function getDefaultCanonicalBaseUrl(): string {
