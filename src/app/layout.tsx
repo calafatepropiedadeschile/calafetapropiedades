@@ -13,6 +13,7 @@ import LenisProvider from '@/components/providers/LenisProvider';
 import AttributionCapture from '@/components/marketing/AttributionCapture';
 import MetaPixel from '@/components/marketing/MetaPixel';
 import GoogleAnalytics from '@/components/seo/GoogleAnalytics';
+import GoogleTagManager from '@/components/seo/GoogleTagManager';
 import SiteStructuredDataGate from '@/components/seo/SiteStructuredDataGate';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { hasSiteEnglishSeo } from '@/lib/seo/english-index';
@@ -141,6 +142,7 @@ function AppProviders({
       <ExchangeRatesProvider initialRates={exchangeRates}>
         <RentalsNavProvider showRentalsLink={showRentalsLink} hasPublishedRentals={rentalsPublished}>
           <AttributionCapture />
+          <GoogleTagManager />
           <GoogleAnalytics measurementId={googleAnalyticsId} />
           <MetaPixel pixelId={metaPixelId} />
           {children}
