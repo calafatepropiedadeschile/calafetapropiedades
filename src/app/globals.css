@@ -7138,6 +7138,9 @@ input:checked + .slider:before {
   box-shadow: 0 24px 60px rgba(20, 20, 25, 0.18), 0 6px 18px rgba(20, 20, 25, 0.08);
   transform-origin: top center;
   animation: property-search-pop 160ms ease-out;
+  max-height: 310px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .property-search-option {
