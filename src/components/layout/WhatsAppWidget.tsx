@@ -48,7 +48,7 @@ export default function WhatsAppWidget() {
   function openWhatsApp() {
     trackWhatsAppClick({ placement: 'floating_widget' });
     const message = encodeURIComponent(t('whatsapp.defaultMessage') ?? 'Hola, me gustaría consultar por una propiedad.');
-    window.open(`${whatsappHref}?text=${message}`, '_blank', 'noopener,noreferrer');
+    window.open(`https://wa.me/56935406356?text=${message}`, '_blank', 'noopener,noreferrer');
     
     setIsOpen(false);
     setShowTooltip(false);
@@ -113,10 +113,10 @@ export default function WhatsAppWidget() {
               <MessageCircle size={20} color="#fff" />
             </div>
             <div>
-              <h4 className="whatsapp-header-title">{t('whatsapp.title') ?? 'WhatsApp'}</h4>
+              <h4 className="whatsapp-header-title">Chatea con nosotros</h4>
               <p className="whatsapp-header-status">
                 <span className="whatsapp-status-pulse" />
-                {whatsappNumber}
+                56935406356
               </p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function WhatsAppWidget() {
             </div>
             <div className="whatsapp-agent-details">
               <span className="whatsapp-agent-name">Calafate Propiedades</span>
-              <span className="whatsapp-agent-region">{whatsappNumber}</span>
+              <span className="whatsapp-agent-region">56935406356</span>
             </div>
             <div className="whatsapp-agent-action">
               <MessageCircle size={18} className="whatsapp-msg-icon" />
