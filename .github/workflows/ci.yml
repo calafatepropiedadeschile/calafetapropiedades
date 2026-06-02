@@ -38,5 +38,10 @@ jobs:
           cache: npm
 
       - run: npm ci
+      - name: Create DB roles
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d inmobiliaria -c "CREATE ROLE calafate_public_runtime NOLOGIN NOBYPASSRLS;"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d inmobiliaria -c "CREATE ROLE calafate_auth_runtime NOLOGIN NOBYPASSRLS;"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d inmobiliaria -c "CREATE ROLE calafate_admin_runtime NOLOGIN NOBYPASSRLS;"
       - run: npm run db:migrate:deploy
       - run: npm run ci:verify
