@@ -68,29 +68,28 @@ export default function AdminLeadActions({
   }
 
   return (
-    <div className="admin-actions-row">
-      <Link href={`/admin/leads/${id}`} className="btn btn-outline btn-sm">
-        <Eye size={15} />
+    <div className="row-actions">
+      <Link href={`/admin/leads/${id}`} className="row-action-link">
         Ver ficha
       </Link>
-      <a className="btn btn-outline btn-sm" href={`mailto:${email}?subject=${encodeURIComponent(`Consulta ${siteConfig.name}`)}`}>
-        <Mail size={15} />
+      <span className="text-muted">|</span>
+      <a className="row-action-link" href={`mailto:${email}?subject=${encodeURIComponent(`Consulta ${siteConfig.name}`)}`}>
         Email
       </a>
       {phone && (
-        <a className="btn btn-outline btn-sm" href={`https://wa.me/${normalizePhoneForWhatsApp(phone)}`} target="_blank" rel="noreferrer">
-          <MessageCircle size={15} />
-          WhatsApp
-        </a>
+        <>
+          <span className="text-muted">|</span>
+          <a className="row-action-link" href={`https://wa.me/${normalizePhoneForWhatsApp(phone)}`} target="_blank" rel="noreferrer">
+            WhatsApp
+          </a>
+        </>
       )}
-      <button type="button" className="btn btn-outline btn-sm" onClick={handleStatusChange} disabled={isPending}>
-        {status === 'pendiente' && <CircleDot size={15} />}
-        {status === 'contactada' && <CheckCircle2 size={15} />}
-        {status === 'cerrada' && <XCircle size={15} />}
+      <span className="text-muted">|</span>
+      <button type="button" className="row-action-link" onClick={handleStatusChange} disabled={isPending}>
         {STATUS_ACTION_LABEL[status]}
       </button>
-      <button type="button" className="btn btn-danger btn-sm" onClick={handleDelete} disabled={isPending}>
-        <Trash2 size={15} />
+      <span className="text-muted">|</span>
+      <button type="button" className="row-action-link row-action-danger" onClick={handleDelete} disabled={isPending}>
         Eliminar
       </button>
     </div>

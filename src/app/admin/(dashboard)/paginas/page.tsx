@@ -50,12 +50,10 @@ export default async function AdminStaticPagesPage() {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Titulo</th>
-                <th>URL</th>
+                <th style={{ width: '40%' }}>Titulo</th>
                 <th>Tipo</th>
                 <th>Publicada</th>
                 <th>Actualizada</th>
-                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -66,9 +64,19 @@ export default async function AdminStaticPagesPage() {
 
                 return (
                   <tr key={page.id}>
-                    <td style={{ color: 'var(--color-text)', fontWeight: 600 }}>{page.titleEs}</td>
-                    <td>
-                      <code className="text-sm">/{page.slug}</code>
+                    <td className="admin-title-cell">
+                      <Link href={`/admin/paginas/${page.id}/editar`} style={{ color: 'var(--color-text)', fontWeight: 600, display: 'block' }}>
+                        {page.titleEs}
+                      </Link>
+                      <code className="text-xs text-muted" style={{ display: 'block', marginTop: 2, background: 'none', padding: 0 }}>/{page.slug}</code>
+                      <AdminStaticPageActions
+                        id={page.id}
+                        slug={page.slug}
+                        title={page.titleEs}
+                        published={page.published}
+                        togglePublishedAction={toggleStaticPagePublished}
+                        deletePageAction={deleteStaticPage}
+                      />
                     </td>
                     <td>
                       <span className={`badge ${isIntegrated ? 'badge-gold' : 'badge-green'}`}>
@@ -86,16 +94,6 @@ export default async function AdminStaticPagesPage() {
                         month: '2-digit',
                         year: 'numeric',
                       })}
-                    </td>
-                    <td>
-                      <AdminStaticPageActions
-                        id={page.id}
-                        slug={page.slug}
-                        title={page.titleEs}
-                        published={page.published}
-                        togglePublishedAction={toggleStaticPagePublished}
-                        deletePageAction={deleteStaticPage}
-                      />
                     </td>
                   </tr>
                 );

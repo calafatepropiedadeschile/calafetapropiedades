@@ -512,13 +512,14 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
     <form
       onSubmit={handleSubmit(submitForm, handleInvalidForm)}
       autoComplete="off"
-      style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)' }}
+      className="admin-form-layout-2col"
     >
-      {formError && (
-        <p className="form-error" style={{ fontWeight: 700 }}>
-          {formError}
-        </p>
-      )}
+      <div className="admin-form-main">
+        {formError && (
+          <p className="form-error" style={{ fontWeight: 700 }}>
+            {formError}
+          </p>
+        )}
       <section className="admin-form-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
           <h2 className="admin-form-section-title" style={{ margin: 0 }}>Información basica</h2>
@@ -1090,6 +1091,9 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         </div>
       </section>
 
+      </div>
+      <div className="admin-form-sidebar">
+
       {propertyId && (
         <section className="admin-form-section">
           <h2 className="admin-form-section-title">URL publica</h2>
@@ -1218,6 +1222,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         >
           {isPending ? 'Guardando...' : 'Guardar y seguir editando'}
         </button>
+      </div>
       </div>
     </form>
   );

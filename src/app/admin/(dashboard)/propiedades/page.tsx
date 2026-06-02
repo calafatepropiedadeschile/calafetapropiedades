@@ -48,10 +48,16 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
   const page = parseAdminPropertiesPage(params.page);
   const where = buildAdminPropertiesWhere({ q, published, type, project, operation });
 
-  const { properties, total, totalPages, safePage } = await withDatabaseRole('admin', async (db) => {
+  const { properties, total, totalPages, safePage, counts } = await withDatabaseRole('admin', async (db) => {
     const total = await db.property.count({ where });
     const totalPages = Math.max(1, Math.ceil(total / ADMIN_PROPERTIES_PAGE_SIZE));
     const safePage = Math.min(page, totalPages);
+    
+    // Conteo para los filtros WP
+    const allCount = await db.property.count({ where: { ...where, published: undefined } });
+    const publishedCount = await db.property.count({ where: { ...where, published: true } });
+    const draftCount = await db.property.count({ where: { ...where, published: false } });
+
     const properties = await db.property.findMany({
       where,
       orderBy: [{ sortOrder: 'desc' }, { createdAt: 'desc' }],
@@ -60,7 +66,7 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
       select: adminPropertyListSelect,
     });
 
-    return { properties, total, totalPages, safePage };
+    return { properties, total, totalPages, safePage, counts: { all: allCount, published: publishedCount, drafts: draftCount } };
   });
 
   const firstResult = total === 0 ? 0 : (safePage - 1) * ADMIN_PROPERTIES_PAGE_SIZE + 1;
@@ -84,10 +90,32 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      <form className="admin-table-shell" style={{ marginBottom: 'var(--space-lg)', padding: 'var(--space-lg)' }}>
-        <div className="form-grid form-grid-3">
-          <div className="input-group">
-            <label className="input-label" htmlFor="property-search">Buscar</label>
+      <div className="admin-table-filters-row">
+        <Link 
+          href={createAdminPropertiesQueryString({ ...queryBase, published: 'todas', page: 1 })}
+          className={published === 'todas' ? 'is-active' : ''}
+        >
+          Todas <span className="count">({counts.all})</span>
+        </Link>
+        <span className="text-muted">|</span>
+        <Link 
+          href={createAdminPropertiesQueryString({ ...queryBase, published: 'publicadas', page: 1 })}
+          className={published === 'publicadas' ? 'is-active' : ''}
+        >
+          Publicadas <span className="count">({counts.published})</span>
+        </Link>
+        <span className="text-muted">|</span>
+        <Link 
+          href={createAdminPropertiesQueryString({ ...queryBase, published: 'borradores', page: 1 })}
+          className={published === 'borradores' ? 'is-active' : ''}
+        >
+          Borradores <span className="count">({counts.drafts})</span>
+        </Link>
+      </div>
+
+      <form className="admin-table-shell" style={{ marginBottom: 'var(--space-lg)', padding: 'var(--space-md) var(--space-lg)' }}>
+        <div className="admin-filter-bar">
+          <div className="input-group" style={{ flex: '1 1 300px' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
               <input
@@ -95,54 +123,43 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
                 name="q"
                 className="input"
                 defaultValue={q}
-                placeholder="Titulo, codigo, zona o slug"
+                placeholder="Buscar titulo, codigo, zona o slug..."
                 style={{ paddingLeft: '2.4rem' }}
               />
             </div>
           </div>
 
-          <div className="input-group">
-            <label className="input-label" htmlFor="property-published">Publicacion</label>
-            <select id="property-published" name="published" className="select" defaultValue={published}>
-              <option value="todas">Todas</option>
-              <option value="publicadas">Publicadas</option>
-              <option value="borradores">Borradores</option>
-            </select>
-          </div>
+          {published !== 'todas' && <input type="hidden" name="published" value={published} />}
 
           <div className="input-group">
-            <label className="input-label" htmlFor="property-type">Tipo</label>
-            <select id="property-type" name="type" className="select" defaultValue={type}>
-              <option value="todos">Todos</option>
+            <select id="property-type" name="type" className="select" defaultValue={type} aria-label="Tipo">
+              <option value="todos">Cualquier tipo</option>
               <option value="terreno">Terreno</option>
               <option value="casa">Casa</option>
             </select>
           </div>
 
           <div className="input-group">
-            <label className="input-label" htmlFor="property-project">Formato</label>
-            <select id="property-project" name="project" className="select" defaultValue={project}>
-              <option value="todos">Todos</option>
+            <select id="property-project" name="project" className="select" defaultValue={project} aria-label="Formato">
+              <option value="todos">Todos los formatos</option>
               <option value="proyectos">Proyectos / loteos</option>
               <option value="individuales">Individuales</option>
             </select>
           </div>
 
           <div className="input-group">
-            <label className="input-label" htmlFor="property-operation">Operacion</label>
-            <select id="property-operation" name="operation" className="select" defaultValue={operation}>
-              <option value="todas">Todas</option>
+            <select id="property-operation" name="operation" className="select" defaultValue={operation} aria-label="Operacion">
+              <option value="todas">Cualquier operacion</option>
               <option value="venta">Venta</option>
               <option value="arriendo">Arriendo</option>
             </select>
           </div>
 
-          <div className="input-group" style={{ gridColumn: '1 / -1', justifyContent: 'flex-end' }}>
-            <label className="input-label" aria-hidden="true">&nbsp;</label>
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-              <button type="submit" className="btn btn-primary">Aplicar filtros</button>
-              <Link href="/admin/propiedades" className="btn btn-outline">Limpiar</Link>
-            </div>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+            <button type="submit" className="btn btn-primary">Filtrar</button>
+            {(q || type !== 'todos' || project !== 'todos' || operation !== 'todas') && (
+              <Link href="/admin/propiedades" className="btn btn-outline" title="Limpiar filtros">X</Link>
+            )}
           </div>
         </div>
       </form>
@@ -161,49 +178,84 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Titulo</th>
-                  <th>Tipo</th>
-                  <th>Operacion</th>
+                  <th style={{ width: '38%' }}>Propiedad</th>
+                  <th>Tipo / Operacion</th>
                   <th>Zona</th>
                   <th>Lotes</th>
-                  <th>Superficie</th>
-                  <th>Precio</th>
+                  <th>Precio / Sup.</th>
                   <th>Estado</th>
-                  <th>Publicado</th>
-                  <th>Destacada</th>
-                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {properties.map((property) => {
                   const isProject = isAdminLandProject(property);
+                  let thumbUrl = property.coverImage;
+                  if (!thumbUrl && property.images && property.images !== '[]') {
+                    try {
+                      const parsed = JSON.parse(property.images);
+                      if (Array.isArray(parsed) && parsed.length > 0) thumbUrl = parsed[0];
+                    } catch (e) {}
+                  }
 
                   return (
                     <tr key={property.id}>
-                      <td style={{ color: 'var(--color-text)', fontWeight: 600, maxWidth: '260px' }}>
-                        <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {property.titleEs}
-                        </span>
-                        {property.internalCode && (
-                          <span className="text-xs text-muted" style={{ display: 'block', marginTop: 2 }}>
-                            {property.internalCode}
-                          </span>
-                        )}
-                        <span className="text-xs text-muted" style={{ display: 'block', marginTop: 2 }}>
-                          /{property.slug}
-                        </span>
+                      <td>
+                        <div className="admin-thumbnail-wrapper">
+                          <div className="admin-thumbnail">
+                            {thumbUrl ? (
+                              <img src={thumbUrl} alt="" loading="lazy" />
+                            ) : (
+                              <Home className="admin-thumbnail-placeholder" size={24} />
+                            )}
+                          </div>
+                          <div className="admin-title-cell">
+                            <span style={{ color: 'var(--color-text)', fontWeight: 600, display: 'block' }}>
+                              {property.titleEs}
+                            </span>
+                            <span className="text-xs text-muted" style={{ display: 'block', marginTop: 2 }}>
+                              {property.internalCode ? `${property.internalCode} / ` : ''}{property.slug}
+                            </span>
+                            <div className="admin-badge-group">
+                               <span className={`badge ${property.published ? 'badge-green' : 'badge-outline'}`} style={{ padding: '2px 6px', fontSize: '0.65rem' }}>
+                                 {property.published ? 'Publicada' : 'Borrador'}
+                               </span>
+                               {property.featured && (
+                                 <span className="badge badge-gold" style={{ padding: '2px 6px', fontSize: '0.65rem' }}>Destacada</span>
+                               )}
+                            </div>
+                            <AdminPropertyActions
+                              id={property.id}
+                              title={property.titleEs}
+                              slug={property.slug}
+                              published={property.published}
+                              featured={property.featured}
+                              isProject={isProject}
+                              togglePublishedAction={togglePropertyPublished}
+                              toggleFeaturedAction={togglePropertyFeatured}
+                              duplicatePropertyAction={duplicateProperty}
+                              deletePropertyAction={deleteProperty}
+                            />
+                          </div>
+                        </div>
                       </td>
-                      <td>{PROPERTY_TYPE_LABELS[property.type] ?? property.type}</td>
-                      <td>{PRICE_TYPE_LABELS[property.priceType] ?? property.priceType}</td>
-                      <td>{property.zoneEs}, {property.cityEs}</td>
+                      <td>
+                        <span style={{ display: 'block', fontWeight: 500 }}>{PROPERTY_TYPE_LABELS[property.type] ?? property.type}</span>
+                        <span className="text-xs text-muted">{PRICE_TYPE_LABELS[property.priceType] ?? property.priceType}</span>
+                      </td>
+                      <td>
+                        <span style={{ display: 'block' }}>{property.zoneEs}</span>
+                        <span className="text-xs text-muted">{property.cityEs}</span>
+                      </td>
                       <td>
                         {property.availableLots != null
                           ? `${property.availableLots}${property.totalLots != null ? ` / ${property.totalLots}` : ''}`
-                          : 'Por confirmar'}
+                          : '-'}
                       </td>
-                      <td>{property.lotSurfaceM2 ? formatArea(property.lotSurfaceM2) : '-'}</td>
-                      <td style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
-                        {formatPropertyPrice(property.price, property.currency, { priceType: property.priceType })}
+                      <td>
+                        <span style={{ color: 'var(--color-gold)', fontWeight: 700, display: 'block' }}>
+                          {formatPropertyPrice(property.price, property.currency, { priceType: property.priceType })}
+                        </span>
+                        {property.lotSurfaceM2 ? <span className="text-xs text-muted">{formatArea(property.lotSurfaceM2)}</span> : null}
                       </td>
                       <td>
                         <AdminPropertyStatusToggle
@@ -211,30 +263,6 @@ export default async function AdminPropertiesPage({ searchParams }: Props) {
                           status={property.status}
                           priceType={property.priceType}
                           updateStatusAction={updatePropertyStatus}
-                        />
-                      </td>
-                      <td>
-                        <span className={`badge ${property.published ? 'badge-green' : 'badge-red'}`}>
-                          {property.published ? 'Si' : 'No'}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${property.featured ? 'badge-gold' : 'badge-red'}`}>
-                          {property.featured ? 'Si' : 'No'}
-                        </span>
-                      </td>
-                      <td>
-                        <AdminPropertyActions
-                          id={property.id}
-                          title={property.titleEs}
-                          slug={property.slug}
-                          published={property.published}
-                          featured={property.featured}
-                          isProject={isProject}
-                          togglePublishedAction={togglePropertyPublished}
-                          toggleFeaturedAction={togglePropertyFeatured}
-                          duplicatePropertyAction={duplicateProperty}
-                          deletePropertyAction={deleteProperty}
                         />
                       </td>
                     </tr>

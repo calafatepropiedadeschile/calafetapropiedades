@@ -136,6 +136,8 @@ export const adminPropertyListSelect = {
   published: true,
   featured: true,
   status: true,
+  coverImage: true,
+  images: true,
 } as const satisfies Prisma.PropertySelect;
 
 export type AdminPropertyListItem = Prisma.PropertyGetPayload<{

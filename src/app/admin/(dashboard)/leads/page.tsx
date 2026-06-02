@@ -92,10 +92,16 @@ function normalizeStatus(status: string): LeadStatus {
 
 async function getLeadsPageData(where: Prisma.LeadWhereInput, page: number) {
   try {
-    const { total, leads, totalPages, safePage } = await withDatabaseRole('admin', async (db) => {
+    const { total, leads, totalPages, safePage, counts } = await withDatabaseRole('admin', async (db) => {
       const total = await db.lead.count({ where });
       const totalPages = Math.max(1, Math.ceil(total / ADMIN_LEADS_PAGE_SIZE));
       const safePage = Math.min(page, totalPages);
+      
+      const allCount = await db.lead.count({ where: { ...where, status: undefined } });
+      const pendingCount = await db.lead.count({ where: { ...where, status: 'pendiente' } });
+      const contactedCount = await db.lead.count({ where: { ...where, status: 'contactada' } });
+      const closedCount = await db.lead.count({ where: { ...where, status: 'cerrada' } });
+
       const leads = await db.lead.findMany({
         where,
         orderBy: { createdAt: 'desc' },
@@ -119,10 +125,10 @@ async function getLeadsPageData(where: Prisma.LeadWhereInput, page: number) {
         },
       });
 
-      return { total, leads, totalPages, safePage };
+      return { total, leads, totalPages, safePage, counts: { all: allCount, pending: pendingCount, contacted: contactedCount, closed: closedCount } };
     });
 
-    return { ok: true as const, leads, total, totalPages, safePage };
+    return { ok: true as const, leads, total, totalPages, safePage, counts };
   } catch (error) {
     console.error('[AdminLeadsPage]', error);
     return { ok: false as const };
@@ -158,7 +164,7 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
     );
   }
 
-  const { leads, safePage, total, totalPages } = result;
+  const { leads, safePage, total, totalPages, counts } = result;
   const firstResult = total === 0 ? 0 : (safePage - 1) * ADMIN_LEADS_PAGE_SIZE + 1;
   const lastResult = Math.min(safePage * ADMIN_LEADS_PAGE_SIZE, total);
 
@@ -181,10 +187,39 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
         )}
       </div>
 
-      <form className="admin-table-shell" style={{ marginBottom: 'var(--space-lg)', padding: 'var(--space-lg)' }}>
-        <div className="form-grid form-grid-3">
-          <div className="input-group">
-            <label className="input-label" htmlFor="lead-search">Buscar</label>
+      <div className="admin-table-filters-row">
+        <Link 
+          href={createQueryString({ q, status: 'todas', page: 1 })}
+          className={status === 'todas' ? 'is-active' : ''}
+        >
+          Todas <span className="count">({counts?.all ?? 0})</span>
+        </Link>
+        <span className="text-muted">|</span>
+        <Link 
+          href={createQueryString({ q, status: 'pendiente', page: 1 })}
+          className={status === 'pendiente' ? 'is-active' : ''}
+        >
+          Pendientes <span className="count">({counts?.pending ?? 0})</span>
+        </Link>
+        <span className="text-muted">|</span>
+        <Link 
+          href={createQueryString({ q, status: 'contactada', page: 1 })}
+          className={status === 'contactada' ? 'is-active' : ''}
+        >
+          Contactadas <span className="count">({counts?.contacted ?? 0})</span>
+        </Link>
+        <span className="text-muted">|</span>
+        <Link 
+          href={createQueryString({ q, status: 'cerrada', page: 1 })}
+          className={status === 'cerrada' ? 'is-active' : ''}
+        >
+          Cerradas <span className="count">({counts?.closed ?? 0})</span>
+        </Link>
+      </div>
+
+      <form className="admin-table-shell" style={{ marginBottom: 'var(--space-lg)', padding: 'var(--space-md) var(--space-lg)' }}>
+        <div className="admin-filter-bar">
+          <div className="input-group" style={{ flex: '1 1 300px' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
               <input
@@ -192,30 +227,19 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
                 name="q"
                 className="input"
                 defaultValue={q}
-                placeholder="Nombre, email, telefono o propiedad"
+                placeholder="Buscar nombre, email, telefono o propiedad..."
                 style={{ paddingLeft: '2.4rem' }}
               />
             </div>
           </div>
 
-          <div className="input-group">
-            <label className="input-label" htmlFor="lead-status">Estado</label>
-            <select id="lead-status" name="status" className="select" defaultValue={status}>
-              <option value="todas">Todas</option>
-              {LEAD_STATUSES.map((leadStatus) => (
-                <option key={leadStatus} value={leadStatus}>
-                  {LEAD_STATUS_LABELS[leadStatus]}
-                </option>
-              ))}
-            </select>
-          </div>
+          {status !== 'todas' && <input type="hidden" name="status" value={status} />}
 
-          <div className="input-group" style={{ justifyContent: 'flex-end' }}>
-            <label className="input-label" aria-hidden="true">&nbsp;</label>
-            <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-              <button type="submit" className="btn btn-primary">Aplicar filtros</button>
-              <Link href="/admin/leads" className="btn btn-outline">Limpiar</Link>
-            </div>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+            <button type="submit" className="btn btn-primary">Buscar</button>
+            {q && (
+              <Link href="/admin/leads" className="btn btn-outline" title="Limpiar busqueda">X</Link>
+            )}
           </div>
         </div>
       </form>
@@ -231,14 +255,12 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
             <table className="admin-table">
               <thead>
                 <tr>
+                  <th style={{ width: '25%' }}>Cliente / Contacto</th>
                   <th>Fecha</th>
                   <th>Estado</th>
-                  <th>Cliente</th>
-                  <th>Contacto</th>
                   <th>Propiedad interesada</th>
                   <th>Campaña</th>
                   <th>Mensaje</th>
-                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,6 +269,22 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
 
                   return (
                     <tr key={lead.id}>
+                      <td className="admin-title-cell">
+                        <Link href={`/admin/leads/${lead.id}`} style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>
+                          {lead.name}
+                        </Link>
+                        <div className="text-xs text-muted" style={{ marginTop: 2 }}>{lead.email}</div>
+                        {lead.phone && <div className="text-xs text-gold">{lead.phone}</div>}
+                        <AdminLeadActions
+                          id={lead.id}
+                          name={lead.name}
+                          email={lead.email}
+                          phone={lead.phone}
+                          status={leadStatus}
+                          updateStatusAction={updateLeadStatus}
+                          deleteLeadAction={deleteLead}
+                        />
+                      </td>
                       <td className="text-sm">
                         {new Date(lead.createdAt).toLocaleDateString('es-ES', {
                           day: '2-digit',
@@ -262,15 +300,6 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
                         </span>
                       </td>
                       <td>
-                        <Link href={`/admin/leads/${lead.id}`} style={{ fontWeight: 700, color: 'var(--color-text)', textDecoration: 'underline' }}>
-                          {lead.name}
-                        </Link>
-                      </td>
-                      <td>
-                        <div className="text-xs">{lead.email}</div>
-                        {lead.phone && <div className="text-xs text-gold">{lead.phone}</div>}
-                      </td>
-                      <td>
                         {lead.property ? (
                           <Link href={`/propiedades/${lead.property.slug}`} target="_blank" className="text-gold" style={{ textDecoration: 'underline' }}>
                             {lead.property.titleEs}
@@ -283,20 +312,9 @@ export default async function AdminLeadsPage({ searchParams }: Props) {
                         {lead.utmCampaign ?? '-'}
                       </td>
                       <td style={{ maxWidth: '300px' }}>
-                        <p className="text-xs admin-clamped-text">
+                        <p className="text-xs admin-clamped-text" style={{ margin: 0 }}>
                           {lead.message || '-'}
                         </p>
-                      </td>
-                      <td>
-                        <AdminLeadActions
-                          id={lead.id}
-                          name={lead.name}
-                          email={lead.email}
-                          phone={lead.phone}
-                          status={leadStatus}
-                          updateStatusAction={updateLeadStatus}
-                          deleteLeadAction={deleteLead}
-                        />
                       </td>
                     </tr>
                   );

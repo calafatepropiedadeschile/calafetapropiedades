@@ -73,41 +73,41 @@ export default function AdminPropertyActions({
   }
 
   return (
-    <div className="admin-actions-row">
-      <Link href={`/propiedades/${slug}`} className="btn btn-outline btn-sm" target="_blank" title="Vista previa (incluye borradores si iniciaste sesion)">
-        <Eye size={15} />
+    <div className="row-actions">
+      <Link href={`/admin/propiedades/${id}/editar`} className="row-action-link">
+        Editar
+      </Link>
+      <span className="text-muted">|</span>
+      <Link href={`/propiedades/${slug}`} className="row-action-link" target="_blank" title="Vista previa">
         {published ? 'Ver' : 'Previa'}
       </Link>
       {isProject && (
-        <Link href={`/proyectos/${slug}`} className="btn btn-outline btn-sm" target="_blank" title="Landing de proyecto">
-          <Layers size={15} />
-          Proyecto
-        </Link>
+        <>
+          <span className="text-muted">|</span>
+          <Link href={`/proyectos/${slug}`} className="row-action-link" target="_blank">
+            Ver Proyecto
+          </Link>
+        </>
       )}
-      <Link href={`/admin/propiedades/${id}/editar`} className="btn btn-outline btn-sm">
-        <Pencil size={15} />
-        Editar
-      </Link>
+      <span className="text-muted">|</span>
       <button
         type="button"
-        className={`btn btn-outline btn-sm ${featured ? 'is-active' : ''}`}
+        className="row-action-link"
         onClick={handleFeaturedToggle}
         disabled={isPending}
-        title={featured ? 'Quitar del home' : 'Destacar en home'}
       >
-        <Star size={15} />
-        {featured ? 'Destacada' : 'Destacar'}
+        {featured ? 'Quitar destacada' : 'Destacar'}
       </button>
-      <button type="button" className="btn btn-outline btn-sm" onClick={handlePublishToggle} disabled={isPending}>
-        {published ? <EyeOff size={15} /> : <Map size={15} />}
+      <span className="text-muted">|</span>
+      <button type="button" className="row-action-link" onClick={handlePublishToggle} disabled={isPending}>
         {published ? 'Ocultar' : 'Publicar'}
       </button>
-      <button type="button" className="btn btn-outline btn-sm" onClick={handleDuplicate} disabled={isPending}>
-        <Copy size={15} />
+      <span className="text-muted">|</span>
+      <button type="button" className="row-action-link" onClick={handleDuplicate} disabled={isPending}>
         Duplicar
       </button>
-      <button type="button" className="btn btn-danger btn-sm" onClick={handleDelete} disabled={isPending}>
-        <Trash2 size={15} />
+      <span className="text-muted">|</span>
+      <button type="button" className="row-action-link row-action-danger" onClick={handleDelete} disabled={isPending}>
         Eliminar
       </button>
     </div>

@@ -74,7 +74,7 @@ function CustomCatalogSelect({ value, options, onChange }: CustomCatalogSelectPr
       </button>
 
       {isOpen && (
-        <div className="property-search-dropdown" role="listbox" id={listboxId} style={{ top: 'calc(100% + 8px)', width: '100%', zIndex: 50, padding: '8px' }}>
+        <div className="property-search-dropdown" role="listbox" id={listboxId} style={{ top: 'calc(100% + 8px)', width: '100%', zIndex: 50, padding: '8px', maxHeight: '280px', overflowY: 'auto' }}>
           {options.map((option) => {
             const isSelected = option.value === selectedOption?.value;
             return (
