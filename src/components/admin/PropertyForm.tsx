@@ -254,6 +254,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
   const [uploadError, setUploadError] = useState('');
   const [formError, setFormError] = useState('');
   const [activeLangTab, setActiveLangTab] = useState<'es' | 'en'>('es');
+  const [activeMainTab, setActiveMainTab] = useState<'info' | 'ubicacion' | 'comercial' | 'multimedia'>('info');
   const initialAddress = useMemo(() => splitStreetAddress(defaultValues.address), [defaultValues.address]);
   const [streetName, setStreetName] = useState(initialAddress.streetName);
   const [streetNumber, setStreetNumber] = useState(initialAddress.streetNumber);
@@ -520,7 +521,15 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
             {formError}
           </p>
         )}
-      <section className="admin-form-section">
+
+        <div className="admin-main-tabs">
+          <button type="button" className={`admin-main-tab-btn ${activeMainTab === 'info' ? 'active' : ''}`} onClick={() => setActiveMainTab('info')}>Información</button>
+          <button type="button" className={`admin-main-tab-btn ${activeMainTab === 'ubicacion' ? 'active' : ''}`} onClick={() => setActiveMainTab('ubicacion')}>Ubicación</button>
+          <button type="button" className={`admin-main-tab-btn ${activeMainTab === 'comercial' ? 'active' : ''}`} onClick={() => setActiveMainTab('comercial')}>Comercial</button>
+          <button type="button" className={`admin-main-tab-btn ${activeMainTab === 'multimedia' ? 'active' : ''}`} onClick={() => setActiveMainTab('multimedia')}>Multimedia</button>
+        </div>
+
+      <section className="admin-form-section" style={{ display: activeMainTab === 'info' ? 'block' : 'none' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
           <h2 className="admin-form-section-title" style={{ margin: 0 }}>Información basica</h2>
           <div className="admin-lang-tabs" style={{ display: 'flex', gap: '4px', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '2px', backgroundColor: 'var(--color-surface-2)' }}>
@@ -618,8 +627,8 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         </div>
       </section>
 
-      <section className="admin-form-section">
-        <h2 className="admin-form-section-title">Precio y ubicación</h2>
+      <section className="admin-form-section" style={{ display: activeMainTab === 'comercial' ? 'block' : 'none' }}>
+        <h2 className="admin-form-section-title">Precios y operación</h2>
         <div className="form-grid form-grid-3">
           <fieldset className="input-group operation-fieldset">
             <legend className="input-label">Operacion *</legend>
@@ -657,7 +666,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         </div>
       </section>
 
-      <section className="admin-form-section">
+      <section className="admin-form-section" style={{ display: activeMainTab === 'ubicacion' ? 'block' : 'none' }}>
         <h2 className="admin-form-section-title">Ubicación del inmueble</h2>
         <input type="hidden" {...register('address')} />
         <div className="form-grid form-grid-2">
@@ -794,7 +803,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       </section>
 
       {selectedType === 'casa' && (
-        <section className="admin-form-section">
+        <section className="admin-form-section" style={{ display: activeMainTab === 'info' ? 'block' : 'none' }}>
           <h2 className="admin-form-section-title">Caracteristicas de vivienda</h2>
           <div className="form-grid form-grid-4">
             <div className="input-group">
@@ -831,7 +840,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       )}
 
       {selectedType === 'terreno' && (
-        <section className="admin-form-section">
+        <section className="admin-form-section" style={{ display: activeMainTab === 'info' ? 'block' : 'none' }}>
           <h2 className="admin-form-section-title">Datos del terreno</h2>
           <div className="form-grid form-grid-4">
             <div className="input-group">
@@ -898,7 +907,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         </section>
       )}
 
-      <section className="admin-form-section">
+      <section className="admin-form-section" style={{ display: activeMainTab === 'comercial' ? 'block' : 'none' }}>
         <h2 className="admin-form-section-title">Condiciones comerciales del loteo</h2>
         <div className="form-grid form-grid-3">
           <div className="input-group">
@@ -939,7 +948,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         </div>
       </section>
 
-      <section className="admin-form-section">
+      <section className="admin-form-section" style={{ display: activeMainTab === 'comercial' ? 'block' : 'none' }}>
         <h2 className="admin-form-section-title">Gestión interna</h2>
         <div className="form-grid form-grid-4">
           <div className="input-group">
@@ -981,7 +990,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       </section>
 
       {selectedType === 'terreno' && (
-        <section className="admin-form-section">
+        <section className="admin-form-section" style={{ display: activeMainTab === 'info' ? 'block' : 'none' }}>
           <h2 className="admin-form-section-title">Caracteristicas del proyecto / terreno</h2>
           <div className="amenity-chip-grid">
             {LAND_AMENITY_OPTIONS.map((amenity) => (
@@ -995,7 +1004,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       )}
 
       {selectedType === 'casa' && (
-        <section className="admin-form-section">
+        <section className="admin-form-section" style={{ display: activeMainTab === 'info' ? 'block' : 'none' }}>
           <h2 className="admin-form-section-title">Amenidades</h2>
           <div className="amenity-chip-grid">
             {AMENITY_OPTIONS.map((amenity) => (
@@ -1008,7 +1017,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
         </section>
       )}
 
-      <section className="admin-form-section">
+      <section className="admin-form-section" style={{ display: activeMainTab === 'multimedia' ? 'block' : 'none' }}>
         <h2 className="admin-form-section-title">Fotografias</h2>
         <div className="image-upload-zone">
           <UploadCloud size={30} />

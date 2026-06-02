@@ -8167,3 +8167,40 @@ input:checked + .slider:before {
   flex-direction: column;
   gap: var(--space-xl);
 }
+
+/* =============================================
+   ADMIN TABS
+   ============================================= */
+.admin-main-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-sm);
+}
+
+.admin-main-tab-btn {
+  background: transparent;
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.admin-main-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+}
+
+.admin-main-tab-btn.active {
+  background: rgba(43, 110, 203, 0.1);
+  color: var(--color-primary);
+  box-shadow: inset 0 -3px 0 var(--color-primary);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
