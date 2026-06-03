@@ -149,11 +149,13 @@ export default function PropertySearch({
 
   const locationOptions = useMemo(() => {
     const defaultOption = { value: '', label: t('propertySearch.allZones'), description: t('propertySearch.allZones') };
-    const dynamicOptions = zoneOptions.map(zone => ({
-      value: zone,
-      label: zone,
-      description: t('propertySearch.zoneFilter'),
-    }));
+    const dynamicOptions = zoneOptions
+      .map(zone => ({
+        value: zone,
+        label: zone,
+        description: t('propertySearch.zoneFilter'),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base' }));
     return [defaultOption, ...dynamicOptions] satisfies SearchOption[];
   }, [t, zoneOptions]);
 

@@ -20,8 +20,8 @@ import { persistCatalogPreferencesClient } from '@/lib/catalog/catalog-preferenc
 
 const PROPERTY_TYPES: Array<{ value: PropertyType | ''; labelKey: TranslationKey }> = [
   { value: '', labelKey: 'catalog.landAndHouses' },
-  { value: 'terreno', labelKey: 'property.lot' },
   { value: 'casa', labelKey: 'property.house' },
+  { value: 'terreno', labelKey: 'property.lot' },
 ];
 
 const QUERY_DEBOUNCE_MS = 400;
@@ -184,13 +184,14 @@ export default function PropertyCatalog({
     const normalizedGroupLabels = new Set(groupedZones.map((location) => location.label.toLowerCase()));
 
     const extraZones = zoneOptions
-      .filter((zone) => zone && !normalizedGroupLabels.has(zone.toLowerCase()))
-      .sort();
+      .filter((zone) => zone && !normalizedGroupLabels.has(zone.toLowerCase()));
 
-    return [
+    const allZones = [
       ...groupedZones,
       ...extraZones.map((zone) => ({ value: zone, label: zone })),
     ];
+
+    return [...allZones].sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base' }));
   }, [zoneOptions]);
 
   const pageNumbers = useMemo(() => {
