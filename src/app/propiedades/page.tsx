@@ -14,9 +14,9 @@ import { mergeCatalogSearchParams, readCatalogPreferences } from '@/lib/catalog/
 import { getServerLocale } from '@/lib/i18n/server';
 import { translate } from '@/lib/i18n/dictionaries';
 
-const CATALOG_DEFAULT_TITLE = 'Terrenos y loteos en venta';
+const CATALOG_DEFAULT_TITLE = 'Parcelas, loteos y terrenos en venta en el sur de Chile';
 const CATALOG_DEFAULT_DESCRIPTION =
-  'Compara parcelas, terrenos y loteos en Chile por ubicación, superficie, precio y disponibilidad.';
+  'Compara parcelas, terrenos y loteos en el sur de Chile por ubicación, superficie, precio y disponibilidad.';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();

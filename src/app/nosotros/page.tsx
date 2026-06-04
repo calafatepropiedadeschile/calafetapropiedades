@@ -32,7 +32,7 @@ export async function generateMetadata({ searchParams }: MetadataProps): Promise
   ]);
   const baseUrl = await resolveCanonicalBaseUrl();
   const title = cms?.seoTitle || `Nosotros - ${siteConfig.name}`;
-  const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompaña en cada operación.`;
+  const description = cms?.seoDescription || `Conoce a ${siteConfig.name}, nuestra forma de trabajo y el equipo que te acompaña en la compra y venta de parcelas, loteos y terrenos en el sur de Chile.`;
   const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, cmsSlug: 'nosotros' });
   const alternates = buildPageAlternates('/nosotros', {
     baseUrl,

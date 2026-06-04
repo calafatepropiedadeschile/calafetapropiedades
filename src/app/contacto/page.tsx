@@ -35,7 +35,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const siteSeo = await getSiteSeoSettings().catch(() => null);
   const baseUrl = await resolveCanonicalBaseUrl();
   const title = cms?.seoTitle ? cms.seoTitle : `Contacto - ${siteConfig.name}`;
-  const description = cms?.seoDescription ?? `Ponte en contacto con ${siteConfig.name} para comprar, vender, alquilar o invertir en propiedades.`;
+  const description = cms?.seoDescription ?? `Ponte en contacto con ${siteConfig.name} para comprar, vender o invertir en parcelas, loteos y terrenos en el sur de Chile.`;
   const includeEnglish = await resolvePageIncludeEnglish({ seo: siteSeo, cmsSlug: 'contacto' });
   const alternates = buildPageAlternates('/contacto', {
     baseUrl,

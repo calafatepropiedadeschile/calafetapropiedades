@@ -182,8 +182,8 @@ model SiteSeoSettings {
   id                       String   @id @default("main")
   siteName                 String   @default("Calafate Propiedades")
   titleTemplate            String   @default("%s | Calafate Propiedades")
-  defaultTitleEs           String   @default("Calafate Propiedades | Parcelas, terrenos y proyectos en Chile")
-  defaultDescriptionEs     String   @default("Compra parcelas, terrenos y loteos seleccionados con Calafate Propiedades. Proyectos con informacion clara, tours 360, precios desde y asesoria directa.")
+  defaultTitleEs           String   @default("Parcelas, loteos y terrenos en el sur de Chile | Calafate Propiedades")
+  defaultDescriptionEs     String   @default("Encuentra parcelas, loteos y terrenos en el sur de Chile. Compra propiedades y proyectos inmobiliarios seleccionados con información clara, tours 360 y asesoría directa con Calafate Propiedades.")
   defaultTitleEn           String?
   defaultDescriptionEn     String?
   keywords                 String   @default("[]")

@@ -13,16 +13,15 @@ import type { SiteSeoSettingsInput } from './seo-settings.schemas';
 export const SITE_SEO_SETTINGS_ID = 'main';
 
 const DEFAULT_KEYWORDS = [
+  'Parcelas en el sur de Chile',
+  'Loteos en el sur de Chile',
+  'Terrenos en el sur de Chile',
   'Calafate Propiedades',
-  'parcelas',
-  'terrenos',
-  'loteos',
   'proyectos inmobiliarios',
   'parcelas en venta',
   'Los Lagos',
-  'Los Rios',
+  'Los Ríos',
   'Maule',
-  'topografia',
 ];
 
 const DEFAULT_ROBOTS_DISALLOW = ['/admin/', '/api/', '/gracias'];

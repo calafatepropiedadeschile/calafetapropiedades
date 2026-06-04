@@ -32,20 +32,19 @@ export const siteConfig = {
   adminName: 'Calafate Admin',
   storageKeyPrefix: 'calafate',
   metadata: {
-    title: 'Calafate Propiedades | Parcelas, terrenos y proyectos en Chile',
+    title: 'Parcelas, loteos y terrenos en el sur de Chile | Calafate Propiedades',
     description:
-      'Compra parcelas, terrenos y loteos seleccionados con Calafate Propiedades. Proyectos con información clara, tours 360, precios desde y asesoría directa.',
+      'Encuentra parcelas, loteos y terrenos en el sur de Chile. Compra propiedades y proyectos inmobiliarios seleccionados con información clara, tours 360 y asesoría directa con Calafate Propiedades.',
     keywords: [
+      'Parcelas en el sur de Chile',
+      'Loteos en el sur de Chile',
+      'Terrenos en el sur de Chile',
       'Calafate Propiedades',
-      'parcelas',
-      'terrenos',
-      'loteos',
       'proyectos inmobiliarios',
       'parcelas en venta',
       'Los Lagos',
       'Los Ríos',
       'Maule',
-      'topografía',
     ],
   },
   /** Regiones para JSON-LD `areaServed` (RealEstateAgent). */
