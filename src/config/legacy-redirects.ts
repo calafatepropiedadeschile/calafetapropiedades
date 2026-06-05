@@ -10,6 +10,7 @@ import { projectLandingSlugs } from './project-landing-slugs';
 const STATIC_LEGACY_ROUTES: Record<string, string> = {
   '/properties': '/propiedades',
   '/property': '/propiedades',
+  '/propiedad': '/propiedades',
   '/rent': '/arriendos',
   '/rentals': '/arriendos',
   '/buy': '/comprar',
@@ -57,6 +58,20 @@ export const MANUAL_LEGACY_REDIRECTS: Array<{ source: string; destination: strin
   { source: '/2025/04/11/hola-mundo', destination: '/' },
   { source: '/portfolio/dubai-hotel', destination: '/proyectos' },
   { source: '/portfolio/london-velodrome', destination: '/proyectos' },
+  // Ficha Houzez/WordPress indexada en Google con vídeo embebido (sep 2024).
+  {
+    source: '/propiedad/en-venta-parcela-de-5-000-m²-en-muermos',
+    destination: '/proyectos/portal-los-muermos',
+  },
+  {
+    source: '/propiedad/en-venta-parcela-de-5-000-m2-en-muermos',
+    destination: '/proyectos/portal-los-muermos',
+  },
+  // Medios WordPress: el MP4 del listado anterior → tour 360 (página de reproducción).
+  {
+    source: '/wp-content/uploads/WhatsApp-Video-2024-09-03-at-10.56.55.mp4',
+    destination: '/propiedades/portal-los-muermos/tour-virtual',
+  },
 ];
 
 function permanent(source: string, destination: string): Redirect {
@@ -97,8 +112,13 @@ export function getLegacyRedirects(): Redirect[] {
 
   for (const slug of projectLandingSlugs) {
     redirects.push(...withOptionalTrailingSlash(permanent(`/property/${slug}`, `/proyectos/${slug}`)));
+    redirects.push(...withOptionalTrailingSlash(permanent(`/propiedad/${slug}`, `/proyectos/${slug}`)));
   }
   redirects.push(...withOptionalTrailingSlash(permanent('/property/:slug', '/propiedades/:slug')));
+  redirects.push(...withOptionalTrailingSlash(permanent('/propiedad/:slug', '/propiedades/:slug')));
+
+  // Archivos del WordPress anterior (plugins, uploads, temas).
+  redirects.push(...withOptionalTrailingSlash(permanent('/wp-content/:path*', '/')));
 
   // Portfolio del tema Avada (demos de arquitectura, no proyectos reales).
   redirects.push(...withOptionalTrailingSlash(permanent('/portfolio/:slug', '/proyectos')));
