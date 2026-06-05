@@ -138,7 +138,7 @@ export default async function PropertyVideoWatchPage({ params }: Props) {
                 style={{ objectFit: 'cover' }}
               />
             </div>
-            <p className="text-muted">{t('property.watchVideoAside')}</p>
+            <p className="text-muted property-watch-page__aside-text">{t('property.watchVideoAside')}</p>
           </aside>
         </article>
       </main>

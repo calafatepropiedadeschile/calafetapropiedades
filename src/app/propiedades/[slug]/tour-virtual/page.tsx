@@ -128,7 +128,7 @@ export default async function PropertyVirtualTourWatchPage({ params }: Props) {
                   style={{ objectFit: 'cover' }}
                 />
               </div>
-              <p className="text-muted">{t('property.virtualTourWatchAside')}</p>
+              <p className="text-muted property-watch-page__aside-text">{t('property.virtualTourWatchAside')}</p>
             </aside>
           ) : null}
         </article>
