@@ -1,5 +1,5 @@
 import type { Redirect } from 'next/dist/lib/load-custom-routes';
-import { projectLandingSlugs } from '@/config/seo-pages';
+import { projectLandingSlugs } from './project-landing-slugs';
 
 /**
  * Redirecciones 301 del sitio WordPress/Houzez/Avada anterior.

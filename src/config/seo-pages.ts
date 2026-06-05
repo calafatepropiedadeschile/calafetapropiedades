@@ -983,11 +983,4 @@ export function getSeoLandingPage(key: SeoLandingKey, locale: Locale = 'es'): Se
   };
 }
 
-export const projectLandingSlugs = [
-  'praderas-del-maule',
-  'portal-los-muermos',
-  'vive-puquila',
-  'altos-del-tepual',
-  'parcelas-quillahua',
-  'parcelas-putrautrao',
-] as const;
+export { projectLandingSlugs, type ProjectLandingSlug } from './project-landing-slugs';
