@@ -1,5 +1,6 @@
 'use server';
 
+import { ADMIN_REGIONAL_LANDING_PATHS } from '@/config/admin-seo-reference';
 import { parsePropertyFormData, toPropertyPersistenceData } from '@/features/properties/property.form';
 import { generateSlug } from '@/lib/utils/formatters';
 import { requireAdminSession } from '@/lib/auth/require-admin';
@@ -60,17 +61,10 @@ const PUBLIC_CATALOG_PATHS = [
   '/arriendos',
   '/proyectos',
   '/terrenos',
-  '/parcelas-en-valdivia',
-  '/terrenos-en-valdivia',
-  '/loteos-en-valdivia',
-  '/parcelas-baratas-valdivia',
-  '/parcelas-en-los-muermos',
-  '/terrenos-en-los-muermos',
-  '/parcelas-en-puerto-montt',
-  '/terrenos-en-puerto-montt',
-  '/parcelas-en-maule',
   '/vender',
   '/topografia',
+  '/sobre-calafate',
+  ...ADMIN_REGIONAL_LANDING_PATHS,
 ] as const;
 
 function revalidatePropertyViews() {
@@ -81,8 +75,14 @@ function revalidatePropertyViews() {
     revalidatePath(path);
   }
   revalidatePath('/propiedades/[slug]', 'page');
+  revalidatePath('/propiedades/[slug]/video', 'page');
+  revalidatePath('/propiedades/[slug]/tour-virtual', 'page');
   revalidatePath('/proyectos/[slug]', 'page');
+  revalidatePath('/proyectos/[slug]/video', 'page');
+  revalidatePath('/proyectos/[slug]/tour-virtual', 'page');
   revalidatePath('/sitemap.xml');
+  revalidatePath('/llms.txt');
+  revalidatePath('/llms-full.txt');
   revalidatePath('/admin');
   revalidatePath('/admin/propiedades');
 }

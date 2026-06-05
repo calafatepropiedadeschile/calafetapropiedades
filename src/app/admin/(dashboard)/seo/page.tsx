@@ -28,7 +28,7 @@ export default async function AdminSeoPage() {
         <div>
           <h1 className="admin-page-title">SEO avanzado</h1>
           <p className="admin-page-subtitle text-muted">
-            Dominio canonico, indexacion, hreflang, datos estructurados, medicion y metadatos globales. Las fichas y paginas CMS tienen su propio bloque SEO.
+            Dominio canonico, indexacion, hreflang, JSON-LD, visibilidad IA (llms.txt), landings regionales y medicion. Las fichas en Propiedades y las paginas CMS tienen SEO propio.
           </p>
         </div>
       </header>

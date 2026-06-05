@@ -15,6 +15,9 @@ function revalidateSeoViews() {
   revalidatePath('/', 'layout');
   revalidatePath('/robots.txt');
   revalidatePath('/sitemap.xml');
+  revalidatePath('/llms.txt');
+  revalidatePath('/llms-full.txt');
+  revalidatePath('/sobre-calafate');
   revalidatePath('/admin/seo');
   revalidatePath('/admin/ajustes');
 }

@@ -1,4 +1,6 @@
 import type { Prisma } from '@prisma/client';
+import { projectLandingSlugs } from '@/config/project-landing-slugs';
+import { isProjectLandingSlug } from '@/lib/seo/project-landings';
 
 export const ADMIN_PROPERTIES_PAGE_SIZE = 20;
 
@@ -65,15 +67,9 @@ export function buildAdminPropertiesWhere(params: {
   }
 
   if (params.project === 'proyectos') {
-    filters.push({ type: 'terreno', totalLots: { gt: 1 } });
+    filters.push({ slug: { in: [...projectLandingSlugs] } });
   } else if (params.project === 'individuales') {
-    filters.push({
-      OR: [
-        { type: { not: 'terreno' } },
-        { totalLots: null },
-        { totalLots: { lte: 1 } },
-      ],
-    });
+    filters.push({ slug: { notIn: [...projectLandingSlugs] } });
   }
 
   if (params.q) {
@@ -144,6 +140,6 @@ export type AdminPropertyListItem = Prisma.PropertyGetPayload<{
   select: typeof adminPropertyListSelect;
 }>;
 
-export function isAdminLandProject(property: Pick<AdminPropertyListItem, 'type' | 'totalLots'>) {
-  return property.type === 'terreno' && (property.totalLots ?? 0) > 1;
+export function isAdminLandProject(property: Pick<AdminPropertyListItem, 'slug'>) {
+  return isProjectLandingSlug(property.slug);
 }

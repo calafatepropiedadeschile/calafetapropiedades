@@ -198,7 +198,7 @@ export default async function AdminCampaignsGuidePage() {
             <li>Tras el formulario, redireccion a <code>/gracias</code> para medir conversion</li>
           </ul>
           <p className="text-sm text-muted" style={{ marginTop: 'var(--space-md)' }}>
-            <strong>Loteos / proyectos:</strong> <code>/proyectos/slug</code> (terreno con mas de 1 lote).
+            <strong>Loteos / proyectos:</strong> <code>/proyectos/slug</code> (6 slugs canonicos de parcelas).
             <br />
             <strong>Terreno o casa suelta:</strong> <code>/propiedades/slug</code>.
             <br />
@@ -209,10 +209,10 @@ export default async function AdminCampaignsGuidePage() {
 
       <CampaignUrlsSection
         title={`Proyectos de parcelas (${publishedProjects.length} publicados)`}
-        description="Loteos y proyectos con varios lotes. Cada fila se genera al publicar un terreno con total de lotes mayor a 1."
+        description="Los 6 proyectos de parcelas con landing canonica en /proyectos/slug (portal-los-muermos, praderas-del-maule, etc.)."
         published={publishedProjects}
         drafts={draftProjects}
-        emptyMessage="No hay proyectos de parcelas publicados. Crea un terreno y define total de lotes mayor a 1."
+        emptyMessage="No hay proyectos de parcelas publicados. Publica una ficha cuyo slug coincida con un proyecto canonico."
         emptyHref="/admin/propiedades?type=terreno&project=proyectos"
       />
 
@@ -221,7 +221,7 @@ export default async function AdminCampaignsGuidePage() {
         description="Fichas de propiedad unica: casas y terrenos sueltos. La URL usa /propiedades/slug y se actualiza al crear o editar cada propiedad."
         published={publishedListings}
         drafts={draftListings}
-        emptyMessage="No hay casas ni terrenos individuales publicados. Publica una propiedad tipo casa o terreno con 1 lote (o sin lotes)."
+        emptyMessage="No hay casas ni terrenos individuales publicados. Publica una ficha que no sea uno de los 6 slugs de proyecto."
         emptyHref="/admin/propiedades?published=publicadas"
       />
 

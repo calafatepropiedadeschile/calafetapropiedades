@@ -1,5 +1,7 @@
 import { primaryContact } from '@/config/contact';
+import { projectLandingSlugs } from '@/config/project-landing-slugs';
 import { siteUrl } from '@/config/seo-pages';
+import { isProjectLandingSlug } from '@/lib/seo/project-landings';
 import { withDatabaseRole } from '@/lib/db/rls';
 import { getSiteSeoSettings } from '@/features/site-content/seo-settings';
 
@@ -85,10 +87,8 @@ function toCampaignSlug(slug: string) {
   return slug.replace(/-/g, '_').slice(0, 40);
 }
 
-function isLandProject(property: { type: string; totalLots: number | null; priceType?: string | null }) {
-  return property.type === 'terreno'
-    && (property.totalLots ?? 0) > 1
-    && property.priceType !== 'arriendo';
+function isLandProject(property: { slug: string; priceType?: string | null }) {
+  return isProjectLandingSlug(property.slug) && property.priceType !== 'arriendo';
 }
 
 function mapPropertyToCampaignLink(property: {
@@ -160,17 +160,13 @@ export async function getCampaignsGuideData(): Promise<CampaignsGuideData> {
       db.property.count({
         where: {
           published: true,
-          type: 'terreno',
-          totalLots: { gt: 1 },
+          slug: { in: [...projectLandingSlugs] },
         },
       }),
       db.property.count({
         where: {
           published: true,
-          OR: [
-            { type: 'casa' },
-            { type: 'terreno', OR: [{ totalLots: null }, { totalLots: { lte: 1 } }] },
-          ],
+          slug: { notIn: [...projectLandingSlugs] },
         },
       }),
       db.property.count({
@@ -248,7 +244,7 @@ export async function getCampaignsGuideData(): Promise<CampaignsGuideData> {
       label: 'Proyectos de parcelas (loteos)',
       description: publishedProjectLinks.length > 0
         ? `${publishedProjectLinks.length} proyecto(s) con landing /proyectos/slug.`
-        : 'Los loteos usan tipo terreno y total de lotes mayor a 1.',
+        : 'Los 6 proyectos canonicos usan slug en /proyectos (portal-los-muermos, praderas-del-maule, etc.).',
       status: publishedProjectLinks.length > 0 ? 'ok' : 'pending',
       href: '/admin/propiedades?published=publicadas&type=terreno&project=proyectos',
     },

@@ -1,6 +1,6 @@
 'use server';
 
-import { parseStaticPageFormData } from '@/features/site-content/static-page.schemas';
+import { parseStaticPageFormData, STATIC_PAGE_INTEGRATED_SLUGS } from '@/features/site-content/static-page.schemas';
 import {
   createStaticPageRecord,
   deleteStaticPageRecord,
@@ -12,17 +12,9 @@ import { assertCuid } from '@/lib/db/ids';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-const INTEGRATED_SEO_PATHS: Record<string, string[]> = {
-  contacto: ['/contacto'],
-  nosotros: ['/nosotros'],
-  propiedades: ['/propiedades'],
-  comprar: ['/comprar'],
-  arriendos: ['/arriendos'],
-  proyectos: ['/proyectos'],
-  terrenos: ['/terrenos'],
-  vender: ['/vender'],
-  topografia: ['/topografia'],
-};
+const INTEGRATED_SEO_PATHS: Record<string, string[]> = Object.fromEntries(
+  STATIC_PAGE_INTEGRATED_SLUGS.map((slug) => [slug, [`/${slug}`]]),
+);
 
 function revalidateStaticPageViews(slug: string) {
   updateTag('site-content');
@@ -30,6 +22,8 @@ function revalidateStaticPageViews(slug: string) {
   revalidatePath('/admin/paginas');
   revalidatePath(`/${slug}`);
   revalidatePath('/sitemap.xml');
+  revalidatePath('/llms.txt');
+  revalidatePath('/llms-full.txt');
   revalidatePath('/', 'layout');
 
   for (const path of INTEGRATED_SEO_PATHS[slug] ?? []) {

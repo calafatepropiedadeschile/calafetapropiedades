@@ -18,7 +18,7 @@ import {
 } from '@/features/properties/property-markets';
 import { dictionaries } from '@/lib/i18n/dictionaries';
 import PropertyCatalogPublishChecklist from '@/components/admin/PropertyCatalogPublishChecklist';
-import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
+import { getPreferredProjectCanonicalPath, isProjectLandingSlug } from '@/lib/seo/project-landings';
 import type { CatalogPublishChecklistInput } from '@/features/properties/property-catalog-checklist';
 import {
   LAND_AMENITY_OPTIONS,
@@ -1137,7 +1137,7 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
       <section className="admin-form-section">
         <h2 className="admin-form-section-title">SEO</h2>
         <p className="text-muted" style={{ marginBottom: 'var(--space-md)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-          Los campos en ingles alimentan la version <code>?lang=en</code> con hreflang. El canonical vacio usa la URL de la ficha; proyectos de terreno tambien existen en <code>/proyectos/[slug]</code>.
+          Los campos en ingles alimentan la version <code>?lang=en</code> con hreflang. El canonical vacio usa la URL publica ({slugValue && isProjectLandingSlug(slugValue) ? <code>/proyectos/[slug]</code> : <code>/propiedades/[slug]</code>}). Los 6 proyectos de parcelas publican en <code>/proyectos</code>; <code>/propiedades/[slug]</code> redirige 301 al canonico.
         </p>
         <div className="form-grid form-grid-2">
           <div style={{ display: activeLangTab === 'es' ? 'contents' : 'none' }}>
@@ -1170,7 +1170,16 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
 
           <div className="input-group">
             <label className="input-label">Canonical personalizado</label>
-            <input className="input" type="url" placeholder="https://calafatepropiedades.vercel.app/propiedades/..." {...register('customCanonical')} />
+            <input
+              className="input"
+              type="url"
+              placeholder={
+                slugValue && isProjectLandingSlug(slugValue)
+                  ? 'https://calafatepropiedades.com/proyectos/...'
+                  : 'https://calafatepropiedades.com/propiedades/...'
+              }
+              {...register('customCanonical')}
+            />
             {errors.customCanonical && <p className="form-error">{errors.customCanonical.message}</p>}
           </div>
 

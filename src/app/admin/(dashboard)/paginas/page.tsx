@@ -17,7 +17,7 @@ export default async function AdminStaticPagesPage() {
         <div>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem' }}>Paginas del sitio</h1>
           <p className="text-muted text-sm">
-            Gestiona contenido legal, informativo y textos de contacto o nosotros.
+            Gestiona contenido legal, informativo, landings regionales y textos de catalogo. El SEO de cada slug integrado sobreescribe la ruta publica.
           </p>
         </div>
         <Link href="/admin/paginas/nueva" className="btn btn-primary">
@@ -32,8 +32,9 @@ export default async function AdminStaticPagesPage() {
           {STATIC_PAGE_INTEGRATED_SLUGS.map((slug) => (
             <code key={slug} style={{ marginRight: '0.5rem' }}>/{slug}</code>
           ))}
-          usan el layout actual del sitio y toman titulo y contenido desde aqui cuando estan publicadas.
-          Otras paginas (ej. <code>privacidad</code>) se sirven automaticamente en <code>/slug</code>.
+          usan el layout del sitio y toman titulo y contenido desde aqui cuando estan publicadas (incluye landings regionales como <code>parcelas-en-valdivia</code>).
+          Rutas de sistema fuera del CMS: <code>/sobre-calafate</code>, <code>/llms.txt</code>, fichas <code>/proyectos/[slug]</code> y <code>/propiedades/[slug]</code>.
+          Otras paginas (ej. <code>privacidad</code>) se sirven en <code>/slug</code> sin layout integrado.
         </p>
       </div>
 

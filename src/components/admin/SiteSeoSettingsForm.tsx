@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Save } from 'lucide-react';
 import { updateSiteSeoSettingsAction } from '@/app/admin/(dashboard)/seo/actions';
 import type { SiteSeoSettingsView } from '@/features/site-content/seo-settings';
+import { ADMIN_SEO_DISCOVERY_LINKS } from '@/config/admin-seo-reference';
 
 interface Props {
   initialValues: SiteSeoSettingsView;
@@ -110,7 +111,7 @@ export default function SiteSeoSettingsForm({ initialValues }: Props) {
               required
             />
             <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
-              Una region por linea. Aparece en el JSON-LD de la empresa (RealEstateAgent).
+              Una region por linea. Aparece en <code>areaServed</code> y <code>knowsAbout</code> del JSON-LD RealEstateAgent.
             </p>
           </div>
         </div>
@@ -123,7 +124,7 @@ export default function SiteSeoSettingsForm({ initialValues }: Props) {
             <label className="input-label" htmlFor="seo-canonical-base-url">Dominio canonico</label>
             <input id="seo-canonical-base-url" name="canonicalBaseUrl" className="input" type="url" defaultValue={initialValues.canonicalBaseUrl} required />
             <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
-              Usa https://calafatepropiedades.vercel.app (con &quot;e&quot; en Calafate). Evita calafetapropiedades.
+              En produccion usa <code>https://calafatepropiedades.com</code> (con &quot;e&quot; en Calafate). Evita calafetapropiedades. Afecta canonical, sitemap, OG, JSON-LD y llms.txt.
             </p>
           </div>
 
@@ -195,13 +196,12 @@ export default function SiteSeoSettingsForm({ initialValues }: Props) {
         </div>
       </section>
 
-      <div className="form-actions">
-        <a className="btn btn-outline" href="/robots.txt" target="_blank" rel="noreferrer">
-          Ver robots.txt
-        </a>
-        <a className="btn btn-outline" href="/sitemap.xml" target="_blank" rel="noreferrer">
-          Ver sitemap
-        </a>
+      <div className="form-actions" style={{ flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
+        {ADMIN_SEO_DISCOVERY_LINKS.map((item) => (
+          <a key={item.path} className="btn btn-outline" href={item.path} target="_blank" rel="noreferrer">
+            {item.label}
+          </a>
+        ))}
         <button type="submit" className="btn btn-primary btn-lg" disabled={isPending}>
           <Save size={18} />
           {isPending ? 'Guardando...' : 'Guardar SEO global'}
