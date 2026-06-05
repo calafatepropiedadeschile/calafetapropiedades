@@ -58,8 +58,8 @@ export default function GraciasView() {
             <h1 className="heading-2" style={{ margin: 'var(--space-md) 0' }}>{title}</h1>
             <p className="text-muted" style={{ lineHeight: 1.7, marginBottom: 'var(--space-xl)' }}>
               {proyecto
-                ? `Recibimos tu interés en ${proyecto}. Un asesor te contactará pronto por email o teléfono.`
-                : 'Recibimos tu consulta. Un asesor del equipo comercial te responderá a la brevedad.'}
+                ? `Recibimos tu interés en ${proyecto}. Gracias por ponerse en contacto con nosotros. En breve recibirá un correo electrónico nuestro.`
+                : 'Gracias por ponerse en contacto con nosotros. En breve recibirá un correo electrónico nuestro.'}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>

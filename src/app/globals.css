@@ -6240,6 +6240,142 @@ input:checked + .slider:before {
   font-size: 0.98rem;
 }
 
+/* SEO — catalog landing (e.g. /parcelas-en-valdivia) */
+.seo-catalog-breadcrumb {
+  margin-bottom: var(--space-lg);
+}
+
+.seo-catalog-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.seo-catalog-breadcrumb__item:not(:last-child)::after {
+  content: '/';
+  margin-left: 0.5rem;
+  color: var(--color-border);
+}
+
+.seo-catalog-breadcrumb__item a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.seo-catalog-breadcrumb__item a:hover {
+  text-decoration: underline;
+}
+
+.seo-catalog-landing__hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+}
+
+.seo-catalog-landing__eyebrow {
+  display: block;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-sm);
+}
+
+.seo-catalog-landing__title {
+  margin-bottom: var(--space-md);
+}
+
+.seo-catalog-landing__description {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 760px;
+  margin: 0;
+}
+
+.seo-catalog-landing__highlights,
+.seo-catalog-landing__cms {
+  margin-bottom: var(--space-3xl);
+}
+
+.seo-catalog-related {
+  margin-bottom: var(--space-3xl);
+}
+
+.seo-catalog-related__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--space-md);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.seo-catalog-related__card {
+  min-height: 100%;
+}
+
+.seo-catalog-related__link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.seo-catalog-related__link:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.seo-catalog-related__label {
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+.seo-catalog-related__description {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.seo-catalog-faq {
+  margin-top: var(--space-4xl);
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-2xl);
+}
+
+.seo-catalog-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.seo-catalog-faq__item {
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: var(--space-sm);
+}
+
+.seo-catalog-faq__question {
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--color-dark);
+  padding: var(--space-sm) 0;
+}
+
 .seo-service-list {
   list-style: none;
   margin: 0;

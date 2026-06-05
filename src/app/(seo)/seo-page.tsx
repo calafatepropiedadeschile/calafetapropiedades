@@ -4,7 +4,8 @@ import Footer from '@/components/layout/Footer';
 import SeoCatalogLanding from '@/components/seo/SeoCatalogLanding';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
 import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
-import { getSeoLandingPage, seoLandingPages, type SeoLandingKey } from '@/config/seo-pages';
+import { getSeoLandingPage, type SeoLandingKey } from '@/config/seo-pages';
+import type { PropertyCard } from '@/types/property';
 import { getCatalogPageData, type CatalogPageParams } from '@/features/properties/property.service';
 import { CATALOG_PAGE_LIMIT, normalizeCatalogFilters } from '@/features/properties/property-filtering';
 import { getServerLocale } from '@/lib/i18n/server';
@@ -14,6 +15,18 @@ import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-con
 export const revalidate = 60;
 
 const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+
+function sortCatalogProperties(pageKey: SeoLandingKey, properties: PropertyCard[]) {
+  if (pageKey !== 'parcelas-baratas-valdivia') {
+    return properties;
+  }
+
+  return [...properties].sort((left, right) => {
+    const leftPrice = left.price ?? Number.MAX_SAFE_INTEGER;
+    const rightPrice = right.price ?? Number.MAX_SAFE_INTEGER;
+    return leftPrice - rightPrice;
+  });
+}
 
 export async function metadataForSeoLanding(key: SeoLandingKey): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -90,6 +103,7 @@ export default async function SeoLandingPage({
 }) {
   const locale = await getServerLocale(searchParams ? await searchParams : undefined);
   const config = getSeoLandingPage(pageKey, locale);
+  const canonicalBaseUrl = await resolveCanonicalBaseUrl();
   const cmsPage = await getPublishedStaticPageBySlug(pageKey, locale).catch(() => null);
   const params = searchParams ? await searchParams : {};
   const presetFilters = {
@@ -98,9 +112,9 @@ export default async function SeoLandingPage({
     zone: config.filters.zone ?? '',
     type: config.filters.type ?? '',
     priceType: config.filters.priceType ?? '',
-    minPrice: '',
-    maxPrice: '',
-    minSurface: '',
+    minPrice: config.filters.minPrice?.toString() ?? '',
+    maxPrice: config.filters.maxPrice?.toString() ?? '',
+    minSurface: config.filters.minSurface?.toString() ?? '',
     hasAvailableLots: config.filters.hasAvailableLots ?? false,
   };
 
@@ -132,12 +146,13 @@ export default async function SeoLandingPage({
       >
         <SeoCatalogLanding
           config={config}
-          properties={catalog.properties}
+          properties={sortCatalogProperties(pageKey, catalog.properties)}
           zoneOptions={catalog.zoneOptions}
           initialFilters={catalog.filters}
           pagination={catalog.pagination}
           cmsPage={cmsPage}
           locale={locale}
+          canonicalBaseUrl={canonicalBaseUrl}
         />
       </main>
       <Footer />

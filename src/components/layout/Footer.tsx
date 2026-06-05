@@ -30,6 +30,20 @@ export default function Footer() {
   const footerColumns = [
     { title: t('footerNav.properties'), links: propertyLinks },
     {
+      title: t('footerNav.regions'),
+      links: [
+        { label: t('footerNav.lotsValdivia'), href: '/parcelas-en-valdivia' },
+        { label: t('footerNav.landValdivia'), href: '/terrenos-en-valdivia' },
+        { label: t('footerNav.lotProjectsValdivia'), href: '/loteos-en-valdivia' },
+        { label: t('footerNav.affordableLotsValdivia'), href: '/parcelas-baratas-valdivia' },
+        { label: t('footerNav.lotsLosMuermos'), href: '/parcelas-en-los-muermos' },
+        { label: t('footerNav.landLosMuermos'), href: '/terrenos-en-los-muermos' },
+        { label: t('footerNav.lotsPuertoMontt'), href: '/parcelas-en-puerto-montt' },
+        { label: t('footerNav.landPuertoMontt'), href: '/terrenos-en-puerto-montt' },
+        { label: t('footerNav.lotsMaule'), href: '/parcelas-en-maule' },
+      ],
+    },
+    {
       title: t('footerNav.company'),
       links: [
         { label: t('footerNav.about'), href: '/nosotros' },

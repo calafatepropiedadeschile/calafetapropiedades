@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { getLegacyRedirects } from './src/config/legacy-redirects';
 
 const serverActionOrigins = [
   'localhost:3000',
@@ -9,6 +10,9 @@ const serverActionOrigins = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  async redirects() {
+    return getLegacyRedirects();
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

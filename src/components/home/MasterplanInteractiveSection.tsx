@@ -16,6 +16,8 @@ interface ProyectoTour {
   description: string;
   slugFilter: string;
   projectHref: string;
+  regionLandingHref?: string;
+  regionLandingLabel?: string;
   amenities: string[];
 }
 
@@ -27,6 +29,8 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: '81 parcelas de 5.000 m2 en Los Muermos, con foco en naturacion, acceso y conectividad hacia Puerto Montt.',
     slugFilter: 'portal-los-muermos',
     projectHref: '/proyectos/portal-los-muermos',
+    regionLandingHref: '/parcelas-en-los-muermos',
+    regionLandingLabel: 'Parcelas en Los Muermos',
     amenities: ['Agua potable en proyecto', 'Electricidad en red', 'Acceso pavimentado', 'Topografía disponible', 'Parcelas desde 5.000 m2'],
   },
   {
@@ -36,6 +40,8 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: 'Parcelas con entorno rural y buena conexion en la Region del Maule, pensadas para segunda vivienda o inversión.',
     slugFilter: 'praderas-del-maule',
     projectHref: '/proyectos/praderas-del-maule',
+    regionLandingHref: '/parcelas-en-maule',
+    regionLandingLabel: 'Parcelas en el Maule',
     amenities: ['Entorno rural y tranquilo', 'Conexion a ruta principal', 'Factibilidad de servicios', 'Ideal segunda vivienda', 'Etapas en desarrollo'],
   },
   {
@@ -45,6 +51,8 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: 'Proyecto con etapas activas en el sector Puquila, ideal para revisar ubicación y entorno antes de coordinar visita.',
     slugFilter: 'vive-puquila',
     projectHref: '/proyectos/vive-puquila',
+    regionLandingHref: '/parcelas-en-valdivia',
+    regionLandingLabel: 'Parcelas en Valdivia',
     amenities: ['Sector Puquila', 'Etapas con disponibilidad', 'Recorrido 360 por lote', 'Cercania a servicios', 'Asesoría comercial directa'],
   },
   {
@@ -54,6 +62,8 @@ const PROJECTS_DATA: ProyectoTour[] = [
     description: 'Parcelas en el sector Tepual, cercanas a Puerto Montt, con recorrido virtual disponible y unidades identificadas.',
     slugFilter: 'altos-del-tepual',
     projectHref: '/proyectos/altos-del-tepual',
+    regionLandingHref: '/parcelas-en-puerto-montt',
+    regionLandingLabel: 'Parcelas en Puerto Montt',
     amenities: ['Cercania a Puerto Montt', 'Lotes identificados en tour', 'Agua y electricidad en evaluacion', 'Camino de acceso', 'Condiciones de pago flexibles'],
   },
 ];
@@ -218,9 +228,16 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <Link href={localizedHref(activeProject.projectHref, locale)} className="btn btn-outline btn-sm masterplan-aside-cta">
-              {t('masterplan.asideCta')}
-            </Link>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+              <Link href={localizedHref(activeProject.projectHref, locale)} className="btn btn-outline btn-sm masterplan-aside-cta">
+                {t('masterplan.asideCta')}
+              </Link>
+              {activeProject.regionLandingHref ? (
+                <Link href={localizedHref(activeProject.regionLandingHref, locale)} className="btn btn-outline btn-sm masterplan-aside-cta">
+                  {activeProject.regionLandingLabel ?? 'Ver guía regional'}
+                </Link>
+              ) : null}
+            </div>
           </aside>
         </div>
       </div>

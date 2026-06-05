@@ -2,14 +2,20 @@ import type { PropertyCard } from '@/types/property';
 
 export const PROPERTY_LOCATION_FILTERS = [
   { value: '', label: 'Todas las zonas' },
+  { value: 'valdivia', label: 'Valdivia / Los Rios' },
   { value: 'los-muermos', label: 'Los Muermos' },
+  { value: 'puerto-montt', label: 'Puerto Montt' },
+  { value: 'maule', label: 'Maule / San Rafael' },
   { value: 'los-lagos', label: 'Los Lagos' },
   { value: 'la-araucania', label: 'La Araucania' },
   { value: 'patagonia', label: 'Toda la Patagonia' },
 ] as const;
 
 const ZONE_ALIASES: Record<string, string[]> = {
+  valdivia: ['Valdivia', 'Mariquina', 'San Jose de la Mariquina', 'Los Rios', 'Region de Los Rios'],
   'los-muermos': ['Los Muermos', 'Putrautrao', 'Quillahua'],
+  'puerto-montt': ['Puerto Montt', 'Las Quemas'],
+  maule: ['San Rafael', 'Region del Maule', 'Maule'],
   'los-lagos': ['Los Muermos', 'Putrautrao', 'Quillahua', 'Las Quemas', 'Puerto Montt'],
   'la-araucania': ['La Araucania', 'Araucania'],
   patagonia: ['Los Muermos', 'Putrautrao', 'Quillahua', 'Las Quemas', 'Puerto Montt', 'San Jose de la Mariquina', 'Mariquina'],

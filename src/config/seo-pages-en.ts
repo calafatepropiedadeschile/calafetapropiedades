@@ -1,12 +1,9 @@
 import { buildMailto, siteConfig } from '@/config/site';
-import type { SeoLandingPageConfig } from '@/config/seo-pages';
+import type { SeoLandingKey, SeoLandingPageConfig } from '@/config/seo-pages';
 
 type SeoLandingContent = Omit<SeoLandingPageConfig, 'path' | 'filters' | 'showCatalog'>;
 
-export const seoLandingPagesEn: Record<
-  'comprar' | 'arriendos' | 'proyectos' | 'terrenos' | 'vender' | 'topografia',
-  SeoLandingContent
-> = {
+export const seoLandingPagesEn: Partial<Record<SeoLandingKey, SeoLandingContent>> = {
   comprar: {
     eyebrow: 'Property sales',
     title: 'Buy properties and land lots in Chile',
