@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Copy, Eye, EyeOff, Layers, Map, Pencil, Star, Trash2 } from 'lucide-react';
 import { useTransition } from 'react';
+import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
 
 interface Props {
   id: string;
@@ -78,17 +79,9 @@ export default function AdminPropertyActions({
         Editar
       </Link>
       <span className="text-muted">|</span>
-      <Link href={`/propiedades/${slug}`} className="row-action-link" target="_blank" title="Vista previa">
-        {published ? 'Ver' : 'Previa'}
+      <Link href={getPreferredProjectCanonicalPath(slug)} className="row-action-link" target="_blank" title="Vista previa">
+        {published ? (isProject ? 'Ver proyecto' : 'Ver') : 'Previa'}
       </Link>
-      {isProject && (
-        <>
-          <span className="text-muted">|</span>
-          <Link href={`/proyectos/${slug}`} className="row-action-link" target="_blank">
-            Ver Proyecto
-          </Link>
-        </>
-      )}
       <span className="text-muted">|</span>
       <button
         type="button"

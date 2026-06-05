@@ -1,7 +1,9 @@
+import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
+
 export function getPropertyVideoWatchPath(slug: string) {
-  return `/propiedades/${slug}/video` as const;
+  return `${getPreferredProjectCanonicalPath(slug)}/video` as const;
 }
 
 export function getPropertyVirtualTourWatchPath(slug: string) {
-  return `/propiedades/${slug}/tour-virtual` as const;
+  return `${getPreferredProjectCanonicalPath(slug)}/tour-virtual` as const;
 }

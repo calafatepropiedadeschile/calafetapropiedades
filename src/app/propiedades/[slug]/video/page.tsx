@@ -9,6 +9,7 @@ import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData'
 import { getPropertyBySlug } from '@/features/properties/property.service';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { getPreferredProjectCanonicalPath, isProjectLandingSlug } from '@/lib/seo/project-landings';
 import { getPropertyVideoWatchPath } from '@/lib/seo/property-media-pages';
 import { buildVideoObjectJsonLd } from '@/lib/seo/video-structured-data';
 import {
@@ -87,7 +88,7 @@ export default async function PropertyVideoWatchPage({ params }: Props) {
   const baseUrl = await resolveCanonicalBaseUrl();
   const pagePath = getPropertyVideoWatchPath(slug);
   const watchPageUrl = buildCanonicalUrl(baseUrl, pagePath);
-  const propertyPath = `/propiedades/${slug}`;
+  const propertyPath = getPreferredProjectCanonicalPath(slug);
   const thumbnailUrl = getYoutubeThumbnailUrl(videoId);
   const embedUrl = getYoutubeEmbedUrl(videoId);
   const contentUrl = getYoutubeWatchUrl(videoId);
@@ -160,7 +161,10 @@ export default async function PropertyVideoWatchPage({ params }: Props) {
         id={`property-${slug}-video-breadcrumb-json-ld`}
         items={[
           { name: 'Inicio', path: '/' },
-          { name: 'Propiedades', path: '/propiedades' },
+          {
+            name: isProjectLandingSlug(slug) ? 'Proyectos' : 'Propiedades',
+            path: isProjectLandingSlug(slug) ? '/proyectos' : '/propiedades',
+          },
           { name: property.title, path: propertyPath },
           { name: locale === 'en' ? 'Video' : 'Video', path: pagePath },
         ]}

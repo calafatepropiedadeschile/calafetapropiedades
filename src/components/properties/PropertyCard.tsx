@@ -11,6 +11,7 @@ import { shouldShowPriceFrom } from '@/features/properties/property-land-options
 import { getSiteImageUrl } from '@/lib/storage/public-images';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { localizedHref } from '@/lib/i18n/localized-href';
+import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 const PROPERTY_CARD_INFO_REVEAL_MS = 300;
 
@@ -54,7 +55,7 @@ export default function PropertyCard({ property }: Props) {
     'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800&auto=format&fit=crop'
   );
   
-  const propertyHref = localizedHref(`/propiedades/${slug}`, locale);
+  const propertyHref = localizedHref(getPreferredProjectCanonicalPath(slug), locale);
   const showCardInfo = infoRevealed || prefersReducedMotion;
   const effectiveArea = lotSurfaceM2 ?? area;
   const statusLabel = status === 'disponible'

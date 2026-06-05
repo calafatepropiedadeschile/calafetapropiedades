@@ -70,7 +70,7 @@ export const MANUAL_LEGACY_REDIRECTS: Array<{ source: string; destination: strin
   // Medios WordPress: el MP4 del listado anterior → tour 360 (página de reproducción).
   {
     source: '/wp-content/uploads/WhatsApp-Video-2024-09-03-at-10.56.55.mp4',
-    destination: '/propiedades/portal-los-muermos/tour-virtual',
+    destination: '/proyectos/portal-los-muermos/tour-virtual',
   },
 ];
 
@@ -113,6 +113,9 @@ export function getLegacyRedirects(): Redirect[] {
   for (const slug of projectLandingSlugs) {
     redirects.push(...withOptionalTrailingSlash(permanent(`/property/${slug}`, `/proyectos/${slug}`)));
     redirects.push(...withOptionalTrailingSlash(permanent(`/propiedad/${slug}`, `/proyectos/${slug}`)));
+    redirects.push(...withOptionalTrailingSlash(permanent(`/propiedades/${slug}`, `/proyectos/${slug}`)));
+    redirects.push(...withOptionalTrailingSlash(permanent(`/propiedades/${slug}/video`, `/proyectos/${slug}/video`)));
+    redirects.push(...withOptionalTrailingSlash(permanent(`/propiedades/${slug}/tour-virtual`, `/proyectos/${slug}/tour-virtual`)));
   }
   redirects.push(...withOptionalTrailingSlash(permanent('/property/:slug', '/propiedades/:slug')));
   redirects.push(...withOptionalTrailingSlash(permanent('/propiedad/:slug', '/propiedades/:slug')));

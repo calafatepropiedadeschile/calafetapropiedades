@@ -10,6 +10,7 @@ import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData'
 import { getPropertyBySlug } from '@/features/properties/property.service';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { buildPageAlternates } from '@/lib/seo/metadata-alternates';
+import { getPreferredProjectCanonicalPath, isProjectLandingSlug } from '@/lib/seo/project-landings';
 import { getPropertyVirtualTourWatchPath } from '@/lib/seo/property-media-pages';
 import { buildVideoObjectJsonLd } from '@/lib/seo/video-structured-data';
 import { buildCanonicalUrl } from '@/config/seo-url';
@@ -83,7 +84,7 @@ export default async function PropertyVirtualTourWatchPage({ params }: Props) {
   const baseUrl = await resolveCanonicalBaseUrl();
   const pagePath = getPropertyVirtualTourWatchPath(slug);
   const watchPageUrl = buildCanonicalUrl(baseUrl, pagePath);
-  const propertyPath = `/propiedades/${slug}`;
+  const propertyPath = getPreferredProjectCanonicalPath(slug);
   const thumbnailUrl = property.coverImage || property.ogImage || buildCanonicalUrl(baseUrl, '/brand/calafate-logo.png');
   const tourTitle = locale === 'en'
     ? `360 virtual tour — ${property.title}`
@@ -151,7 +152,10 @@ export default async function PropertyVirtualTourWatchPage({ params }: Props) {
         id={`property-${slug}-tour-breadcrumb-json-ld`}
         items={[
           { name: 'Inicio', path: '/' },
-          { name: 'Propiedades', path: '/propiedades' },
+          {
+            name: isProjectLandingSlug(slug) ? 'Proyectos' : 'Propiedades',
+            path: isProjectLandingSlug(slug) ? '/proyectos' : '/propiedades',
+          },
           { name: property.title, path: propertyPath },
           { name: locale === 'en' ? '360 tour' : 'Tour 360', path: pagePath },
         ]}

@@ -18,6 +18,7 @@ import {
 } from '@/features/properties/property-markets';
 import { dictionaries } from '@/lib/i18n/dictionaries';
 import PropertyCatalogPublishChecklist from '@/components/admin/PropertyCatalogPublishChecklist';
+import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
 import type { CatalogPublishChecklistInput } from '@/features/properties/property-catalog-checklist';
 import {
   LAND_AMENITY_OPTIONS,
@@ -1118,11 +1119,11 @@ export default function PropertyForm({ action, defaultValues = {}, propertyId, s
                 placeholder="portal-los-muermos"
               />
               <p className="text-xs text-muted" style={{ marginTop: 'var(--space-xs)' }}>
-                Vista previa: /propiedades/{slugValue || 'tu-slug'}
+                Vista previa: {slugValue ? getPreferredProjectCanonicalPath(slugValue) : '/propiedades/tu-slug'}
                 {propertyId && slugValue ? (
                   <>
                     {' · '}
-                    <Link href={`/propiedades/${slugValue}`} target="_blank" className="text-gold">
+                    <Link href={getPreferredProjectCanonicalPath(slugValue)} target="_blank" className="text-gold">
                       Abrir previa
                     </Link>
                   </>

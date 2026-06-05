@@ -8623,3 +8623,16 @@ input:checked + .slider:before {
   justify-content: flex-end;
   padding: var(--space-md) var(--space-lg) var(--space-lg);
 }
+
+.property-detail-eyebrow {
+  margin: 0 0 var(--space-sm);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.property-detail-project-links {
+  margin-top: var(--space-xl);
+}

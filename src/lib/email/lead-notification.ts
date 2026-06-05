@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { LeadInput } from '@/features/leads/lead.schemas';
 import { siteConfig } from '@/config/site';
+import { getPreferredProjectCanonicalPath } from '@/lib/seo/project-landings';
 
 type LeadPropertySummary = {
   title: string;
@@ -66,10 +67,11 @@ function escapeHtml(value: string) {
 function getPropertyUrl(property: LeadPropertySummary) {
   if (!property) return null;
 
+  const path = getPreferredProjectCanonicalPath(property.slug);
   const origin = process.env.APP_ORIGIN || process.env.AUTH_URL;
-  if (!origin) return `/propiedades/${property.slug}`;
+  if (!origin) return path;
 
-  return `${origin.replace(/\/$/, '')}/propiedades/${property.slug}`;
+  return `${origin.replace(/\/$/, '')}${path}`;
 }
 
 function buildLeadEmail({ lead, property }: LeadNotificationInput) {
