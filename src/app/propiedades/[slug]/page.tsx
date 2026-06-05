@@ -30,6 +30,8 @@ import { resolvePageIncludeEnglish } from '@/lib/seo/page-locale';
 import { getPreferredProjectCanonicalPath, isProjectLandingSlug } from '@/lib/seo/project-landings';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { getResolvedGoogleMapsLink } from '@/lib/maps/google-maps-resolve';
+import { getPropertyVideoWatchPath } from '@/lib/seo/property-media-pages';
+import { getYoutubeThumbnailUrl, parseYoutubeVideoId } from '@/lib/seo/youtube';
 
 export const revalidate = 3600;
 
@@ -222,6 +224,9 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
   );
   const cleanGalleryImages = cleanImageSources(allImages);
   const galleryImages = cleanGalleryImages.length > 0 ? cleanGalleryImages : [fallbackImage];
+  const youtubeVideoId = parseYoutubeVideoId(property.youtubeUrl);
+  const videoWatchHref = youtubeVideoId ? getPropertyVideoWatchPath(slug) : null;
+  const videoThumbnailUrl = youtubeVideoId ? getYoutubeThumbnailUrl(youtubeVideoId) : null;
   const typeKey = getOptionalTranslationKey(PROPERTY_TYPE_KEYS, type);
   const priceTypeKey = getOptionalTranslationKey(PRICE_TYPE_KEYS, priceType);
   const statusKey = getOptionalTranslationKey(PROPERTY_STATUS_KEYS, status);
@@ -265,7 +270,13 @@ export default async function PropertyDetailPage({ params, searchParams }: Props
           <div className="property-detail-layout">
             <div>
               {/* Modern Gallery is now INSIDE the left column */}
-              <PropertyGallery images={galleryImages} title={title} locale={locale} youtubeUrl={property.youtubeUrl} />
+              <PropertyGallery
+                images={galleryImages}
+                title={title}
+                locale={locale}
+                videoWatchHref={videoWatchHref}
+                videoThumbnailUrl={videoThumbnailUrl}
+              />
 
               <div className="pdp-info-block">
                 <h1 className="pdp-hero-title">{title}</h1>

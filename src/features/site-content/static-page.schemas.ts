@@ -21,6 +21,8 @@ export const STATIC_PAGE_RESERVED_SLUGS = new Set([
   'vender',
   'topografia',
   'gracias',
+  'sobre-calafate',
+  'llms',
   '_next',
   'sitemap',
 ]);
@@ -44,6 +46,7 @@ export const STATIC_PAGE_INTEGRATED_SLUGS = [
   'parcelas-en-maule',
   'vender',
   'topografia',
+  'sobre-calafate',
 ] as const;
 
 const STATIC_PAGE_INTEGRATED_SLUG_SET = new Set<string>(STATIC_PAGE_INTEGRATED_SLUGS);

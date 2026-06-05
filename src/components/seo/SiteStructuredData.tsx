@@ -58,6 +58,17 @@ export default function SiteStructuredData({ seo, settings, baseUrl }: SiteStruc
         ...postalAddress,
       },
       areaServed,
+      knowsAbout: [
+        'Parcelas en Chile',
+        'Terrenos en el sur de Chile',
+        'Loteos y proyectos de parcelación',
+        'Propiedades rurales',
+        'Valdivia',
+        'Los Muermos',
+        'Puerto Montt',
+        'Región del Maule',
+        'San Rafael',
+      ],
       sameAs: sameAs.length ? sameAs : undefined,
     },
     {
@@ -67,6 +78,11 @@ export default function SiteStructuredData({ seo, settings, baseUrl }: SiteStruc
       name: siteName,
       description,
       publisher: { '@id': `${canonicalBaseUrl}/#organization` },
+      relatedLink: [
+        buildCanonicalUrl(canonicalBaseUrl, '/sobre-calafate'),
+        buildCanonicalUrl(canonicalBaseUrl, '/llms.txt'),
+        buildCanonicalUrl(canonicalBaseUrl, '/llms-full.txt'),
+      ],
       potentialAction: {
         '@type': 'SearchAction',
         target: `${buildCanonicalUrl(canonicalBaseUrl, '/propiedades')}?query={search_term_string}`,

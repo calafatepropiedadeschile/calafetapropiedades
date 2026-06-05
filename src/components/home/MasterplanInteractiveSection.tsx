@@ -8,6 +8,7 @@ import type { PropertyCard as PropertyCardType } from '@/types/property';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { formatTranslation } from '@/lib/i18n/dictionaries';
 import { localizedHref } from '@/lib/i18n/localized-href';
+import { getPropertyVirtualTourWatchPath } from '@/lib/seo/property-media-pages';
 
 interface ProyectoTour {
   id: string;
@@ -183,6 +184,11 @@ export default function MasterplanInteractiveSection({ allProperties }: Props) {
                 />
               ) : null
             ))}
+          </div>
+          <div className="masterplan-tour-actions">
+            <Link href={localizedHref(getPropertyVirtualTourWatchPath(activeProject.slugFilter), locale)} className="btn btn-primary btn-sm">
+              {t('property.openVirtualTourWatchPage')}
+            </Link>
           </div>
         </div>
       </div>

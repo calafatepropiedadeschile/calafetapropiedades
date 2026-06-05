@@ -4,6 +4,10 @@ import { projectLandingSlugs, seoLandingPages } from '@/config/seo-pages';
 import { getSiteSeoSettings, resolveCanonicalBaseUrl } from '@/features/site-content/seo-settings';
 import { buildSitemapLanguageAlternates } from '@/lib/seo/metadata-alternates';
 import { isProjectLandingSlug } from '@/lib/seo/project-landings';
+import {
+  getPropertyVideoWatchPath,
+  getPropertyVirtualTourWatchPath,
+} from '@/lib/seo/property-media-pages';
 import { resolveSitemapIncludeEnglish } from '@/lib/seo/sitemap-locale';
 
 export const revalidate = 86400;
@@ -24,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/arriendos',
     '/nosotros',
     '/contacto',
+    '/sobre-calafate',
     ...Object.values(seoLandingPages).map((page) => page.path),
   ];
   const staticRouteSet = new Set(staticRoutes.map((route) => route.replace(/^\//, '')));
@@ -162,6 +167,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch (error) {
     console.error('Error fetching properties for sitemap:', error);
+  }
+
+  try {
+    const db = getPrismaClient();
+    const mediaProperties = await db.property.findMany({
+      where: {
+        published: true,
+        OR: [
+          { youtubeUrl: { not: null } },
+          { virtualTourUrl: { not: null } },
+        ],
+      },
+      select: {
+        slug: true,
+        youtubeUrl: true,
+        virtualTourUrl: true,
+        updatedAt: true,
+        seoTitleEn: true,
+        seoDescriptionEn: true,
+      },
+    });
+
+    for (const property of mediaProperties) {
+      if (property.youtubeUrl?.trim()) {
+        const path = getPropertyVideoWatchPath(property.slug);
+        const includeEnglish = await resolveSitemapIncludeEnglish(path, seo, property);
+        sitemapEntries.push({
+          url: `${siteUrl}${path}`,
+          lastModified: property.updatedAt,
+          changeFrequency: 'monthly',
+          priority: 0.55,
+          alternates: buildSitemapLanguageAlternates(siteUrl, path, { includeEnglish }),
+        });
+      }
+
+      if (property.virtualTourUrl?.trim()) {
+        const path = getPropertyVirtualTourWatchPath(property.slug);
+        const includeEnglish = await resolveSitemapIncludeEnglish(path, seo, property);
+        sitemapEntries.push({
+          url: `${siteUrl}${path}`,
+          lastModified: property.updatedAt,
+          changeFrequency: 'monthly',
+          priority: 0.55,
+          alternates: buildSitemapLanguageAlternates(siteUrl, path, { includeEnglish }),
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching property media pages for sitemap:', error);
   }
 
   return sitemapEntries;

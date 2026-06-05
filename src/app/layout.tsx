@@ -115,6 +115,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description: defaultDescription,
       images: seo?.defaultOgImage ? [seo.defaultOgImage] : [],
     },
+    other: {
+      'llms-txt': `${baseUrl}/llms.txt`,
+    },
   };
 }
 
@@ -186,6 +189,7 @@ export default async function RootLayout({
     <html lang={locale} className={fontVariables} suppressHydrationWarning>
       <head>
         {supabaseOrigin ? <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" /> : null}
+        <link rel="alternate" type="text/plain" href={`${baseUrl}/llms.txt`} title="LLMs.txt" />
       </head>
       <body suppressHydrationWarning>
         <LenisProvider>

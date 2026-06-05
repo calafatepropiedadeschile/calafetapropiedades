@@ -48,6 +48,7 @@ export default function Footer() {
       links: [
         { label: t('footerNav.about'), href: '/nosotros' },
         { label: t('footerNav.howWeWork'), href: '/nosotros#modelo' },
+        { label: t('footerNav.aiGuide'), href: '/sobre-calafate' },
         { label: t('footerNav.contact'), href: '/contacto' },
       ],
     },

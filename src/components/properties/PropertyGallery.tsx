@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, Images, Play, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/dictionaries';
@@ -10,16 +11,17 @@ interface Props {
   images: string[];
   title: string;
   locale?: Locale;
-  youtubeUrl?: string | null;
+  videoWatchHref?: string | null;
+  videoThumbnailUrl?: string | null;
 }
 
-function getYoutubeEmbedUrl(url?: string | null) {
-  if (!url) return null;
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
-  return match ? `https://www.youtube.com/embed/${match[1]}?rel=0` : null;
-}
-
-export default function PropertyGallery({ images, title, locale = DEFAULT_LOCALE, youtubeUrl }: Props) {
+export default function PropertyGallery({
+  images,
+  title,
+  locale = DEFAULT_LOCALE,
+  videoWatchHref,
+  videoThumbnailUrl,
+}: Props) {
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
   const galleryImages = useMemo(() => images.filter(Boolean), [images]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -97,17 +99,22 @@ export default function PropertyGallery({ images, title, locale = DEFAULT_LOCALE
         </button>
       </div>
 
-      {youtubeUrl && getYoutubeEmbedUrl(youtubeUrl) && (
-        <div style={{ marginTop: 'var(--space-md)', position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 'var(--radius-lg)' }}>
-          <iframe 
-            src={getYoutubeEmbedUrl(youtubeUrl) || ''} 
-            title="YouTube video player" 
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }} 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowFullScreen
+      {videoWatchHref && videoThumbnailUrl ? (
+        <Link href={videoWatchHref} className="property-video-cta">
+          <Image
+            src={videoThumbnailUrl}
+            alt={title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 66vw"
+            style={{ objectFit: 'cover' }}
           />
-        </div>
-      )}
+          <span className="property-video-cta__overlay" aria-hidden />
+          <span className="property-video-cta__label">
+            <Play size={18} aria-hidden />
+            {t('property.watchVideoCta')}
+          </span>
+        </Link>
+      ) : null}
 
       {isOpen && activeImage && (
         <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={`${t('gallery.dialogLabel')} ${title}`}>

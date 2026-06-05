@@ -8,14 +8,11 @@ import { translate, type TranslationKey } from '@/lib/i18n/dictionaries';
 import dynamic from 'next/dynamic';
 import type { ResolvedGoogleMapLink } from '@/lib/maps/google-maps-resolve';
 import { hasExternalMapUrl } from '@/lib/maps/google-maps-embed';
+import { getPropertyVirtualTourWatchPath } from '@/lib/seo/property-media-pages';
 
 const PropertyGoogleMapEmbed = dynamic(() => import('@/components/properties/PropertyGoogleMapEmbed'), {
   ssr: false,
   loading: () => <div style={{ height: 300, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" />,
-});
-const VirtualTour = dynamic(() => import('@/components/properties/VirtualTour'), {
-  ssr: false,
-  loading: () => <div style={{ height: 400, background: '#f5f5f5', borderRadius: 12 }} className="skeleton-pulse" />,
 });
 
 interface Props {
@@ -72,21 +69,24 @@ export default function PropertyExperienceSections({
           title={t('property.virtualTourSection')}
           description={t('property.virtualTourSectionHint')}
         >
-          <div className="property-widget-frame property-widget-frame--tour">
-            <VirtualTour
-              src={tourUrl}
-              title={`${t('property.virtualTourSection')} — ${property.title}`}
-            />
-          </div>
-          <div className="property-widget-embed__footer">
-            <Link
-              href={tourUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-outline btn-sm"
-            >
-              {t('property.viewTour360')}
-            </Link>
+          <div className="property-tour-cta">
+            <p className="property-tour-cta__text">{t('property.virtualTourWatchTeaser')}</p>
+            <div className="property-tour-cta__actions">
+              <Link
+                href={getPropertyVirtualTourWatchPath(property.slug)}
+                className="btn btn-primary btn-sm"
+              >
+                {t('property.openVirtualTourWatchPage')}
+              </Link>
+              <Link
+                href={tourUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline btn-sm"
+              >
+                {t('property.viewTour360')}
+              </Link>
+            </div>
           </div>
         </SectionBlock>
       )}
